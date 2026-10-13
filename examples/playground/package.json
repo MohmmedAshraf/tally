@@ -8,21 +8,32 @@
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
+    "@base-ui/react": "catalog:",
+    "@fontsource-variable/geist": "catalog:",
     "@fontsource-variable/jetbrains-mono": "catalog:",
     "@fontsource-variable/onest": "catalog:",
+    "class-variance-authority": "catalog:",
+    "cmdk": "catalog:",
+    "cn": "catalog:",
+    "lucide-react": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
+    "react-error-boundary": "catalog:",
+    "shadcn": "catalog:",
     "tally-adapters": "workspace:*",
     "tally-core": "workspace:*",
-    "tally-react": "workspace:*"
+    "tally-react": "workspace:*",
+    "tw-animate-css": "catalog:"
   },
   "devDependencies": {
     "@hono/node-server": "catalog:",
+    "@tailwindcss/vite": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
     "kysely": "catalog:",
+    "tailwindcss": "catalog:",
     "tally-server": "workspace:*",
     "typescript": "catalog:",
     "vite": "catalog:"

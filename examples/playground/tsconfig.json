@@ -4,7 +4,13 @@
     "jsx": "react-jsx",
     "types": ["vite/client", "node"],
     "isolatedDeclarations": false,
-    "declaration": false
+    "declaration": false,
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "noPropertyAccessFromIndexSignature": false
   },
   "include": ["src", "server", "vite.config.ts"]
 }

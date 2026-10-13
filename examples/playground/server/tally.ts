@@ -1,6 +1,6 @@
 import { DatabaseSync } from 'node:sqlite'
 import { Kysely, SqliteDialect, sql } from 'kysely'
-import { createSchema, type RowData, type ValueKind } from 'tally-core'
+import type { RowData, Schema, ValueKind } from 'tally-core'
 import {
   createKyselyAdapter,
   createTallyHandler,
@@ -9,10 +9,8 @@ import {
   type SqlDatabase,
   type TallyHandler,
 } from 'tally-server'
-import { columns, makeRows } from '../src/data.ts'
+import { datasets } from '../src/datasets/index.ts'
 
-const TABLE = 'accounts'
-const ROWS = 5000
 const CHUNK = 500
 
 const SQL_TYPES: Readonly<Record<ValueKind, string>> = {
@@ -29,16 +27,17 @@ function chunks<T>(list: readonly T[], size: number): readonly (readonly T[])[] 
   )
 }
 
-export async function createPlaygroundHandler(): Promise<TallyHandler> {
-  const schema = createSchema({ columns, key: 'id' })
-  const db = new Kysely<SqlDatabase>({
-    dialect: new SqliteDialect({ database: nodeSqlite(new DatabaseSync(':memory:')) }),
-  })
+async function createTableHandler(
+  db: Kysely<SqlDatabase>,
+  table: string,
+  schema: Schema,
+  rows: readonly RowData[],
+): Promise<TallyHandler> {
   const ddl = [
     'id integer primary key',
     ...schema.columns.map((column) => `${column.id} ${SQL_TYPES[schema.typeOf(column).kind]}`),
   ].join(', ')
-  await sql.raw(`create table ${TABLE} (${ddl})`).execute(db)
+  await sql.raw(`create table ${table} (${ddl})`).execute(db)
   const encode = (row: RowData): Record<string, unknown> => {
     const entries: readonly (readonly [string, unknown])[] = schema.columns.map((column) => [
       column.id,
@@ -47,16 +46,31 @@ export async function createPlaygroundHandler(): Promise<TallyHandler> {
     return Object.fromEntries([['id', row['id']], ...entries])
   }
   await Promise.all(
-    chunks(makeRows(ROWS).map(encode), CHUNK).map((chunk) =>
-      db.insertInto(TABLE).values(chunk).execute(),
+    chunks(rows.map(encode), CHUNK).map((chunk) => db.insertInto(table).values(chunk).execute()),
+  )
+  const source = createKyselyAdapter({ db, table, schema, dialect: sqliteDialect, mutable: true })
+  return createTallyHandler({ source, schema, basePath: `/${table}` })
+}
+
+export async function createPlaygroundHandler(): Promise<TallyHandler> {
+  const db = new Kysely<SqlDatabase>({
+    dialect: new SqliteDialect({ database: nodeSqlite(new DatabaseSync(':memory:')) }),
+  })
+  const handlers = new Map(
+    await Promise.all(
+      datasets
+        .filter((dataset) => dataset.remote)
+        .map(async (dataset) => {
+          const handler = await createTableHandler(db, dataset.id, dataset.schema, dataset.rows)
+          return [dataset.id, handler] as const
+        }),
     ),
   )
-  const source = createKyselyAdapter({
-    db,
-    table: TABLE,
-    schema,
-    dialect: sqliteDialect,
-    mutable: true,
-  })
-  return createTallyHandler({ source, schema })
+  return (request) => {
+    const [, id = ''] = new URL(request.url).pathname.split('/')
+    const handler = handlers.get(id)
+    return handler === undefined
+      ? Promise.resolve(new Response(null, { status: 404 }))
+      : handler(request)
+  }
 }

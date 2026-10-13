@@ -19,6 +19,7 @@
   },
   "rules": {
     "no-console": "error",
+    "react/no-unstable-nested-components": ["error", { "allowAsProps": true }],
     "typescript/consistent-type-imports": [
       "error",
       {
@@ -55,7 +56,13 @@
     ],
     "jsx-a11y/no-autofocus": "off"
   },
-  "ignorePatterns": ["**/dist/**", "**/coverage/**", "**/node_modules/**"],
+  "ignorePatterns": [
+    "**/dist/**",
+    "**/coverage/**",
+    "**/node_modules/**",
+    "examples/playground/src/components/ui/**",
+    "examples/playground/src/hooks/use-mobile.ts"
+  ],
   "overrides": [
     {
       "files": ["**/*.test.ts", "**/*.test.tsx", "**/*.bench.ts"],
