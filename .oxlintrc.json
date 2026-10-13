@@ -46,7 +46,13 @@
     "react/exhaustive-deps": "error",
     "react/rules-of-hooks": "error",
     "jsx-a11y/prefer-tag-over-role": "off",
-    "react/incompatible-library": "off"
+    "react/incompatible-library": "off",
+    "import/no-unassigned-import": [
+      "error",
+      {
+        "allow": ["**/*.css"]
+      }
+    ]
   },
   "ignorePatterns": ["**/dist/**", "**/coverage/**", "**/node_modules/**"],
   "overrides": [
