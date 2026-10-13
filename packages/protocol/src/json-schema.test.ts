@@ -19,16 +19,20 @@ describe('toJsonSchema', () => {
   it('names shared definitions and never marks fields read only', () => {
     const request = toJsonSchema('query-request')
     expect(request['$schema']).toBe('https://json-schema.org/draft/2020-12/schema')
-    expect(Object.keys(request['$defs'] as object)).toContain('Filter')
+    const defs = request['$defs']
+    expect(typeof defs === 'object' && defs !== null ? Object.keys(defs) : []).toContain('Filter')
     const keys = new Set<string>()
     for (const name of JSON_SCHEMA_NAMES) walk(toJsonSchema(name), (key) => keys.add(key))
     expect(keys.has('readOnly')).toBe(false)
   })
 
   it('matches the committed schema files', async () => {
-    for (const name of JSON_SCHEMA_NAMES) {
-      const committed = await readFile(new URL(`../schemas/${name}.json`, import.meta.url), 'utf8')
-      expect(JSON.parse(committed), name).toEqual(toJsonSchema(name))
-    }
+    const committed = await Promise.all(
+      JSON_SCHEMA_NAMES.map(async (name) => {
+        const text = await readFile(new URL(`../schemas/${name}.json`, import.meta.url), 'utf8')
+        return [name, JSON.parse(text) as unknown] as const
+      }),
+    )
+    for (const [name, document] of committed) expect(document).toEqual(toJsonSchema(name))
   })
 })

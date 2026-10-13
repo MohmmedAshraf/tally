@@ -1,7 +1,7 @@
 {
   "name": "tally-server",
   "version": "0.0.0",
-  "description": "Node adapter compiling Tally Query Protocol requests to SQL.",
+  "description": "Kysely adapter and Fetch handler serving the Tally Query Protocol from SQL databases.",
   "license": "MIT",
   "author": "Mohamed Ashraf <cupo.ashraf@gmail.com>",
   "repository": {
@@ -41,7 +41,9 @@
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "catalog:",
+    "@electric-sql/pglite": "catalog:",
     "@size-limit/preset-small-lib": "catalog:",
+    "kysely": "catalog:",
     "publint": "catalog:",
     "size-limit": "catalog:",
     "tsdown": "catalog:",
@@ -51,7 +53,19 @@
   "size-limit": [
     {
       "path": "dist/index.js",
-      "limit": "1 kB"
+      "limit": "12 kB",
+      "ignore": [
+        "tally-core",
+        "tally-protocol",
+        "kysely"
+      ]
     }
-  ]
+  ],
+  "dependencies": {
+    "tally-core": "workspace:*",
+    "tally-protocol": "workspace:*"
+  },
+  "peerDependencies": {
+    "kysely": ">=0.29"
+  }
 }

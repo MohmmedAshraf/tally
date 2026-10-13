@@ -182,6 +182,9 @@ catalogs:
     '@changesets/cli':
       specifier: 3.0.3
       version: 3.0.3
+    '@electric-sql/pglite':
+      specifier: 0.5.8
+      version: 0.5.8
     '@size-limit/preset-small-lib':
       specifier: 14.2.0
       version: 14.2.0
@@ -224,6 +227,9 @@ catalogs:
     knip:
       specifier: 6.41.0
       version: 6.41.0
+    kysely:
+      specifier: 0.29.6
+      version: 0.29.6
     lucide-react:
       specifier: 1.55.0
       version: 1.55.0
@@ -553,13 +559,26 @@ importers:
         version: 5.0.3(@types/node@26.6.5)(@vitest/coverage-v8@5.0.3)(happy-dom@21.0.1)(vite@8.3.4(@types/node@26.6.5)(jiti@2.7.0)(yaml@2.9.1))
 
   packages/server:
+    dependencies:
+      tally-core:
+        specifier: workspace:*
+        version: link:../core
+      tally-protocol:
+        specifier: workspace:*
+        version: link:../protocol
     devDependencies:
       '@arethetypeswrong/cli':
         specifier: 'catalog:'
         version: 0.18.5
+      '@electric-sql/pglite':
+        specifier: 'catalog:'
+        version: 0.5.8
       '@size-limit/preset-small-lib':
         specifier: 'catalog:'
         version: 14.2.0(size-limit@14.2.0)
+      kysely:
+        specifier: 'catalog:'
+        version: 0.29.6
       publint:
         specifier: 'catalog:'
         version: 0.3.25
@@ -753,6 +772,9 @@ packages:
   '@colors/colors@1.5.0':
     resolution: {integrity: sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==}
     engines: {node: '>=0.1.90'}
+
+  '@electric-sql/pglite@0.5.8':
+    resolution: {integrity: sha512-n9tsbUOhwx2epK1V0ZG9Ar4SHWUju04dhmzZXiSBXwBoleOvIfals33NAaWgagQVAL4Rbvx/Ptsu3P+pA09f6Q==}
 
   '@emnapi/core@1.11.2':
     resolution: {integrity: sha512-TC8MkTuZUtcTSiFeuC0ksCh9QIJ5+F21MvZ4Wn4ORfYaFJ/0dsiudv5tVkejgwZlwQ39jL9WWDe2lz8x0WglOA==}
@@ -1923,6 +1945,10 @@ packages:
     engines: {node: ^20.19.0 || >=22.12.0}
     hasBin: true
 
+  kysely@0.29.6:
+    resolution: {integrity: sha512-hHaB8C/rfzDDtr/t8YZwxAuPJTT0zHyaPoVzcXwDYhYNAgH/4sIfVhi/XLLIY+bL/FqaIJnjATDbi8ObSELmxg==}
+    engines: {node: '>=22.0.0'}
+
   launch-editor@2.14.2:
     resolution: {integrity: sha512-NHJEb30MGBCkmZXLZwz25t37QR4aY03ZzPYUJXOJaOa92uWwExI9SBQUuIznBYc1xkD7cJNGX7oc3Nl3sq2kQQ==}
 
@@ -2751,6 +2777,8 @@ snapshots:
   '@colors/colors@1.5.0':
     optional: true
 
+  '@electric-sql/pglite@0.5.8': {}
+
   '@emnapi/core@1.11.2':
     dependencies:
       '@emnapi/wasi-threads': 1.2.2
@@ -3538,6 +3566,8 @@ snapshots:
       unbash: 5.0.0
       yaml: 2.9.1
       zod: 4.6.6
+
+  kysely@0.29.6: {}
 
   launch-editor@2.14.2:
     dependencies:
