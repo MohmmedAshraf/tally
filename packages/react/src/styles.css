@@ -341,9 +341,6 @@
   }
 
   .tally-button[data-ai] {
-    width: 30px;
-    padding: 0;
-    justify-content: center;
     color: var(--tally-ai-ink);
   }
 

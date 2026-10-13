@@ -147,6 +147,9 @@ export function HeaderMenu({
                   </Menu.Item>
                 </Menu.Group>
               ) : null}
+              {sortable && (groupable || filterable) ? (
+                <Menu.Separator className="tally-menu-separator" />
+              ) : null}
               {groupable ? (
                 <Menu.Item
                   className="tally-popup-item"
@@ -162,6 +165,7 @@ export function HeaderMenu({
                   {labels.filterBy(label)}
                 </Menu.Item>
               ) : null}
+              <Menu.Separator className="tally-menu-separator" />
               <Menu.Item
                 className="tally-popup-item"
                 onClick={() =>

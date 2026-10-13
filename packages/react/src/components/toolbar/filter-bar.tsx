@@ -311,14 +311,13 @@ export function FilterBar({ grid, ask }: FilterBarProps): ReactNode {
           className="tally-button"
           data-ai=""
           aria-pressed={askMode}
-          aria-label={labels.ask}
-          title={labels.ask}
           onClick={() => {
             setAsking((value) => !value)
             filterInput.current?.focus()
           }}
         >
-          <Sparkles size={15} aria-hidden />
+          <Sparkles size={14} aria-hidden />
+          {labels.ask}
         </button>
       )}
       {pending === undefined ? null : (
