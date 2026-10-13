@@ -60,6 +60,16 @@ describe('createGrid', () => {
     grid.dispose()
   })
 
+  it('keeps a stable layout per available width until the view changes', () => {
+    const grid = createGrid({ schema, source: createArraySource(rows, schema) })
+    const fitted = grid.layout(900)
+    const natural = grid.layout()
+    expect(grid.layout(900)).toBe(fitted)
+    expect(grid.layout()).toBe(natural)
+    grid.view.setSort([{ column: 'name', direction: 'asc' }])
+    expect(grid.layout(900)).not.toBe(fitted)
+  })
+
   it('reloads when the query part of the view changes and ignores stale responses', async () => {
     const grid = createGrid({ schema, source: createArraySource(rows, schema) })
     await grid.load()

@@ -53,7 +53,9 @@ function signOptions(format: ColumnFormat): Intl.NumberFormatOptions {
 }
 
 function compactOptions(format: ColumnFormat): Intl.NumberFormatOptions {
-  return format.compact === true ? { notation: 'compact', maximumFractionDigits: 1 } : {}
+  return format.compact === true
+    ? { notation: 'compact', minimumFractionDigits: 0, maximumFractionDigits: 1 }
+    : {}
 }
 
 export const numberType: ColumnType<number> = createNumberType({

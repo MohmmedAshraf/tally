@@ -193,14 +193,16 @@ export function createGrid(options: GridOptions): Grid {
   const patch = (partial: Partial<GridState>): void =>
     store.setState((state) => ({ ...state, ...partial }))
 
-  let layoutCache: { view: View; available: number | undefined; layout: ColumnLayout } | undefined
+  let layoutCache: { view: View; byWidth: Map<number | undefined, ColumnLayout> } | undefined
   const layout = (available?: number): ColumnLayout => {
     const current = view.get()
-    if (layoutCache?.view === current && layoutCache.available === available) {
-      return layoutCache.layout
+    if (layoutCache?.view !== current) layoutCache = { view: current, byWidth: new Map() }
+    let cached = layoutCache.byWidth.get(available)
+    if (cached === undefined) {
+      cached = layoutColumns(current, schema, available)
+      layoutCache.byWidth.set(available, cached)
     }
-    layoutCache = { view: current, available, layout: layoutColumns(current, schema, available) }
-    return layoutCache.layout
+    return cached
   }
   const model = memo(
     () => [rows.get().rows, view.get(), store.state.groups, store.state.page] as const,
