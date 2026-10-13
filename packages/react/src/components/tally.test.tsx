@@ -102,8 +102,8 @@ describe('Tally', () => {
     expect(cells.some((cell) => cell.textContent === '$25,610.00')).toBe(true)
     const growth = cells.find((cell) => cell.textContent === '-19.4%')
     expect(growth).toHaveAttribute('data-sign', 'down')
-    expect(within(grid).getByText('Active').previousElementSibling).toHaveStyle({
-      '--tally-enum-color': 'green',
+    expect(within(grid).getByText('Active').closest('.tally-pill')).toHaveStyle({
+      '--tally-pill-color': 'green',
     })
     expect(within(grid).getByText('PR')).toHaveClass('tally-avatar')
     expect(within(grid).getByRole('link', { name: 'https://kitesupply.com' })).toHaveAttribute(

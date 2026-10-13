@@ -1487,10 +1487,6 @@
     padding-top: 13px;
   }
 
-  .tally-row[data-wrap] .tally-enum-dot {
-    margin-top: 5.5px;
-  }
-
   .tally-row[data-wrap] .tally-meter {
     margin-top: 6.5px;
     padding-bottom: 13px;
@@ -1679,13 +1675,19 @@
     max-width: 100%;
   }
 
-  .tally-enum-dot {
-    width: 8px;
-    height: 8px;
-    margin-inline-end: -2px;
+  .tally-pill[data-color] {
+    padding: 0 9px;
+    border-radius: 11px;
+    box-shadow: none;
+    background: color-mix(in oklch, var(--tally-pill-color) 13%, var(--tally-bg));
+    color: color-mix(in oklch, var(--tally-pill-color) 70%, var(--tally-ink));
+  }
+
+  .tally-pill i {
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
-    background: var(--tally-enum-color);
-    box-shadow: 0 0 0 3px color-mix(in oklch, var(--tally-enum-color) 16%, transparent);
+    background: var(--tally-pill-color, currentColor);
     flex: none;
   }
 

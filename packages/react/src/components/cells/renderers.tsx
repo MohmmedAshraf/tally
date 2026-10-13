@@ -166,18 +166,15 @@ function Enum({ value, text, column }: CellProps): ReactNode {
   if (isEmptyValue(value)) return null
   const option = typeof value === 'string' ? findOption(column, value) : undefined
   const color = option?.color
-  if (color === undefined) {
-    return (
-      <span className="tally-pill">
-        <span className="tally-text">{text}</span>
-      </span>
-    )
-  }
   return (
-    <>
-      <i className="tally-enum-dot" style={{ '--tally-enum-color': color }} aria-hidden />
+    <span
+      className="tally-pill"
+      style={color === undefined ? undefined : { '--tally-pill-color': color }}
+      {...(color === undefined ? {} : { 'data-color': '' })}
+    >
+      {color === undefined ? null : <i />}
       <span className="tally-text">{text}</span>
-    </>
+    </span>
   )
 }
 
