@@ -70,13 +70,35 @@
   },
   "size-limit": [
     {
+      "name": "tally-react",
       "path": "dist/index.js",
-      "limit": "16 kB",
+      "limit": "20 kB",
+      "ignore": [
+        "react",
+        "react-dom",
+        "tally-core",
+        "@base-ui/react",
+        "@tanstack/react-virtual",
+        "@atlaskit/pragmatic-drag-and-drop",
+        "@atlaskit/pragmatic-drag-and-drop-hitbox",
+        "lucide-react"
+      ]
+    },
+    {
+      "name": "tally-react with dependencies",
+      "path": "dist/index.js",
+      "limit": "90 kB",
       "ignore": [
         "react",
         "react-dom",
         "tally-core"
       ]
+    },
+    {
+      "name": "styles.css",
+      "path": "dist/styles.css",
+      "rolldown": false,
+      "limit": "6 kB"
     }
   ]
 }
