@@ -437,6 +437,17 @@ describe('clauses', () => {
   })
 })
 
+describe('schemas', () => {
+  it('parses against every schema, not only the first one built', () => {
+    const columns = [{ id: 'plan', type: 'enum', options: [{ value: 'pro' }] }]
+    const first = createSchema({ columns })
+    const second = createSchema({ columns })
+    expect(parseQuery('plan is pro', first).errors).toEqual([])
+    expect(parseQuery('plan is pro', second).errors).toEqual([])
+    expect(parseQuery('plan is pro', first).errors).toEqual([])
+  })
+})
+
 describe('errors', () => {
   it('reports unknown enum values with a position', () => {
     const result = parseQuery('status is gone', schema)

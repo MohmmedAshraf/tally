@@ -280,6 +280,17 @@ const Word: TokenType = createToken({
   categories: [Term],
 })
 
+type Matcher = (text: string, offset: number) => [string] | null
+
+interface SchemaMatchers {
+  readonly column: Matcher
+  readonly option: Matcher
+}
+
+const never: Matcher = () => null
+
+let active: SchemaMatchers = { column: never, option: never }
+
 export const ColumnRef: TokenType = createToken({
   name: 'ColumnRef',
   pattern: Lexer.NA,
@@ -290,6 +301,20 @@ const OptionRef: TokenType = createToken({
   name: 'OptionRef',
   pattern: Lexer.NA,
   categories: [Term],
+})
+
+const ColumnWord: TokenType = createToken({
+  name: 'ColumnWord',
+  pattern: { exec: (text, offset) => active.column(text, offset) },
+  line_breaks: false,
+  categories: [Term, ColumnRef],
+})
+
+const OptionWord: TokenType = createToken({
+  name: 'OptionWord',
+  pattern: { exec: (text, offset) => active.option(text, offset) },
+  line_breaks: false,
+  categories: [Term, OptionRef],
 })
 
 const staticTokens: readonly TokenType[] = [
@@ -339,15 +364,10 @@ const staticTokens: readonly TokenType[] = [
 
 export const allTokens: readonly TokenType[] = [ColumnRef, OptionRef, ...staticTokens]
 
-const lexers = new WeakMap<Schema, Lexer>()
+const matchers = new WeakMap<Schema, SchemaMatchers>()
 
-function schemaToken(name: string, category: TokenType, names: readonly string[]): TokenType {
-  return createToken({
-    name,
-    pattern: names.length === 0 ? Lexer.NA : { exec: matcher(wordsPattern(names)) },
-    line_breaks: false,
-    categories: [Term, category],
-  })
+function wordsMatcher(names: readonly string[]): Matcher {
+  return names.length === 0 ? never : matcher(wordsPattern(names))
 }
 
 function optionNames(schema: Schema): readonly string[] {
@@ -363,24 +383,26 @@ function optionNames(schema: Schema): readonly string[] {
   return [...names]
 }
 
-function lexerFor(schema: Schema): Lexer {
-  let lexer = lexers.get(schema)
-  if (lexer === undefined) {
-    const column = schemaToken(
-      'ColumnRef',
-      ColumnRef,
-      schema.names().map((entry) => entry.name),
-    )
-    const option = schemaToken('OptionRef', OptionRef, optionNames(schema))
-    lexer = new Lexer([WhiteSpace, QuotedString, Flag, column, option, ...staticTokens.slice(3)], {
-      positionTracking: 'onlyOffset',
-      ensureOptimizations: false,
-      skipValidations: false,
-    })
-    lexers.set(schema, lexer)
+function matchersFor(schema: Schema): SchemaMatchers {
+  let entry = matchers.get(schema)
+  if (entry === undefined) {
+    entry = {
+      column: wordsMatcher(schema.names().map((name) => name.name)),
+      option: wordsMatcher(optionNames(schema)),
+    }
+    matchers.set(schema, entry)
   }
-  return lexer
+  return entry
 }
+
+const lexer = new Lexer(
+  [...staticTokens.slice(0, 3), ColumnWord, OptionWord, ...staticTokens.slice(3)],
+  {
+    positionTracking: 'onlyOffset',
+    ensureOptimizations: false,
+    skipValidations: false,
+  },
+)
 
 export interface LexResult {
   readonly tokens: readonly IToken[]
@@ -388,7 +410,9 @@ export interface LexResult {
 }
 
 export function tokenize(text: string, schema: Schema): LexResult {
-  const result = lexerFor(schema).tokenize(text)
+  active = matchersFor(schema)
+  const result = lexer.tokenize(text)
+  active = { column: never, option: never }
   return {
     tokens: result.tokens,
     errors: result.errors.map((error) => ({ offset: error.offset, length: error.length })),
