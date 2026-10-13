@@ -8,8 +8,11 @@ export interface Sort {
   readonly direction: SortDirection
 }
 
+export type GroupGranularity = 'day' | 'week' | 'month' | 'quarter' | 'year'
+
 export interface Group {
   readonly column: string
+  readonly granularity?: GroupGranularity | undefined
 }
 
 export interface Condition {

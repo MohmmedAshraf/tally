@@ -14,6 +14,7 @@ export {
   type Filter,
   type FlagFilter,
   type Group,
+  type GroupGranularity,
   type NotFilter,
   type OrFilter,
   type Query,
