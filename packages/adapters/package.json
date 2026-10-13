@@ -18,6 +18,14 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./query": {
+      "types": "./dist/query.d.ts",
+      "default": "./dist/query.js"
+    },
+    "./db": {
+      "types": "./dist/db.d.ts",
+      "default": "./dist/db.js"
+    },
     "./package.json": "./package.json"
   },
   "files": [
@@ -42,6 +50,8 @@
   "devDependencies": {
     "@arethetypeswrong/cli": "catalog:",
     "@size-limit/preset-small-lib": "catalog:",
+    "@tanstack/db": "catalog:",
+    "@tanstack/query-core": "catalog:",
     "publint": "catalog:",
     "size-limit": "catalog:",
     "tally-server": "workspace:*",
@@ -54,9 +64,35 @@
       "path": "dist/index.js",
       "limit": "6 kB",
       "ignore": [
+        "@tanstack/db",
+        "@tanstack/query-core",
+        "eventsource",
         "tally-core",
         "tally-protocol",
+        "zod"
+      ]
+    },
+    {
+      "path": "dist/query.js",
+      "limit": "2 kB",
+      "ignore": [
+        "@tanstack/db",
+        "@tanstack/query-core",
         "eventsource",
+        "tally-core",
+        "tally-protocol",
+        "zod"
+      ]
+    },
+    {
+      "path": "dist/db.js",
+      "limit": "3 kB",
+      "ignore": [
+        "@tanstack/db",
+        "@tanstack/query-core",
+        "eventsource",
+        "tally-core",
+        "tally-protocol",
         "zod"
       ]
     }
@@ -66,5 +102,17 @@
     "tally-core": "workspace:*",
     "tally-protocol": "workspace:*",
     "zod": "catalog:"
+  },
+  "peerDependencies": {
+    "@tanstack/db": ">=0.13",
+    "@tanstack/query-core": ">=5"
+  },
+  "peerDependenciesMeta": {
+    "@tanstack/db": {
+      "optional": true
+    },
+    "@tanstack/query-core": {
+      "optional": true
+    }
   }
 }
