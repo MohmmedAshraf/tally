@@ -1,0 +1,15 @@
+{
+  "$schema": "https://unpkg.com/@changesets/config@4.0.0/schema.json",
+  "changelog": [
+    "@changesets/changelog-github",
+    {
+      "repo": "MohmmedAshraf/tally"
+    }
+  ],
+  "commit": false,
+  "fixed": [],
+  "linked": [["tally-*"]],
+  "access": "public",
+  "baseBranch": "main",
+  "updateInternalDependencies": "patch"
+}

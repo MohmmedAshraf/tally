@@ -1,0 +1,48 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "options": {
+    "typeAware": true
+  },
+  "plugins": ["typescript", "unicorn", "import", "promise", "vitest", "react", "jsx-a11y"],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "error",
+    "perf": "error",
+    "pedantic": "off",
+    "style": "off"
+  },
+  "rules": {
+    "no-console": "error",
+    "typescript/consistent-type-imports": [
+      "error",
+      {
+        "fixStyle": "inline-type-imports"
+      }
+    ],
+    "typescript/explicit-module-boundary-types": "error",
+    "typescript/no-floating-promises": "error",
+    "typescript/no-misused-promises": "error",
+    "typescript/switch-exhaustiveness-check": "error",
+    "typescript/no-unnecessary-condition": "error",
+    "typescript/strict-boolean-expressions": "error",
+    "typescript/no-unsafe-assignment": "error",
+    "typescript/no-unsafe-member-access": "error",
+    "typescript/no-unsafe-call": "error",
+    "typescript/no-unsafe-return": "error",
+    "typescript/no-unsafe-argument": "error",
+    "typescript/prefer-nullish-coalescing": "error",
+    "typescript/restrict-template-expressions": "error",
+    "import/no-cycle": "error",
+    "unicorn/no-array-for-each": "off"
+  },
+  "ignorePatterns": ["**/dist/**", "**/coverage/**", "**/node_modules/**"],
+  "overrides": [
+    {
+      "files": ["**/*.test.ts", "**/*.test.tsx", "**/*.bench.ts"],
+      "rules": {
+        "typescript/explicit-module-boundary-types": "off",
+        "typescript/no-non-null-assertion": "off"
+      }
+    }
+  ]
+}

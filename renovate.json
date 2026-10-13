@@ -1,0 +1,8 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:best-practices", ":semanticCommits", "group:allNonMajor"],
+  "minimumReleaseAge": "1 day",
+  "rangeStrategy": "pin",
+  "schedule": ["before 6am on monday"],
+  "lockFileMaintenance": { "enabled": true }
+}

@@ -1,0 +1,36 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+concurrency: release
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+      - run: pnpm install --frozen-lockfile
+      - uses: changesets/action/select-mode@v2
+        id: mode
+      - if: steps.mode.outputs.mode == 'version'
+        uses: changesets/action/version@v2
+        with:
+          version-script: pnpm version
+          pr-title: 'chore(release): version packages'
+          commit-message: 'chore(release): version packages'
+      - if: steps.mode.outputs.mode == 'publish'
+        uses: changesets/action/publish@v2
+        with:
+          publish-script: pnpm release
