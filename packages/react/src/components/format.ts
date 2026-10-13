@@ -24,7 +24,7 @@ function formatDateRange(from: string, to: string, locale: string): string {
     timeZone: 'UTC',
     numberingSystem: 'latn',
   })
-  return formatter.formatRange(plainDate(from), plainDate(to))
+  return formatter.formatRange(plainDate(from), plainDate(to)).replace(/\s*[–-]\s*/u, '–')
 }
 
 export function formatAggregate(
@@ -38,7 +38,9 @@ export function formatAggregate(
     return typeof value === 'number' ? value.toLocaleString(format.locale) : ''
   }
   const type = grid.schema.typeOf(column)
-  if (type.is(value)) return type.format(value, column, format)
+  const compact: Column =
+    type.kind === 'number' ? { ...column, format: { ...column.format, compact: true } } : column
+  if (type.is(value)) return type.format(value, compact, format)
   if (typeof value === 'number') {
     return new Intl.NumberFormat(format.locale, {
       maximumFractionDigits: 2,

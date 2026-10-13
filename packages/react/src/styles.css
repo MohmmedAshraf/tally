@@ -26,7 +26,6 @@
     --tally-selection: color-mix(in oklch, var(--tally-accent) 12%, var(--tally-bg));
     --tally-selection-row: color-mix(in oklch, var(--tally-accent) 5%, var(--tally-bg));
     --tally-ring: color-mix(in oklch, var(--tally-accent) 18%, transparent);
-    --tally-shadow: 0 12px 32px -12px rgb(0 0 0 / 0.18), 0 0 0 1px var(--tally-line);
     --tally-radius: 12px;
     --tally-radius-sm: 8px;
     --tally-font: system-ui, -apple-system, 'Segoe UI', sans-serif;
@@ -224,28 +223,11 @@
 
   [data-pin='left'][data-pin-edge],
   .tally-gutter[data-pin-edge] {
-    box-shadow:
-      inset -1px 0 0 var(--tally-line),
-      8px 0 14px -10px rgb(0 0 0 / 0.25);
+    border-inline-end: 1px solid var(--tally-line);
   }
 
   [data-pin='right'][data-pin-edge] {
-    box-shadow:
-      inset 1px 0 0 var(--tally-line),
-      -8px 0 14px -10px rgb(0 0 0 / 0.25);
-  }
-
-  .tally:dir(rtl) [data-pin='left'][data-pin-edge],
-  .tally:dir(rtl) .tally-gutter[data-pin-edge] {
-    box-shadow:
-      inset 1px 0 0 var(--tally-line),
-      -8px 0 14px -10px rgb(0 0 0 / 0.25);
-  }
-
-  .tally:dir(rtl) [data-pin='right'][data-pin-edge] {
-    box-shadow:
-      inset -1px 0 0 var(--tally-line),
-      8px 0 14px -10px rgb(0 0 0 / 0.25);
+    border-inline-start: 1px solid var(--tally-line);
   }
 
   .tally-spacer {
@@ -307,7 +289,7 @@
 
   .tally-row {
     height: var(--tally-row-height);
-    box-shadow: inset 0 -1px 0 var(--tally-line-2);
+    border-bottom: 1px solid var(--tally-line-2);
   }
 
   .tally-body .tally-row {
@@ -321,10 +303,15 @@
     min-height: var(--tally-row-height);
   }
 
-  .tally-row[data-wrap] .tally-cell {
+  .tally-row[data-wrap] .tally-cell,
+  .tally-row[data-wrap] .tally-gutter {
     align-items: flex-start;
-    padding-top: 12px;
-    padding-bottom: 12px;
+    padding-top: 13px;
+    padding-bottom: 13px;
+  }
+
+  .tally-row[data-wrap] .tally-gutter {
+    padding-top: 16px;
   }
 
   .tally-row:hover,
@@ -385,9 +372,7 @@
   }
 
   .tally-group-sticky .tally-group {
-    box-shadow:
-      0 1px 0 var(--tally-line),
-      0 6px 14px -10px rgb(0 0 0 / 0.25);
+    border-bottom: 1px solid var(--tally-line);
   }
 
   .tally-group-toggle {

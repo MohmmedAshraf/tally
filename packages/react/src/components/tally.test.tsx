@@ -99,10 +99,10 @@ describe('Tally', () => {
     )
     const footer = grid.querySelector('.tally-footer')
     expect(footer).toHaveTextContent('Sum')
-    expect(footer).toHaveTextContent('$46,880.00')
+    expect(footer).toHaveTextContent('$46.9K')
     const range = footer?.querySelector('[data-column="renewal"] [title]')
     expect(range?.getAttribute('title')).toMatch(/2027.*2027/)
-    expect(range).toHaveTextContent(/Feb.*Mar.*27/)
+    expect(range).toHaveTextContent('Feb–Mar 27')
     expect(footer).toHaveTextContent('1–2 / 2')
   })
 

@@ -17,7 +17,7 @@ export const dateType: ColumnType<string> = {
   operators: DATE_OPERATORS,
   aggregates: ['min', 'max', 'count', 'distinct'],
   facet: 'histogram',
-  align: 'start',
+  align: 'end',
   card: 'meta',
   searchable: false,
   groupable: true,
