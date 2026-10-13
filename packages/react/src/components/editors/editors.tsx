@@ -146,6 +146,7 @@ function EnumEditor({ value, initial, column, commit, cancel }: CellEditorProps)
         className="tally-editor-input"
         autoFocus
         aria-label={column.label ?? column.id}
+        placeholder={selected === null ? undefined : optionLabel(column, selected.value)}
         onKeyDown={(event) => {
           if (event.key === 'Tab') {
             event.preventDefault()

@@ -138,7 +138,11 @@ function Card({
       {layout.meta.length > 0 ? (
         <div className="tally-card-meta">
           {layout.meta.map((column) => (
-            <span key={column.id} className="tally-card-meta-item">
+            <span
+              key={column.id}
+              className="tally-card-meta-item"
+              {...(column.wrap === true ? { 'data-block': '' } : {})}
+            >
               <CardValue grid={grid} item={item} column={column} />
             </span>
           ))}

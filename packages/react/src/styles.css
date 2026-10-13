@@ -1293,8 +1293,16 @@
   }
 
   textarea.tally-editor-input {
-    padding-block: 12px;
+    padding-block: 13px;
     line-height: 1.45;
+  }
+
+  .tally-editor-input::placeholder {
+    color: var(--tally-ink-3);
+  }
+
+  .tally-cell[data-editing] .tally-fill-handle {
+    display: none;
   }
 
   .tally-popup-positioner {
@@ -1536,6 +1544,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    unicode-bidi: plaintext;
   }
 
   .tally-sub[data-soon] {
@@ -1863,7 +1872,7 @@
   }
 
   .tally-card {
-    padding: 12px;
+    padding: 14px;
     border: 1px solid var(--tally-line);
     border-radius: var(--tally-radius);
     background: var(--tally-bg);
@@ -1954,6 +1963,17 @@
     align-items: center;
     gap: 6px;
     min-width: 0;
+  }
+
+  .tally-card-meta-item[data-block] {
+    display: block;
+    flex-basis: 100%;
+    color: var(--tally-ink);
+    line-height: 1.45;
+  }
+
+  .tally-card-meta-item[data-block] .tally-text {
+    white-space: normal;
   }
 
   .tally-footer {
