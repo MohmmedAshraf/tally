@@ -207,6 +207,7 @@ export function createGrid(options: GridOptions): Grid {
   let started = false
   let sequence = 0
   let controller: AbortController | undefined
+  let stopLive: (() => void) | undefined
 
   const pageFor = (): OffsetPage | CursorPage | undefined => {
     const { page } = store.state
@@ -224,7 +225,10 @@ export function createGrid(options: GridOptions): Grid {
     page: OffsetPage | CursorPage | undefined,
     apply: (response: QueryResponse) => void,
   ): Promise<void> => {
-    started = true
+    if (!started) {
+      started = true
+      stopLive = source.subscribe?.((incoming) => rows.patch(incoming))
+    }
     controller?.abort()
     const current = new AbortController()
     controller = current
@@ -296,7 +300,6 @@ export function createGrid(options: GridOptions): Grid {
     store.setState((state) => ({ ...state, page: { ...state.page, index: 0 } }))
     if (started) void load()
   })
-  const stopLive = source.subscribe?.((incoming) => rows.patch(incoming))
 
   return {
     schema,

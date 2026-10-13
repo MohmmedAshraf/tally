@@ -172,6 +172,8 @@ describe('createGrid', () => {
   it('applies live patches, resolves the changed flag and tracks selection', async () => {
     const source = createArraySource(rows, schema)
     const grid = createGrid({ schema, source })
+    source.patch({ upserts: [{ id: 2, name: 'Two', plan: 'b', mrr: 21 }] })
+    expect(grid.rows.rows()).toHaveLength(0)
     await grid.load()
     source.patch({ upserts: [{ id: 2, name: 'Two', plan: 'b', mrr: 25 }] })
     expect(grid.rows.byKey(2)?.['mrr']).toBe(25)
