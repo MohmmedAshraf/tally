@@ -3,6 +3,7 @@ import { parseQuery } from '../query/parse.ts'
 import { createSchema } from '../schema/schema.ts'
 import { createExecutionContext } from './context.ts'
 import { execute } from './executor.ts'
+import type { Facet } from './facets.ts'
 import { flattenTree } from './tree.ts'
 
 const schema = createSchema({
@@ -239,14 +240,13 @@ describe('grouping and aggregates', () => {
 describe('facets and paging', () => {
   it('computes histograms and terms on the filtered rows', () => {
     const result = run('status is active', { facets: ['mrr', 'plan', 'renewal', 'account'] })
-    const mrr = result.facets?.['mrr']
-    expect(mrr?.kind).toBe('histogram')
-    if (mrr?.kind === 'histogram') {
-      expect(mrr.min).toBe(0)
-      expect(mrr.max).toBe(5200)
-      expect(mrr.bins).toHaveLength(20)
-      expect(mrr.bins.reduce((total, bin) => total + bin.count, 0)).toBe(4)
-    }
+    expect(result.facets?.['mrr']).toMatchObject({ kind: 'histogram', min: 0, max: 5200 })
+    expect(result.facets?.['mrr']).toSatisfy(
+      (facet: Facet) =>
+        facet.kind === 'histogram' &&
+        facet.bins.length === 20 &&
+        facet.bins.reduce((total, bin) => total + bin.count, 0) === 4,
+    )
     expect(result.facets?.['plan']).toEqual({
       kind: 'terms',
       distinct: 3,
@@ -256,18 +256,19 @@ describe('facets and paging', () => {
         { value: 'team', count: 1 },
       ],
     })
-    const renewal = result.facets?.['renewal']
-    if (renewal?.kind === 'histogram') {
-      expect(renewal.min).toBe('2026-10-14')
-      expect(renewal.max).toBe('2027-01-15')
-    }
+    expect(result.facets?.['renewal']).toMatchObject({
+      kind: 'histogram',
+      min: '2026-10-14',
+      max: '2027-01-15',
+    })
     expect(result.facets?.['account']).toBeUndefined()
   })
 
   it('handles single-valued histograms', () => {
     const result = execute(rows.slice(0, 1), { facets: ['mrr'] }, schema)
-    const facet = result.facets?.['mrr']
-    if (facet?.kind === 'histogram') expect(facet.bins[0]?.count).toBe(1)
+    expect(result.facets?.['mrr']).toSatisfy(
+      (facet: Facet) => facet.kind === 'histogram' && facet.bins[0]?.count === 1,
+    )
     const empty = execute([], { facets: ['mrr', 'plan'] }, schema)
     expect(empty.facets?.['mrr']).toEqual({
       kind: 'histogram',
