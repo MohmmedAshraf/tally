@@ -1,6 +1,6 @@
 import { StrictMode, useState } from 'react'
 import { createRoot } from 'react-dom/client'
-import { createArraySource, createSchema } from 'tally-core'
+import { createArraySource, createSchema, type Pagination } from 'tally-core'
 import { Tally, useGrid } from 'tally-react'
 import 'tally-react/styles.css'
 import { columns, makeRows } from './data.ts'
@@ -9,6 +9,10 @@ const schema = createSchema({ columns, key: 'id' })
 
 const LOCALES = ['en-US', 'de-DE', 'ar-EG', 'ja-JP'] as const
 
+const PAGINATIONS: readonly Pagination[] = ['none', 'offset', 'cursor']
+
+const rows = makeRows(5000)
+
 type Locale = (typeof LOCALES)[number]
 
 function isLocale(value: string): value is Locale {
@@ -16,7 +20,8 @@ function isLocale(value: string): value is Locale {
 }
 
 function App() {
-  const [source] = useState(() => createArraySource(makeRows(5000), schema))
+  const [pagination, setPagination] = useState<Pagination>('none')
+  const [source, setSource] = useState(() => createArraySource(rows, schema))
   const [theme, setTheme] = useState<'light' | 'dark'>('light')
   const [dir, setDir] = useState<'ltr' | 'rtl'>('ltr')
   const [locale, setLocale] = useState<Locale>('en-US')
@@ -54,6 +59,17 @@ function App() {
         </select>
         <button type="button" onClick={() => setWidth(width === 'full' ? 'phone' : 'full')}>
           {width}
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            const next = PAGINATIONS[(PAGINATIONS.indexOf(pagination) + 1) % PAGINATIONS.length]
+            if (next === undefined) return
+            setPagination(next)
+            setSource(createArraySource(source.rows(), schema, { pagination: next }))
+          }}
+        >
+          {pagination}
         </button>
       </div>
       <div

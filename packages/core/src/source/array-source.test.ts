@@ -41,6 +41,27 @@ describe('createArraySource', () => {
     expect(cursor.rows).toHaveLength(3)
   })
 
+  it('serves offset and cursor pages when pagination is enabled', async () => {
+    const offset = createArraySource(rows, schema, { pagination: 'offset' })
+    expect(offset.capabilities.pagination).toBe('offset')
+    const page = await offset.query({ version: 1, sort: [], page: { offset: 1, limit: 1 } })
+    expect(page.rows.map((row) => row['id'])).toEqual([2])
+    expect(page.cursor).toBeUndefined()
+    const cursor = createArraySource(rows, schema, { pagination: 'cursor' })
+    const first = await cursor.query({ version: 1, sort: [], page: { limit: 2 } })
+    expect(first.rows.map((row) => row['id'])).toEqual([1, 2])
+    expect(first.cursor).toBe('2')
+    const last = await cursor.query({
+      version: 1,
+      sort: [],
+      page: { cursor: first.cursor, limit: 2 },
+    })
+    expect(last.rows.map((row) => row['id'])).toEqual([3])
+    expect(last.cursor).toBeUndefined()
+    const bad = await cursor.query({ version: 1, sort: [], page: { cursor: 'x', limit: 2 } })
+    expect(bad.rows.map((row) => row['id'])).toEqual([1, 2])
+  })
+
   it('applies mutations and returns the touched rows', async () => {
     const source = createArraySource(rows, schema)
     const result = await source.mutate?.([

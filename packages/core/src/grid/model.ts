@@ -44,6 +44,7 @@ export interface RowModelInput {
   readonly view: View
   readonly schema: Schema
   readonly groups?: readonly GroupSummary[] | undefined
+  readonly offset?: number | undefined
 }
 
 export const emptyRowModel: RowModel = { items: [], rows: [], pinned: [], groups: [] }
@@ -131,7 +132,7 @@ export function buildRowModel(input: RowModelInput): RowModel {
           depth: 0,
           hasChildren: false,
         }))
-    let position = 0
+    let position = section.group === undefined ? (input.offset ?? 0) : 0
     for (const node of nodes) {
       if (pinnedKeys.has(node.key)) continue
       position += 1

@@ -3,7 +3,14 @@ import { applyMutation, type Mutation } from '../rows/mutation.ts'
 import type { RowData } from '../rows/row.ts'
 import type { RowPatch } from '../rows/store.ts'
 import type { Schema } from '../schema/schema.ts'
-import type { Capabilities, DataSource, QueryRequest, QueryResponse } from './data-source.ts'
+import type {
+  Capabilities,
+  DataSource,
+  OffsetPage,
+  Pagination,
+  QueryRequest,
+  QueryResponse,
+} from './data-source.ts'
 
 export interface ArraySource extends DataSource {
   rows(): readonly RowData[]
@@ -13,6 +20,15 @@ export interface ArraySource extends DataSource {
 
 export interface ArraySourceOptions extends ExecutorOptions {
   readonly mutable?: boolean | undefined
+  readonly pagination?: Pagination | undefined
+}
+
+function offsetPage(page: QueryRequest['page'], pagination: Pagination): OffsetPage | undefined {
+  if (page === undefined) return undefined
+  if ('offset' in page) return page
+  if (pagination !== 'cursor') return undefined
+  const offset = Number(page.cursor ?? 0)
+  return { offset: Number.isSafeInteger(offset) && offset >= 0 ? offset : 0, limit: page.limit }
 }
 
 export const arrayCapabilities: Capabilities = {
@@ -34,7 +50,12 @@ export function createArraySource(
 ): ArraySource {
   let rows = initial
   const listeners = new Set<(patch: RowPatch) => void>()
-  const capabilities: Capabilities = { ...arrayCapabilities, mutate: options.mutable !== false }
+  const pagination = options.pagination ?? 'none'
+  const capabilities: Capabilities = {
+    ...arrayCapabilities,
+    mutate: options.mutable !== false,
+    pagination,
+  }
   const applyPatch = (patch: RowPatch): void => {
     const deletes = new Set(patch.deletes ?? [])
     const upserts = new Map((patch.upserts ?? []).map((row) => [schema.keyOf(row), row] as const))
@@ -54,12 +75,16 @@ export function createArraySource(
     patch: applyPatch,
     schema: () => Promise.resolve(schema.columns),
     query: (request: QueryRequest): Promise<QueryResponse> => {
-      const page = request.page !== undefined && 'offset' in request.page ? request.page : undefined
+      const page = offsetPage(request.page, pagination)
       const result = execute(rows, { ...request, page }, schema, options)
+      const next = page === undefined ? undefined : page.offset + page.limit
       return Promise.resolve({
         rows: result.rows,
         total: result.total,
         matched: result.matched,
+        ...(pagination === 'cursor' && next !== undefined && next < result.matched
+          ? { cursor: String(next) }
+          : {}),
         ...(result.groups === undefined
           ? {}
           : {

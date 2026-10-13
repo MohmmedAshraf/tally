@@ -198,8 +198,15 @@ export function createGrid(options: GridOptions): Grid {
     ([current]) => layoutColumns(current, schema),
   )
   const model = memo(
-    () => [rows.get().rows, view.get(), store.state.groups] as const,
-    ([data, current, groups]) => buildRowModel({ rows: data, view: current, schema, groups }),
+    () => [rows.get().rows, view.get(), store.state.groups, store.state.page] as const,
+    ([data, current, groups, page]) =>
+      buildRowModel({
+        rows: data,
+        view: current,
+        schema,
+        groups,
+        offset: capabilities.pagination === 'offset' ? page.index * page.size : 0,
+      }),
   )
   const geometry = (): GridGeometry => ({
     rowCount: model().rows.length,

@@ -28,6 +28,8 @@ describe('buildRowModel', () => {
       [4, 3, 4],
     ])
     expect(model.groups).toEqual([])
+    const paged = buildRowModel({ rows, view: defaultView(schema), schema, offset: 200 })
+    expect(paged.rows.map((item) => item.position)).toEqual([201, 202, 203, 204])
   })
 
   it('groups rows in order, restarts positions and respects collapsed groups', () => {
