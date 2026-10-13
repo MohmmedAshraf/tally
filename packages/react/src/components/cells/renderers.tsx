@@ -1,8 +1,12 @@
 import { Check } from 'lucide-react'
 import type { ReactNode } from 'react'
 import {
+  dayNumber,
   findOption,
+  formatRelativeDate,
   isEmptyValue,
+  isIsoDate,
+  today,
   type Column,
   type ColumnType,
   type FormatContext,
@@ -40,16 +44,122 @@ function initials(text: string): string {
     .toUpperCase()
 }
 
-function Text({ text, column }: CellProps): ReactNode {
+export function Tile({ text }: { readonly text: string }): ReactNode {
   return (
-    <span className="tally-text" {...(column.wrap === true ? { 'data-wrap': '' } : {})}>
-      {text}
+    <span className="tally-tile" style={{ '--tally-avatar-hue': hueOf(`${text}x`) }} aria-hidden>
+      {initials(text)}
     </span>
   )
 }
 
-function Mono({ text }: CellProps): ReactNode {
-  return <span className="tally-text tally-mono">{text}</span>
+export function subtitleOf(row: RowData, column: Column): string | undefined {
+  if (column.subtitle === undefined) return undefined
+  const value = row[column.subtitle]
+  return isEmptyValue(value) ? undefined : String(value)
+}
+
+function seriesOf(row: RowData, column: Column): readonly number[] | undefined {
+  if (column.sparkline === undefined) return undefined
+  const value = row[column.sparkline]
+  if (!Array.isArray(value) || value.length < 2) return undefined
+  return value.every((entry) => typeof entry === 'number') ? value : undefined
+}
+
+const SPARK_WIDTH = 44
+const SPARK_HEIGHT = 16
+
+function sparkPath(values: readonly number[]): string {
+  const min = Math.min(...values)
+  const range = Math.max(...values) - min || 1
+  return values
+    .map((entry, index) => {
+      const x = ((index / (values.length - 1)) * SPARK_WIDTH).toFixed(1)
+      const y = (SPARK_HEIGHT - 1 - ((entry - min) / range) * (SPARK_HEIGHT - 2)).toFixed(1)
+      return `${index === 0 ? 'M' : 'L'}${x} ${y}`
+    })
+    .join(' ')
+}
+
+function Spark({
+  values,
+  sign,
+}: {
+  readonly values: readonly number[]
+  readonly sign?: string | undefined
+}): ReactNode {
+  return (
+    <svg
+      className="tally-spark"
+      width={SPARK_WIDTH}
+      height={SPARK_HEIGHT}
+      viewBox={`0 0 ${SPARK_WIDTH} ${SPARK_HEIGHT}`}
+      aria-hidden
+      {...(sign === undefined ? {} : { 'data-sign': sign })}
+    >
+      <path
+        d={sparkPath(values)}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.5}
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
+    </svg>
+  )
+}
+
+function Text({ text, row, column }: CellProps): ReactNode {
+  const subtitle = subtitleOf(row, column)
+  const body =
+    subtitle === undefined ? (
+      <span className="tally-text" {...(column.wrap === true ? { 'data-wrap': '' } : {})}>
+        {text}
+      </span>
+    ) : (
+      <span className="tally-stack">
+        <span className="tally-text">{text}</span>
+        <span className="tally-sub">{subtitle}</span>
+      </span>
+    )
+  if (column.avatar !== true || text === '') return body
+  return (
+    <>
+      <Tile text={text} />
+      {body}
+    </>
+  )
+}
+
+function Mono({ value, text, row, column }: CellProps): ReactNode {
+  const series = seriesOf(row, column)
+  const sign =
+    column.format?.signed === true && typeof value === 'number' && value !== 0
+      ? value > 0
+        ? 'up'
+        : 'down'
+      : undefined
+  return (
+    <>
+      {series === undefined ? null : <Spark values={series} sign={sign} />}
+      <span className="tally-text tally-mono">{text}</span>
+    </>
+  )
+}
+
+function DateCell({ value, text, column, format }: CellProps): ReactNode {
+  if (column.relative !== true || typeof value !== 'string' || !isIsoDate(value)) {
+    return <span className="tally-text tally-mono">{text}</span>
+  }
+  const now = today(format)
+  const days = dayNumber(value) - dayNumber(now)
+  return (
+    <span className="tally-stack">
+      <span className="tally-text tally-mono">{text}</span>
+      <span className="tally-sub" {...(days >= 0 && days <= 30 ? { 'data-soon': '' } : {})}>
+        {formatRelativeDate(value, now, format)}
+      </span>
+    </span>
+  )
 }
 
 function Enum({ value, text, column }: CellProps): ReactNode {
@@ -128,7 +238,7 @@ function Link({ value, text, type }: CellProps): ReactNode {
 export const defaultRenderers: CellRenderers = {
   text: Text,
   number: Mono,
-  date: Mono,
+  date: DateCell,
   boolean: Bool,
   enum: Enum,
   bool: Bool,

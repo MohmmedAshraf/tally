@@ -1,7 +1,17 @@
 import type { Column, RowData } from 'tally-core'
 
 export const columns: Column[] = [
-  { id: 'account', label: 'Account', type: 'text', width: 224, pin: 'left', card: 'title' },
+  {
+    id: 'account',
+    label: 'Account',
+    type: 'text',
+    width: 224,
+    pin: 'left',
+    card: 'title',
+    avatar: true,
+    subtitle: 'domain',
+  },
+  { id: 'domain', label: 'Domain', type: 'text', width: 180, hidden: true, card: 'hidden' },
   { id: 'owner', label: 'Owner', type: 'person', width: 160, card: 'meta' },
   {
     id: 'plan',
@@ -43,11 +53,12 @@ export const columns: Column[] = [
     id: 'growth',
     label: 'Growth',
     type: 'percent',
-    width: 120,
+    width: 150,
     format: { signed: true, fractionDigits: 1 },
     aggregate: 'avg',
     group: 'Revenue',
     card: 'metric',
+    sparkline: 'history',
   },
   {
     id: 'health',
@@ -65,6 +76,7 @@ export const columns: Column[] = [
     aggregate: 'min',
     group: 'Account health',
     card: 'meta',
+    relative: true,
   },
   { id: 'seats', label: 'Seats', type: 'int', width: 90, aggregate: 'sum' },
   { id: 'notes', label: 'Notes', type: 'text', width: 320, wrap: true },
@@ -127,6 +139,16 @@ function random(seed: number): () => number {
   }
 }
 
+function history(mrr: number, growth: number, next: () => number): number[] {
+  const start = 1 / (1 + Math.max(-0.9, growth / 100))
+  return Array.from({ length: 12 }, (_, index) => {
+    const t = index / 11
+    const trend = start + (1 - start) * (t * 0.65 + t * t * 0.35)
+    const noise = index < 11 ? (next() - 0.5) * 0.09 : 0
+    return Math.round(trend * (1 + noise) * mrr)
+  })
+}
+
 export function makeRows(count: number): RowData[] {
   const next = random(7)
   const pick = <T>(list: readonly T[]): T => list[Math.floor(next() * list.length)]!
@@ -135,19 +157,24 @@ export function makeRows(count: number): RowData[] {
     const plan = pick(PLANS)
     const base = plan === 'enterprise' ? 18000 : plan === 'team' ? 4000 : plan === 'pro' ? 900 : 0
     const day = new Date(Date.UTC(2026, 9, 13 + Math.floor(next() * 400)))
+    const mrr = Math.round(base + next() * base * 0.6)
+    const growth = Math.round((next() * 90 - 30) * 10) / 10
+    const domain = name.toLowerCase().replace(/\s+/g, '')
     return {
       id: index + 1,
       account: name,
+      domain: `${domain}.com`,
       owner: pick(OWNERS),
       plan,
       status: pick(STATUSES),
-      mrr: Math.round(base + next() * base * 0.6),
-      growth: Math.round((next() * 90 - 30) * 10) / 10,
+      mrr,
+      growth,
+      history: history(mrr, growth, next),
       health: Math.round(next() * 100),
       renewal: day.toISOString().slice(0, 10),
       seats: Math.round(next() * 400),
       notes: pick(NOTES),
-      site: `https://${name.toLowerCase().replace(/\s+/g, '')}.com`,
+      site: `https://${domain}.com`,
     }
   })
 }

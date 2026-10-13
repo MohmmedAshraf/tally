@@ -81,6 +81,33 @@ export function formatIsoDate(
   )
 }
 
+const relativeCache = new Map<string, Intl.RelativeTimeFormat>()
+
+function relativeFormatter(
+  context: FormatContext,
+  numeric: Intl.RelativeTimeFormatNumeric,
+): Intl.RelativeTimeFormat {
+  const key = `${context.locale}|${numeric}`
+  let formatter = relativeCache.get(key)
+  if (formatter === undefined) {
+    formatter = new Intl.RelativeTimeFormat(context.locale, { numeric, style: 'short' })
+    relativeCache.set(key, formatter)
+  }
+  return formatter
+}
+
+export function formatRelativeDate(
+  isoDate: string,
+  todayIso: string,
+  context: FormatContext,
+): string {
+  const days = dayNumber(isoDate) - dayNumber(todayIso)
+  if (Math.abs(days) < 60) return relativeFormatter(context, 'auto').format(days, 'day')
+  const months = Math.round(days / 30)
+  if (Math.abs(months) < 24) return relativeFormatter(context, 'always').format(months, 'month')
+  return relativeFormatter(context, 'always').format(Math.round(days / 365), 'year')
+}
+
 export type RelativeUnit = 'day' | 'week' | 'month' | 'quarter' | 'year'
 
 export interface RelativeRange {

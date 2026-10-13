@@ -6,6 +6,7 @@ import {
   dateFromDayNumber,
   dayNumber,
   formatIsoDate,
+  formatRelativeDate,
   isIsoDate,
   parseIsoDate,
   resolveRelativeRange,
@@ -54,6 +55,16 @@ describe('day arithmetic', () => {
 
   it('returns an iso date for today', () => {
     expect(today(createFormatContext())).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+  })
+
+  it('describes dates relative to today in days, months and years', () => {
+    const context = createFormatContext()
+    expect(formatRelativeDate('2026-10-13', '2026-10-13', context)).toBe('today')
+    expect(formatRelativeDate('2026-10-30', '2026-10-13', context)).toBe('in 17 days')
+    expect(formatRelativeDate('2027-03-19', '2026-10-13', context)).toBe('in 5 mo.')
+    expect(formatRelativeDate('2026-07-01', '2026-10-13', context)).toBe('3 mo. ago')
+    expect(formatRelativeDate('2027-10-13', '2026-10-13', context)).toBe('in 12 mo.')
+    expect(formatRelativeDate('2029-01-01', '2026-10-13', context)).toBe('in 2 yr.')
   })
 })
 

@@ -14,6 +14,11 @@ describe('validateColumns', () => {
     expect(() => validateColumns([{ id: 'a' }, { id: 'a' }])).toThrow('Duplicate column id')
   })
 
+  it('requires a subtitle to name another column', () => {
+    expect(() => validateColumns([{ id: 'a', subtitle: 'b' }])).toThrow('unknown subtitle')
+    expect(validateColumns([{ id: 'a', subtitle: 'b' }, { id: 'b' }])).toHaveLength(2)
+  })
+
   it('rejects unknown keys', () => {
     const withUnknownKey = { id: 'a', nope: true }
     expect(() => validateColumns([withUnknownKey])).toThrow('invalid')

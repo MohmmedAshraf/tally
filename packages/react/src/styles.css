@@ -1414,13 +1414,25 @@
     font-weight: 500;
   }
 
+  .tally-stack .tally-mono {
+    font-weight: 400;
+  }
+
   .tally-sub {
-    font-size: 11.5px;
+    font-size: 12px;
     color: var(--tally-ink-3);
     margin-top: 2px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  .tally-sub[data-soon] {
+    color: var(--tally-warn-ink);
+  }
+
+  .tally[data-density='compact'] .tally-cell .tally-sub {
+    display: none;
   }
 
   .tally-pill {
@@ -1451,6 +1463,43 @@
     border-radius: 50%;
     background: var(--tally-pill-color, currentColor);
     flex: none;
+  }
+
+  .tally-tile {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    flex: none;
+    background: light-dark(
+      oklch(0.955 0.03 var(--tally-avatar-hue)),
+      oklch(0.29 0.045 var(--tally-avatar-hue))
+    );
+    color: light-dark(
+      oklch(0.43 0.1 var(--tally-avatar-hue)),
+      oklch(0.87 0.08 var(--tally-avatar-hue))
+    );
+    box-shadow: inset 0 0 0 1px
+      light-dark(oklch(0.89 0.04 var(--tally-avatar-hue)), oklch(0.36 0.05 var(--tally-avatar-hue)));
+  }
+
+  .tally-spark {
+    display: block;
+    flex: none;
+    color: var(--tally-accent);
+  }
+
+  .tally-spark[data-sign='up'] {
+    color: var(--tally-up);
+  }
+
+  .tally-spark[data-sign='down'] {
+    color: var(--tally-down);
   }
 
   .tally-avatar {
@@ -1721,13 +1770,18 @@
   }
 
   .tally-card-title {
+    display: flex;
+    flex-direction: column;
     flex: 1;
     min-width: 0;
     font-size: 14px;
     font-weight: 600;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    line-height: 1.25;
+  }
+
+  .tally-card-title .tally-sub {
+    font-weight: 400;
+    margin-top: 1px;
   }
 
   .tally-card-badges {

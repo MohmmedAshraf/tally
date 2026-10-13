@@ -11,7 +11,7 @@ import {
   type RowItem,
 } from 'tally-core'
 import { useColumnLayout, useRowModel, useSelection } from '../hooks/use-store.ts'
-import { rendererFor, signOf } from './cells/renderers.tsx'
+import { Tile, rendererFor, signOf, subtitleOf } from './cells/renderers.tsx'
 import { useShell } from './context.ts'
 import { GroupRow } from './group-row.tsx'
 import { useLabels } from './labels.ts'
@@ -89,6 +89,7 @@ function Card({
   const selection = useSelection(grid)
   const selected = selection.rows.has(item.key)
   const title = layout.title === undefined ? '' : textOf(grid, item.row, layout.title)
+  const subtitle = layout.title === undefined ? undefined : subtitleOf(item.row, layout.title)
   return (
     <article
       className="tally-card"
@@ -96,7 +97,11 @@ function Card({
       {...(selected ? { 'data-selected': '' } : {})}
     >
       <header className="tally-card-head">
-        <span className="tally-card-title">{title}</span>
+        {layout.title?.avatar === true && title !== '' ? <Tile text={title} /> : null}
+        <span className="tally-card-title">
+          <span className="tally-text">{title}</span>
+          {subtitle === undefined ? null : <span className="tally-sub">{subtitle}</span>}
+        </span>
         <input
           type="checkbox"
           className="tally-check"

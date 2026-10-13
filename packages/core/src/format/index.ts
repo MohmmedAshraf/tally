@@ -6,6 +6,7 @@ export {
   dateFromDayNumber,
   dayNumber,
   formatIsoDate,
+  formatRelativeDate,
   isIsoDate,
   isRelativeRange,
   parseIsoDate,

@@ -47,6 +47,10 @@ export interface Column {
   readonly hidden?: boolean | undefined
   readonly group?: string | undefined
   readonly card?: CardRole | undefined
+  readonly subtitle?: string | undefined
+  readonly avatar?: boolean | undefined
+  readonly sparkline?: string | undefined
+  readonly relative?: boolean | undefined
   readonly aggregate?: AggregateName | undefined
   readonly tree?: boolean | undefined
   readonly rollup?: boolean | undefined
@@ -93,6 +97,10 @@ export const columnSchema: z.ZodType<Column> = z.strictObject({
   hidden: z.boolean().optional(),
   group: z.string().optional(),
   card: z.enum(['title', 'badge', 'metric', 'meta', 'hidden']).optional(),
+  subtitle: identifier.optional(),
+  avatar: z.boolean().optional(),
+  sparkline: identifier.optional(),
+  relative: z.boolean().optional(),
   aggregate: z.enum(AGGREGATES).optional(),
   tree: z.boolean().optional(),
   rollup: z.boolean().optional(),
@@ -102,7 +110,7 @@ export type ColumnInput = Omit<Column, 'type'> & { readonly type?: string | unde
 
 export function validateColumns(input: readonly ColumnInput[]): readonly Column[] {
   const seen = new Set<string>()
-  return input.map((candidate, index) => {
+  const columns = input.map((candidate, index) => {
     const result = columnSchema.safeParse({ ...candidate, type: candidate.type ?? 'text' })
     if (!result.success) {
       throw new TallyError(
@@ -117,6 +125,15 @@ export function validateColumns(input: readonly ColumnInput[]): readonly Column[
     seen.add(result.data.id)
     return result.data
   })
+  for (const column of columns) {
+    if (column.subtitle !== undefined && !seen.has(column.subtitle)) {
+      throw new TallyError(
+        'invalid_column',
+        `Column "${column.id}" names unknown subtitle column "${column.subtitle}"`,
+      )
+    }
+  }
+  return columns
 }
 
 export function columnLabel(column: Column): string {

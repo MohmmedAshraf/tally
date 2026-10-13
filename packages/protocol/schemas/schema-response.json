@@ -177,6 +177,22 @@
             "hidden"
           ]
         },
+        "subtitle": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "avatar": {
+          "type": "boolean"
+        },
+        "sparkline": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "relative": {
+          "type": "boolean"
+        },
         "aggregate": {
           "type": "string",
           "enum": [
