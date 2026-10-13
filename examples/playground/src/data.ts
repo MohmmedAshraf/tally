@@ -12,7 +12,7 @@ export const columns: Column[] = [
     subtitle: 'domain',
   },
   { id: 'domain', label: 'Domain', type: 'text', width: 180, hidden: true, card: 'hidden' },
-  { id: 'owner', label: 'Owner', type: 'person', width: 160, card: 'meta' },
+  { id: 'owner', label: 'Owner', type: 'person', width: 160, aggregate: 'distinct', card: 'meta' },
   {
     id: 'plan',
     label: 'Plan',
@@ -24,6 +24,7 @@ export const columns: Column[] = [
       { value: 'pro', label: 'Pro' },
       { value: 'free', label: 'Free' },
     ],
+    aggregate: 'count',
     card: 'badge',
   },
   {
@@ -37,6 +38,7 @@ export const columns: Column[] = [
       { value: 'past_due', label: 'Past due', color: 'oklch(0.7 0.16 60)' },
       { value: 'churned', label: 'Churned', color: 'oklch(0.62 0.01 80)' },
     ],
+    aggregate: 'count',
     card: 'badge',
   },
   {

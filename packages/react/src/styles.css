@@ -1868,11 +1868,23 @@
 
   .tally-footer-label {
     color: var(--tally-ink-3);
-    font-size: 11px;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
+    font-size: 12px;
     font-family: var(--tally-font);
     flex: none;
+  }
+
+  .tally-distribution {
+    display: flex;
+    gap: 2px;
+    flex: 1;
+    max-width: 120px;
+    height: 6px;
+  }
+
+  .tally-distribution i {
+    display: block;
+    min-width: 3px;
+    border-radius: 2px;
   }
 
   .tally-footer-value {

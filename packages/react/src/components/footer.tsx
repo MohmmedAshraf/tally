@@ -1,7 +1,65 @@
 import type { CSSProperties, ReactNode } from 'react'
-import { aggregateKey, type ColumnLayout, type Grid, type LayoutColumn } from 'tally-core'
+import {
+  aggregateKey,
+  optionLabel,
+  type Column,
+  type ColumnLayout,
+  type EnumOption,
+  type Facet,
+  type Grid,
+  type LayoutColumn,
+} from 'tally-core'
 import { useGridState, useView } from '../hooks/use-store.ts'
 import { aggregateLabel, dateRange, formatAggregate, isDateRangeFooter } from './format.ts'
+
+interface Segment {
+  readonly value: string
+  readonly label: string
+  readonly count: number
+  readonly color: string
+}
+
+function segmentsOf(column: Column, facet: Facet | undefined): readonly Segment[] {
+  if (facet?.kind !== 'terms') return []
+  const counts = new Map(facet.terms.map((term) => [String(term.value), term.count]))
+  const options: readonly EnumOption[] =
+    column.options ?? facet.terms.map((term) => ({ value: String(term.value) }))
+  return options
+    .map((option, index) => ({
+      value: option.value,
+      label: optionLabel(column, option.value),
+      count: counts.get(option.value) ?? 0,
+      color:
+        option.color ??
+        `color-mix(in oklch, var(--tally-ink-3) ${Math.max(15, 70 - index * 15)}%, var(--tally-line))`,
+    }))
+    .filter((segment) => segment.count > 0)
+}
+
+function Distribution({
+  segments,
+  locale,
+}: {
+  readonly segments: readonly Segment[]
+  readonly locale: string
+}): ReactNode {
+  const total = segments.reduce((sum, segment) => sum + segment.count, 0)
+  return (
+    <span
+      className="tally-distribution"
+      title={segments
+        .map((segment) => `${segment.label} ${segment.count.toLocaleString(locale)}`)
+        .join(' · ')}
+    >
+      {segments.map((segment) => (
+        <i
+          key={segment.value}
+          style={{ flexGrow: segment.count / total, background: segment.color }}
+        />
+      ))}
+    </span>
+  )
+}
 import { isPinEdge, type PinOffsets } from './geometry.ts'
 import type { ColumnWindow } from './row.tsx'
 
@@ -31,7 +89,13 @@ export function Footer({ grid, layout, offsets, window, visible }: FooterProps):
     const style: CSSProperties = { width: entry.width }
     if (pinOffset !== undefined) style['--tally-pin-offset'] = `${pinOffset}px`
     let content: ReactNode = null
-    if (fn !== undefined) {
+    const segments =
+      fn === 'count' && (type.kind === 'enum' || type.kind === 'boolean')
+        ? segmentsOf(column, state.facets?.[column.id])
+        : []
+    if (segments.length > 0) {
+      content = <Distribution segments={segments} locale={locale} />
+    } else if (fn !== undefined) {
       const range = isDateRangeFooter(grid, column, fn)
         ? dateRange(grid, column, state.aggregates)
         : undefined
