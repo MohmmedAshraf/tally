@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "number",
+      "const": 1
+    },
+    "mutations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Mutation"
+      }
+    }
+  },
+  "required": [
+    "version",
+    "mutations"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "Mutation": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "label": {
+          "type": "string"
+        },
+        "at": {
+          "type": "number"
+        },
+        "changes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": [
+                  "string",
+                  "number"
+                ]
+              },
+              "column": {
+                "type": "string",
+                "minLength": 1
+              },
+              "from": {},
+              "to": {}
+            },
+            "required": [
+              "key",
+              "column",
+              "from",
+              "to"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "inserted": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "row": {
+                "$ref": "#/$defs/RowData"
+              },
+              "index": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "row"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "deleted": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "row": {
+                "$ref": "#/$defs/RowData"
+              },
+              "index": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "row",
+              "index"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "at",
+        "changes",
+        "inserted",
+        "deleted"
+      ],
+      "additionalProperties": false
+    },
+    "RowData": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {}
+    }
+  }
+}

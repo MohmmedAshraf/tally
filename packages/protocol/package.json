@@ -1,7 +1,7 @@
 {
   "name": "tally-protocol",
   "version": "0.0.0",
-  "description": "Tally Query Protocol types, JSON Schema and conformance suite.",
+  "description": "Tally Query Protocol: wire schemas, request validation, JSON Schema and the adapter conformance suite.",
   "license": "MIT",
   "author": "Mohamed Ashraf <cupo.ashraf@gmail.com>",
   "repository": {
@@ -18,10 +18,17 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./schemas/query-request.json": "./schemas/query-request.json",
+    "./schemas/query-response.json": "./schemas/query-response.json",
+    "./schemas/mutation-request.json": "./schemas/mutation-request.json",
+    "./schemas/mutation-result.json": "./schemas/mutation-result.json",
+    "./schemas/row-patch.json": "./schemas/row-patch.json",
+    "./schemas/schema-response.json": "./schemas/schema-response.json",
     "./package.json": "./package.json"
   },
   "files": [
-    "dist"
+    "dist",
+    "schemas"
   ],
   "engines": {
     "node": ">=24"
@@ -31,13 +38,14 @@
     "provenance": true
   },
   "scripts": {
-    "build": "tsdown",
+    "build": "tsdown && node scripts/emit-schemas.ts",
     "dev": "tsdown --watch",
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run --passWithNoTests --coverage.enabled=false",
     "publint": "publint",
     "attw": "attw --pack . --profile esm-only",
-    "size": "size-limit"
+    "size": "size-limit",
+    "schemas": "node scripts/emit-schemas.ts"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "catalog:",
@@ -51,7 +59,15 @@
   "size-limit": [
     {
       "path": "dist/index.js",
-      "limit": "1 kB"
+      "limit": "12 kB",
+      "ignore": [
+        "tally-core",
+        "zod"
+      ]
     }
-  ]
+  ],
+  "dependencies": {
+    "tally-core": "workspace:*",
+    "zod": "catalog:"
+  }
 }

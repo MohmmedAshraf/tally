@@ -458,6 +458,13 @@ importers:
         version: 5.0.3(@types/node@26.6.5)(@vitest/coverage-v8@5.0.3)(happy-dom@21.0.1)(vite@8.3.4(@types/node@26.6.5)(jiti@2.7.0)(yaml@2.9.1))
 
   packages/protocol:
+    dependencies:
+      tally-core:
+        specifier: workspace:*
+        version: link:../core
+      zod:
+        specifier: 'catalog:'
+        version: 4.6.6
     devDependencies:
       '@arethetypeswrong/cli':
         specifier: 'catalog:'
