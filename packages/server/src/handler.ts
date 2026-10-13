@@ -118,7 +118,7 @@ export function createTallyHandler(options: TallyHandlerOptions): TallyHandler {
         const body: SchemaResponse = {
           version: 1,
           columns: schema.columns,
-          capabilities: source.capabilities,
+          capabilities: { ...source.capabilities, live: true },
           ...(schema.keyField === undefined ? {} : { key: schema.keyField }),
         }
         return json(body)

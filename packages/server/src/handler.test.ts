@@ -46,7 +46,7 @@ describe('createTallyHandler', () => {
     expect(await payload(response)).toEqual({
       version: 1,
       columns: schema.columns,
-      capabilities: source.capabilities,
+      capabilities: { ...source.capabilities, live: true },
       key: 'id',
     })
   })

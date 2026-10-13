@@ -84,7 +84,7 @@ app.all('/api/accounts/*', (c) => handler(c.req.raw))
 | `PATCH /rows` | `{ version, mutations }` | `MutationResult`, or `405` when the source is read only     |
 | `GET /events` |                          | `text/event-stream` of `patch` events carrying a `RowPatch` |
 
-Accepted mutations are broadcast to every open event stream, and patches from a source with `live` capability are relayed. Invalid requests return `400` with `{ code, message, details }` where every detail names the path of a problem.
+Accepted mutations are broadcast to every open event stream, and patches from a source with `live` capability are relayed, so the schema route always reports `live: true`. Invalid requests return `400` with `{ code, message, details }` where every detail names the path of a problem.
 
 ## Testing your own adapter
 
