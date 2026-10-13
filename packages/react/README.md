@@ -131,7 +131,15 @@ import 'tally-react/styles.css'
 import 'tally-react/fonts.css'
 ```
 
-Every rule sits in `@layer tally`, so unlayered styles win without specificity games. Colors use `light-dark()` and follow `color-scheme`; override tokens on `.tally` or any ancestor:
+The stylesheet is unlayered and every selector is scoped under `.tally`, so it survives Tailwind's preflight and other resets without configuration. With Tailwind v4, import it into a layer when utilities should be able to override Tally classes:
+
+```css
+@layer theme, base, tally, components, utilities;
+@import 'tailwindcss';
+@import 'tally-react/styles.css' layer(tally);
+```
+
+Colors use `light-dark()` and follow `color-scheme`; override tokens on `.tally` or any ancestor:
 
 ```css
 .tally {
