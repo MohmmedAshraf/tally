@@ -16,6 +16,7 @@ import {
 import { useGridState, useView } from '../../hooks/use-store.ts'
 import { useShell } from '../context.ts'
 import { useLabels } from '../labels.ts'
+import { ClausePopover } from './clause-popover.tsx'
 
 export interface AskResult {
   readonly query: Query
@@ -50,29 +51,46 @@ function withoutClause(filter: Filter | undefined, index: number): Filter | unde
   return and(...clauses)
 }
 
+function withClause(filter: Filter | undefined, index: number, clause: Filter): Filter | undefined {
+  const clauses = topLevelClauses(filter).map((existing, position) =>
+    position === index ? clause : existing,
+  )
+  return and(...clauses)
+}
+
 export function Chip({
   grid,
   clause,
   onRemove,
+  onChange,
 }: {
   readonly grid: Grid
   readonly clause: Filter
   readonly onRemove: () => void
+  readonly onChange?: ((clause: Filter) => void) | undefined
 }): ReactNode {
   const labels = useLabels()
   const description = describeFilter(clause, grid.schema, grid.context.format)
+  const label =
+    description.column === undefined ? (
+      <span className="tally-chip-text">{description.text}</span>
+    ) : (
+      <>
+        <b>{description.column}</b>
+        <em>{description.operator}</em>
+        {description.value === undefined ? null : (
+          <span className="tally-chip-text">{description.value}</span>
+        )}
+      </>
+    )
   return (
     <span className="tally-chip" title={description.text}>
-      {description.column === undefined ? (
-        <span className="tally-chip-text">{description.text}</span>
+      {onChange === undefined ? (
+        <span className="tally-chip-label">{label}</span>
       ) : (
-        <>
-          <b>{description.column}</b>
-          <em>{description.operator}</em>
-          {description.value === undefined ? null : (
-            <span className="tally-chip-text">{description.value}</span>
-          )}
-        </>
+        <ClausePopover grid={grid} clause={clause} onChange={onChange}>
+          {label}
+        </ClausePopover>
       )}
       <button
         type="button"
@@ -216,6 +234,7 @@ export function FilterBar({ grid, ask }: FilterBarProps): ReactNode {
                 grid={grid}
                 clause={clause}
                 onRemove={() => grid.view.setFilter(withoutClause(filter, index))}
+                onChange={(next) => grid.view.setFilter(withClause(filter, index, next))}
               />
             ))}
         <Autocomplete.Root<Completion>

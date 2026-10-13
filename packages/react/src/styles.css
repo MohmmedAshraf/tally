@@ -174,6 +174,26 @@
     max-width: 100%;
   }
 
+  .tally-chip-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    min-width: 0;
+  }
+
+  .tally-chip-label:focus-visible {
+    outline: 2px solid var(--tally-ring);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
   .tally-chip b {
     font-weight: 600;
     color: var(--tally-accent);
@@ -348,8 +368,11 @@
     display: flex;
     align-items: baseline;
     gap: 8px;
+    margin: 0;
     padding: 6px 8px 8px;
+    font-size: 13px;
     font-weight: 600;
+    line-height: 1.4;
   }
 
   .tally-menu-label {
@@ -381,6 +404,155 @@
   .tally-popup-item > svg {
     flex: none;
     color: var(--tally-ink-2);
+  }
+
+  .tally-clause-popup {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 320px;
+    padding: 6px;
+  }
+
+  .tally-segmented {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    padding: 2px;
+    border-radius: 8px;
+    background: var(--tally-soft);
+  }
+
+  .tally-segment {
+    flex: 1;
+    min-width: max-content;
+    height: 26px;
+    padding: 0 9px;
+    border: 0;
+    border-radius: 6px;
+    background: none;
+    color: var(--tally-ink-2);
+    font-size: 12.5px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .tally-segment[aria-checked='true'] {
+    background: var(--tally-bg);
+    color: var(--tally-ink);
+    font-weight: 600;
+  }
+
+  .tally-option-list {
+    display: flex;
+    flex-direction: column;
+    max-height: 260px;
+    overflow: auto;
+  }
+
+  .tally-option {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    height: 32px;
+    padding: 0 8px;
+    border-radius: 7px;
+    cursor: pointer;
+  }
+
+  .tally-option:hover {
+    background: var(--tally-soft);
+  }
+
+  .tally-option-count {
+    margin-inline-start: auto;
+    font-family: var(--tally-font-mono);
+    font-size: 11px;
+    color: var(--tally-ink-3);
+  }
+
+  .tally-histogram {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 46px;
+    padding: 0 4px;
+  }
+
+  .tally-histogram-bar {
+    flex: 1;
+    min-width: 2px;
+    padding: 0;
+    border: 0;
+    border-radius: 2px 2px 0 0;
+    background: var(--tally-line-strong);
+    opacity: 0.55;
+    cursor: pointer;
+  }
+
+  .tally-histogram-bar[data-empty] {
+    opacity: 0.2;
+  }
+
+  .tally-histogram-bar:hover {
+    background: var(--tally-accent);
+    opacity: 1;
+  }
+
+  .tally-range {
+    display: flex;
+    gap: 6px;
+  }
+
+  .tally-input {
+    flex: 1;
+    min-width: 0;
+    height: 30px;
+    padding: 0 9px;
+    border: 1px solid var(--tally-line);
+    border-radius: 7px;
+    background: var(--tally-bg);
+    color: var(--tally-ink);
+    font: inherit;
+    font-size: 13px;
+    outline: none;
+  }
+
+  .tally-input:focus-visible {
+    border-color: var(--tally-accent);
+    box-shadow: 0 0 0 3px var(--tally-ring);
+  }
+
+  .tally-input[aria-invalid='true'] {
+    border-color: var(--tally-down);
+  }
+
+  .tally-presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .tally-preset {
+    height: 26px;
+    padding: 0 9px;
+    border: 1px solid var(--tally-line);
+    border-radius: 7px;
+    background: var(--tally-bg);
+    color: var(--tally-ink-2);
+    font-size: 12.5px;
+    cursor: pointer;
+  }
+
+  .tally-preset:hover {
+    border-color: var(--tally-line-strong);
+    color: var(--tally-ink);
+  }
+
+  .tally-preset[aria-pressed='true'] {
+    background: var(--tally-selection);
+    border-color: transparent;
+    color: var(--tally-ink);
   }
 
   .tally-popup-detail {

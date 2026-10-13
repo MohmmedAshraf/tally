@@ -24,7 +24,12 @@ export {
   type SortDirection,
 } from './ast.ts'
 export type { Clause, ClauseKind } from './build.ts'
-export { describeFilter, topLevelClauses, type ClauseDescription } from './describe.ts'
+export {
+  OPERATOR_WORDS,
+  describeFilter,
+  topLevelClauses,
+  type ClauseDescription,
+} from './describe.ts'
 export { parseQuery, type ParseResult } from './parse.ts'
 export type { ParseErrorPosition } from './parser.ts'
 export { printFilter, printQuery, printRelative, printSort } from './print.ts'

@@ -13,7 +13,7 @@ export interface ClauseDescription {
   readonly text: string
 }
 
-const OPERATOR_WORDS: Readonly<Record<Operator, string>> = {
+export const OPERATOR_WORDS: Readonly<Record<Operator, string>> = {
   eq: 'is',
   neq: 'is not',
   lt: '<',
