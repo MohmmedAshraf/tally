@@ -54,12 +54,14 @@ describe('registry', () => {
       person: 'Ada',
       duration: 95,
     }
-    for (const type of builtinTypes) {
+    const roundTrips = builtinTypes.map((type) => {
       const col = column(type.name, { options: [{ value: 'pro', label: 'Pro' }] })
       const value = samples[type.name]
-      expect(type.is(value), type.name).toBe(true)
-      const parsed = type.parse(type.format(value as never, col, context), col)
-      expect(parsed, type.name).toBeDefined()
+      if (!type.is(value)) return { name: type.name, parsed: undefined }
+      return { name: type.name, parsed: type.parse(type.format(value, col, context), col) }
+    })
+    for (const result of roundTrips) {
+      expect(result.parsed).toBeDefined()
     }
   })
 })

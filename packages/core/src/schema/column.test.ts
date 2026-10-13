@@ -9,18 +9,22 @@ describe('validateColumns', () => {
     expect(columnLabel({ id: 'mrr', type: 'currency' })).toBe('mrr')
   })
 
-  it('rejects unknown keys, bad values and duplicates', () => {
+  it('rejects bad values and duplicates', () => {
     expect(() => validateColumns([{ id: 'a', width: -1 }])).toThrow(TallyError)
     expect(() => validateColumns([{ id: 'a' }, { id: 'a' }])).toThrow('Duplicate column id')
-    expect(() => validateColumns([{ id: 'a', nope: true } as unknown as { id: string }])).toThrow(
-      'invalid',
+  })
+
+  it('rejects unknown keys', () => {
+    const withUnknownKey = { id: 'a', nope: true }
+    expect(() => validateColumns([withUnknownKey])).toThrow('invalid')
+  })
+
+  it('reports the failing path', () => {
+    expect(() => validateColumns([{ id: 'a', format: { currency: 'EURO' } }])).toThrow(
+      expect.objectContaining({
+        code: 'invalid_column',
+        details: [expect.stringMatching(/format\.currency/)],
+      }),
     )
-    try {
-      validateColumns([{ id: 'a', format: { currency: 'EURO' } }])
-    } catch (error) {
-      expect(error).toBeInstanceOf(TallyError)
-      expect((error as TallyError).code).toBe('invalid_column')
-      expect((error as TallyError).details[0]).toMatch(/format\.currency/)
-    }
   })
 })
