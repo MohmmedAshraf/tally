@@ -87,6 +87,7 @@ export interface RelativeRange {
   readonly direction: 'last' | 'next' | 'this'
   readonly amount: number
   readonly unit: RelativeUnit
+  readonly shift?: number | undefined
 }
 
 export interface DateRange {
@@ -115,7 +116,7 @@ const DURATION_OF: Readonly<Record<RelativeUnit, (amount: number) => Temporal.Du
 export function resolveRelativeRange(range: RelativeRange, todayIso: string): DateRange {
   const now = Temporal.PlainDate.from(todayIso)
   if (range.direction === 'this') {
-    const start = START_OF_UNIT[range.unit](now)
+    const start = START_OF_UNIT[range.unit](now).add(DURATION_OF[range.unit](range.shift ?? 0))
     const end = start.add(DURATION_OF[range.unit](1)).subtract({ days: 1 })
     return { start: start.toString(), end: end.toString() }
   }

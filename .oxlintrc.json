@@ -33,7 +33,8 @@
     "typescript/prefer-nullish-coalescing": "error",
     "typescript/restrict-template-expressions": "error",
     "import/no-cycle": "error",
-    "unicorn/no-array-for-each": "off"
+    "unicorn/no-array-for-each": "off",
+    "consistent-return": "off"
   },
   "ignorePatterns": ["**/dist/**", "**/coverage/**", "**/node_modules/**"],
   "overrides": [

@@ -101,5 +101,11 @@ describe('resolveRelativeRange', () => {
       start: '2026-01-01',
       end: '2026-12-31',
     })
+    expect(
+      resolveRelativeRange({ direction: 'this', amount: 1, unit: 'month', shift: -1 }, now),
+    ).toEqual({ start: '2026-09-01', end: '2026-09-30' })
+    expect(
+      resolveRelativeRange({ direction: 'this', amount: 1, unit: 'day', shift: 1 }, now),
+    ).toEqual({ start: '2026-10-14', end: '2026-10-14' })
   })
 })
