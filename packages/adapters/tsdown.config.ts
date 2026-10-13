@@ -1,7 +1,7 @@
 import { defineConfig, type UserConfig } from 'tsdown'
 
 const config: UserConfig = defineConfig({
-  entry: ['src/index.ts', 'src/query.ts', 'src/db.ts'],
+  entry: ['src/index.ts', 'src/query.ts', 'src/db.ts', 'src/supabase.ts'],
   format: 'esm',
   platform: 'neutral',
   dts: true,

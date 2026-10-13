@@ -13,6 +13,7 @@ catalog:
   '@changesets/changelog-github': 1.0.1
   '@changesets/cli': 3.0.3
   '@size-limit/preset-small-lib': 14.2.0
+  '@supabase/supabase-js': 2.117.3
   '@tanstack/db': 0.13.0
   '@tanstack/query-core': 5.104.2
   '@tanstack/react-virtual': 3.14.15

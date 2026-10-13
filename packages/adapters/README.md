@@ -80,6 +80,35 @@ const source = createCollectionSource(accounts, schema)
 
 Virtual properties the collection adds to items, such as `$hasPendingWrites`, are stripped from rows.
 
+## Supabase
+
+Runs the grid straight against a Supabase table with no server of your own. Filters, search, sorts and pages compile to PostgREST query strings, edits go through the table API, and Supabase Realtime delivers live patches. Import from `tally-adapters/supabase`.
+
+```ts
+import { createClient } from '@supabase/supabase-js'
+import { createSupabaseSource } from 'tally-adapters/supabase'
+
+const client = createClient(url, key)
+const source = createSupabaseSource({ client, table: 'accounts', schema })
+```
+
+| Option       | Type                     | Notes                                                                     |
+| ------------ | ------------------------ | ------------------------------------------------------------------------- |
+| `client`     | `SupabaseClient`         |                                                                           |
+| `table`      | `string`                 |                                                                           |
+| `schema`     | `Schema`                 | The key must be a field name. It need not be a column.                    |
+| `dbSchema`   | `string`                 | Default `public`.                                                         |
+| `columns`    | `Record<string, string>` | Column id to database column name.                                        |
+| `pagination` | `'offset' \| 'cursor'`   | Default `offset`. Cursors encode an offset.                               |
+| `maxLimit`   | `number`                 | Default `1000`.                                                           |
+| `mutable`    | `boolean`                | Default `true`.                                                           |
+| `realtime`   | `boolean`                | Default `true`. The table must be in the `supabase_realtime` publication. |
+| `today`      | `string`                 | Reference date for relative ranges.                                       |
+
+Groups, aggregates and facets are computed in the grid from the loaded page, since PostgREST exposes no grouping. Text comparisons are case insensitive through `ilike` with wildcards escaped, and `%` and `_` in values match literally. Negation is pushed down to each condition so empty cells behave like the reference engine. A mutation runs as one request per statement, not as a transaction. Sorting follows the database collation, so text order can differ from the reference engine for mixed case values, and enum columns sort by value rather than option order.
+
+The integration tests run against a local stack: `supabase start` inside `packages/adapters`, then `pnpm test:supabase`.
+
 ## Conformance
 
 Every adapter in this package runs the `tally-protocol` conformance suite against the reference executor, so a filter means the same thing on every backend.

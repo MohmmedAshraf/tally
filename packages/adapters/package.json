@@ -26,6 +26,10 @@
       "types": "./dist/db.d.ts",
       "default": "./dist/db.js"
     },
+    "./supabase": {
+      "types": "./dist/supabase.d.ts",
+      "default": "./dist/supabase.js"
+    },
     "./package.json": "./package.json"
   },
   "files": [
@@ -45,11 +49,13 @@
     "test": "vitest run --passWithNoTests --coverage.enabled=false",
     "publint": "publint",
     "attw": "attw --pack . --profile esm-only",
-    "size": "size-limit"
+    "size": "size-limit",
+    "test:supabase": "TALLY_SUPABASE_URL=http://127.0.0.1:56321 vitest run src/supabase --coverage.enabled=false"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "catalog:",
     "@size-limit/preset-small-lib": "catalog:",
+    "@supabase/supabase-js": "catalog:",
     "@tanstack/db": "catalog:",
     "@tanstack/query-core": "catalog:",
     "publint": "catalog:",
@@ -69,7 +75,8 @@
         "eventsource",
         "tally-core",
         "tally-protocol",
-        "zod"
+        "zod",
+        "@supabase/supabase-js"
       ]
     },
     {
@@ -81,7 +88,8 @@
         "eventsource",
         "tally-core",
         "tally-protocol",
-        "zod"
+        "zod",
+        "@supabase/supabase-js"
       ]
     },
     {
@@ -93,7 +101,21 @@
         "eventsource",
         "tally-core",
         "tally-protocol",
-        "zod"
+        "zod",
+        "@supabase/supabase-js"
+      ]
+    },
+    {
+      "path": "dist/supabase.js",
+      "limit": "5 kB",
+      "ignore": [
+        "@tanstack/db",
+        "@tanstack/query-core",
+        "eventsource",
+        "tally-core",
+        "tally-protocol",
+        "zod",
+        "@supabase/supabase-js"
       ]
     }
   ],
@@ -104,10 +126,14 @@
     "zod": "catalog:"
   },
   "peerDependencies": {
+    "@supabase/supabase-js": ">=2",
     "@tanstack/db": ">=0.13",
     "@tanstack/query-core": ">=5"
   },
   "peerDependenciesMeta": {
+    "@supabase/supabase-js": {
+      "optional": true
+    },
     "@tanstack/db": {
       "optional": true
     },
