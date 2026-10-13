@@ -32,8 +32,16 @@ export function facetColumns(schema: Schema): readonly string[] {
     .map((column) => column.id)
 }
 
-export function footerAggregates(view: View): readonly AggregateRequest[] {
-  return Object.entries(view.footer).map(([column, fn]) => ({ column, fn }))
+export function footerAggregates(view: View, schema: Schema): readonly AggregateRequest[] {
+  const requests: AggregateRequest[] = []
+  for (const [column, fn] of Object.entries(view.footer)) {
+    requests.push({ column, fn })
+    const definition = schema.column(column)
+    if (definition === undefined || schema.typeOf(definition).kind !== 'date') continue
+    if (fn === 'min') requests.push({ column, fn: 'max' })
+    if (fn === 'max') requests.push({ column, fn: 'min' })
+  }
+  return requests
 }
 
 export function planQuery(
@@ -45,7 +53,7 @@ export function planQuery(
   const filter = view.filter
   const remoteFilter =
     capabilities.filter && (filter === undefined || !needsClient(filter, capabilities))
-  const aggregates = footerAggregates(view)
+  const aggregates = footerAggregates(view, schema)
   const facets = facetColumns(schema)
   const request: QueryRequest = {
     version: 1,

@@ -4,7 +4,7 @@ import { createSchema } from '../schema/schema.ts'
 import { arrayCapabilities } from '../source/array-source.ts'
 import type { Capabilities } from '../source/data-source.ts'
 import { defaultView } from '../view/view.ts'
-import { planQuery } from './plan.ts'
+import { footerAggregates, planQuery } from './plan.ts'
 
 const schema = createSchema({
   columns: [
@@ -12,6 +12,7 @@ const schema = createSchema({
     { id: 'plan', type: 'enum', options: [{ value: 'pro' }] },
     { id: 'mrr', type: 'currency', aggregate: 'sum' },
     { id: 'notes', filterable: false },
+    { id: 'renewal', type: 'date' },
   ],
 })
 
@@ -44,7 +45,7 @@ describe('planQuery', () => {
       sort: view.sort,
       group: view.group,
       aggregates: [{ column: 'mrr', fn: 'sum' }],
-      facets: ['plan', 'mrr'],
+      facets: ['plan', 'mrr', 'renewal'],
     })
   })
 
@@ -59,7 +60,7 @@ describe('planQuery', () => {
       filter: view.filter,
       group: view.group,
       aggregates: [{ column: 'mrr', fn: 'sum' }],
-      facets: ['plan', 'mrr'],
+      facets: ['plan', 'mrr', 'renewal'],
     })
   })
 
@@ -67,5 +68,14 @@ describe('planQuery', () => {
     const plan = planQuery({ ...view, filter: flag('changed') }, schema, arrayCapabilities)
     expect(plan.request.filter).toBeUndefined()
     expect(plan.local?.filter).toEqual(flag('changed'))
+  })
+
+  it('requests both ends of a date range for date footers', () => {
+    const footer = { ...view, footer: { mrr: 'sum' as const, renewal: 'min' as const } }
+    expect(footerAggregates(footer, schema)).toEqual([
+      { column: 'mrr', fn: 'sum' },
+      { column: 'renewal', fn: 'min' },
+      { column: 'renewal', fn: 'max' },
+    ])
   })
 })
