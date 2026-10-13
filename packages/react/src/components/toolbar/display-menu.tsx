@@ -1,5 +1,6 @@
-import { Menu } from '@base-ui/react/menu'
-import { Check, SlidersHorizontal } from 'lucide-react'
+import { Popover } from '@base-ui/react/popover'
+import { Switch } from '@base-ui/react/switch'
+import { SlidersHorizontal } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { columnLabel, type Density, type Grid } from 'tally-core'
 import { useView } from '../../hooks/use-store.ts'
@@ -8,70 +9,74 @@ import { useLabels } from '../labels.ts'
 
 const DENSITIES: readonly Density[] = ['compact', 'comfortable', 'spacious']
 
-function isDensity(value: string): value is Density {
-  return (DENSITIES as readonly string[]).includes(value)
-}
-
 export function DisplayMenu({ grid }: { readonly grid: Grid }): ReactNode {
   const labels = useLabels()
   const { root } = useShell()
   const density = useView(grid, (view) => view.density)
   const columns = useView(grid, (view) => view.columns)
   return (
-    <Menu.Root>
-      <Menu.Trigger className="tally-button" aria-label={labels.display}>
+    <Popover.Root>
+      <Popover.Trigger className="tally-button" aria-label={labels.display}>
         <SlidersHorizontal size={14} aria-hidden />
         {labels.display}
-      </Menu.Trigger>
-      <Menu.Portal container={root}>
-        <Menu.Positioner
+      </Popover.Trigger>
+      <Popover.Portal container={root}>
+        <Popover.Positioner
           className="tally-popup-positioner"
           positionMethod="fixed"
           sideOffset={6}
           align="end"
         >
-          <Menu.Popup className="tally-popup tally-menu">
-            <Menu.RadioGroup
-              value={density}
-              onValueChange={(value: string) => {
-                if (isDensity(value)) grid.view.setDensity(value)
-              }}
-            >
-              <Menu.GroupLabel className="tally-menu-label">{labels.density}</Menu.GroupLabel>
+          <Popover.Popup className="tally-popup tally-display" aria-label={labels.display}>
+            <div className="tally-menu-label">{labels.density}</div>
+            <div className="tally-segmented" role="radiogroup" data-fill="">
               {DENSITIES.map((option) => (
-                <Menu.RadioItem key={option} className="tally-popup-item" value={option}>
+                <button
+                  key={option}
+                  type="button"
+                  role="radio"
+                  aria-checked={density === option}
+                  className="tally-segment"
+                  onClick={() => grid.view.setDensity(option)}
+                >
                   {labels.densities[option]}
-                  <Menu.RadioItemIndicator className="tally-popup-indicator">
-                    <Check size={14} aria-hidden />
-                  </Menu.RadioItemIndicator>
-                </Menu.RadioItem>
+                </button>
               ))}
-            </Menu.RadioGroup>
-            <Menu.Separator className="tally-menu-separator" />
-            <Menu.Group>
-              <Menu.GroupLabel className="tally-menu-label">{labels.columns}</Menu.GroupLabel>
+            </div>
+            <div className="tally-menu-label">{labels.columns}</div>
+            <div className="tally-display-columns">
               {columns.map((state) => {
                 const column = grid.schema.column(state.id)
                 if (column === undefined) return null
+                const label = columnLabel(column)
+                const pinned = state.pin === 'left'
                 return (
-                  <Menu.CheckboxItem
-                    key={state.id}
-                    className="tally-popup-item"
-                    checked={state.hidden !== true}
-                    closeOnClick={false}
-                    onCheckedChange={(checked) => grid.view.setColumnHidden(state.id, !checked)}
-                  >
-                    <span className="tally-text">{columnLabel(column)}</span>
-                    <Menu.CheckboxItemIndicator className="tally-popup-indicator">
-                      <Check size={14} aria-hidden />
-                    </Menu.CheckboxItemIndicator>
-                  </Menu.CheckboxItem>
+                  <div key={state.id} className="tally-display-row">
+                    <Switch.Root
+                      className="tally-switch"
+                      checked={state.hidden !== true}
+                      aria-label={label}
+                      onCheckedChange={(checked) => grid.view.setColumnHidden(state.id, !checked)}
+                    >
+                      <Switch.Thumb className="tally-switch-thumb" />
+                    </Switch.Root>
+                    <span className="tally-text">{label}</span>
+                    <button
+                      type="button"
+                      className="tally-display-pin"
+                      aria-pressed={pinned}
+                      aria-label={`${pinned ? labels.unpin : labels.pinLeft}: ${label}`}
+                      onClick={() => grid.view.pinColumn(state.id, pinned ? undefined : 'left')}
+                    >
+                      {pinned ? labels.pinned : labels.pin}
+                    </button>
+                  </div>
                 )
               })}
-            </Menu.Group>
-          </Menu.Popup>
-        </Menu.Positioner>
-      </Menu.Portal>
-    </Menu.Root>
+            </div>
+          </Popover.Popup>
+        </Popover.Positioner>
+      </Popover.Portal>
+    </Popover.Root>
   )
 }

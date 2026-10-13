@@ -20,6 +20,8 @@ export interface TallyLabels {
   readonly pinLeft: string
   readonly pinRight: string
   readonly unpin: string
+  readonly pin: string
+  readonly pinned: string
   readonly hideColumn: string
   readonly footer: string
   readonly none: string
@@ -35,6 +37,13 @@ export interface TallyLabels {
   readonly pinRow: (count: number) => string
   readonly unpinRow: (count: number) => string
   readonly deleteRows: (count: number) => string
+  readonly empty: string
+  readonly noMatches: string
+  readonly noMatchesDetail: (query: string) => string
+  readonly clearFilter: string
+  readonly noColumns: string
+  readonly showAllColumns: string
+  readonly retry: string
   readonly pages: string
   readonly previousPage: string
   readonly nextPage: string
@@ -67,6 +76,8 @@ export const defaultLabels: TallyLabels = {
   pinLeft: 'Pin left',
   pinRight: 'Pin right',
   unpin: 'Unpin',
+  pin: 'Pin',
+  pinned: 'Pinned',
   hideColumn: 'Hide column',
   footer: 'Footer',
   none: 'None',
@@ -82,6 +93,13 @@ export const defaultLabels: TallyLabels = {
   pinRow: (count) => (count > 1 ? `Pin ${count} rows` : 'Pin row'),
   unpinRow: (count) => (count > 1 ? `Unpin ${count} rows` : 'Unpin row'),
   deleteRows: (count) => (count > 1 ? `Delete ${count} rows` : 'Delete row'),
+  empty: 'No rows',
+  noMatches: 'No rows match',
+  noMatchesDetail: (query) => `Nothing fits “${query}”. Loosen a condition or clear the filter.`,
+  clearFilter: 'Clear filter',
+  noColumns: 'No visible columns',
+  showAllColumns: 'Show all columns',
+  retry: 'Retry',
   pages: 'Pages',
   previousPage: 'Previous page',
   nextPage: 'Next page',

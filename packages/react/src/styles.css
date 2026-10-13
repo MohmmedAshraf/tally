@@ -457,6 +457,109 @@
     margin-inline-start: 0;
   }
 
+  .tally-display {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 300px;
+    padding: 8px;
+  }
+
+  .tally-display > .tally-menu-label {
+    padding: 4px 4px 2px;
+  }
+
+  .tally-display > .tally-menu-label + .tally-menu-label {
+    padding-top: 10px;
+  }
+
+  .tally-display-columns {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .tally-display-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 32px;
+    padding: 0 4px;
+    border-radius: var(--tally-radius-xs);
+  }
+
+  .tally-display-row:hover {
+    background: var(--tally-soft);
+  }
+
+  .tally-display-row > .tally-text {
+    flex: 1;
+  }
+
+  .tally-display-pin {
+    height: 22px;
+    padding: 0 6px;
+    border: 0;
+    border-radius: 5px;
+    background: none;
+    color: var(--tally-ink-3);
+    font-size: 11.5px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .tally-display-pin:hover {
+    color: var(--tally-ink);
+  }
+
+  .tally-display-pin[aria-pressed='true'] {
+    background: var(--tally-soft);
+    color: var(--tally-ink-2);
+  }
+
+  .tally-switch {
+    position: relative;
+    display: block;
+    width: 28px;
+    height: 16px;
+    padding: 0;
+    border: 0;
+    border-radius: 8px;
+    background: var(--tally-line-strong);
+    cursor: pointer;
+    flex: none;
+    transition: background 0.15s ease;
+  }
+
+  .tally-switch[data-checked] {
+    background: var(--tally-accent);
+  }
+
+  .tally-switch-thumb {
+    position: absolute;
+    top: 2px;
+    inset-inline-start: 2px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #ffffff;
+    transition: translate 0.15s ease;
+  }
+
+  .tally-switch-thumb[data-checked] {
+    translate: 12px 0;
+  }
+
+  .tally:dir(rtl) .tally-switch-thumb[data-checked] {
+    translate: -12px 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tally-switch,
+    .tally-switch-thumb {
+      transition: none;
+    }
+  }
+
   .tally-menu-label {
     padding: 8px 10px 4px;
     font-size: 11px;
@@ -509,8 +612,16 @@
     background: var(--tally-soft);
   }
 
+  .tally-segmented[data-fill] {
+    flex-wrap: nowrap;
+  }
+
   .tally-segmented[data-fill] .tally-segment {
     flex: 1;
+    min-width: 0;
+    padding: 0 6px;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .tally-segment {
@@ -1929,11 +2040,73 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 8px 14px;
+    padding: 6px 10px 6px 14px;
     background: var(--tally-down-soft);
     color: var(--tally-down);
     font-size: 12.5px;
     flex: none;
+  }
+
+  .tally-status > svg {
+    flex: none;
+  }
+
+  .tally-status-message {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .tally-status > .tally-button {
+    height: 26px;
+    padding: 0 9px;
+    font-size: 12.5px;
+    color: var(--tally-down);
+    background: color-mix(in oklch, var(--tally-down) 10%, transparent);
+  }
+
+  .tally-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 260px;
+    padding: 28px 24px;
+    text-align: center;
+  }
+
+  .tally-empty-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    margin-bottom: 8px;
+    border-radius: 12px;
+    background: var(--tally-soft);
+    color: var(--tally-ink-2);
+  }
+
+  .tally-empty-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--tally-ink);
+  }
+
+  .tally-empty-detail {
+    max-width: 44ch;
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--tally-ink-2);
+    text-wrap: balance;
+  }
+
+  .tally-empty > .tally-button {
+    margin-top: 12px;
   }
 
   .tally-visually-hidden {

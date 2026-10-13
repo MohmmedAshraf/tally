@@ -6,15 +6,16 @@ import {
   type CSSProperties,
   type ReactNode,
 } from 'react'
-import type { Grid } from 'tally-core'
+import { Columns3, Inbox, RefreshCw, SearchX, CircleAlert } from 'lucide-react'
+import { printFilter, type Grid } from 'tally-core'
 import { GridProvider } from '../hooks/context.tsx'
-import { useColumnLayout, useGridState, useView } from '../hooks/use-store.ts'
+import { useColumnLayout, useGridState, useRowModel, useView } from '../hooks/use-store.ts'
 import { Body } from './body.tsx'
 import { Cards } from './cards.tsx'
 import { defaultRenderers, type CellRenderers } from './cells/renderers.tsx'
 import { defaultEditors, type CellEditors } from './editors/editors.tsx'
 import { ShellContext, useShell, type TallyShell } from './context.ts'
-import { LabelsContext, defaultLabels, type TallyLabels } from './labels.ts'
+import { LabelsContext, defaultLabels, useLabels, type TallyLabels } from './labels.ts'
 import { Pager } from './pager.tsx'
 import { Toolbar } from './toolbar/toolbar.tsx'
 import type { AskHandler } from './toolbar/filter-bar.tsx'
@@ -54,6 +55,69 @@ function useNarrow(root: { readonly current: HTMLElement | null }, threshold: nu
   return narrow
 }
 
+function EmptyState({
+  grid,
+  columns,
+}: {
+  readonly grid: Grid
+  readonly columns: number
+}): ReactNode {
+  const labels = useLabels()
+  const filter = useView(grid, (view) => view.filter)
+  if (columns === 0) {
+    return (
+      <div className="tally-empty" role="status">
+        <span className="tally-empty-icon">
+          <Columns3 size={20} strokeWidth={1.75} aria-hidden />
+        </span>
+        <span className="tally-empty-title">{labels.noColumns}</span>
+        <button
+          type="button"
+          className="tally-button"
+          data-primary=""
+          onClick={() =>
+            grid.view.update((view) => ({
+              ...view,
+              columns: view.columns.map((state) => ({ ...state, hidden: false })),
+            }))
+          }
+        >
+          {labels.showAllColumns}
+        </button>
+      </div>
+    )
+  }
+  if (filter === undefined) {
+    return (
+      <div className="tally-empty" role="status">
+        <span className="tally-empty-icon">
+          <Inbox size={20} strokeWidth={1.75} aria-hidden />
+        </span>
+        <span className="tally-empty-title">{labels.empty}</span>
+      </div>
+    )
+  }
+  return (
+    <div className="tally-empty" role="status">
+      <span className="tally-empty-icon">
+        <SearchX size={20} strokeWidth={1.75} aria-hidden />
+      </span>
+      <span className="tally-empty-title">{labels.noMatches}</span>
+      <p className="tally-empty-detail">
+        {labels.noMatchesDetail(printFilter(filter, grid.schema))}
+      </p>
+      <button
+        type="button"
+        className="tally-button"
+        data-primary=""
+        onClick={() => grid.view.setFilter(undefined)}
+      >
+        {labels.clearFilter}
+      </button>
+    </div>
+  )
+}
+
 function Viewport({
   grid,
   initialSize,
@@ -63,22 +127,38 @@ function Viewport({
 }: Pick<TallyProps, 'grid' | 'initialSize' | 'label' | 'onIntent'> & {
   readonly cards: boolean
 }): ReactNode {
+  const labels = useLabels()
   const layout = useColumnLayout(grid)
   const { viewport } = useShell()
   const status = useGridState(grid, (state) => state.status)
   const error = useGridState(grid, (state) => state.error)
   const matched = useGridState(grid, (state) => state.matched ?? state.total)
+  const rowCount = useRowModel(grid).rows.length
+  const bare = layout.columns.length === 0
+  const empty =
+    status === 'ready' && (rowCount === 0 || bare) ? (
+      <EmptyState grid={grid} columns={layout.columns.length} />
+    ) : null
+  const message = error instanceof Error ? error.message : String(error)
   return (
     <>
       {status === 'loading' ? <div className="tally-progress" aria-hidden /> : null}
       {status === 'error' ? (
         <div className="tally-status" role="alert">
-          {error instanceof Error ? error.message : String(error)}
+          <CircleAlert size={15} aria-hidden />
+          <span className="tally-status-message" title={message}>
+            {message}
+          </span>
+          <button type="button" className="tally-button" onClick={() => void grid.load()}>
+            <RefreshCw size={13} aria-hidden />
+            {labels.retry}
+          </button>
         </div>
       ) : null}
       {cards ? (
         <div ref={viewport} className="tally-viewport" aria-label={label} data-layout="cards">
           <Cards grid={grid} />
+          {empty}
         </div>
       ) : (
         <div
@@ -92,7 +172,10 @@ function Viewport({
           aria-colcount={layout.columns.length + 1}
           aria-multiselectable
         >
-          <Body grid={grid} layout={layout} initialSize={initialSize} onIntent={onIntent} />
+          {bare ? null : (
+            <Body grid={grid} layout={layout} initialSize={initialSize} onIntent={onIntent} />
+          )}
+          {empty}
         </div>
       )}
       <Pager grid={grid} />
