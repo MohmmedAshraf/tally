@@ -1,0 +1,704 @@
+@layer tally {
+  .tally {
+    --tally-bg: light-dark(#ffffff, oklch(0.17 0.006 265));
+    --tally-canvas: light-dark(oklch(0.975 0.003 265), oklch(0.14 0.005 265));
+    --tally-soft: light-dark(oklch(0.962 0.004 265), oklch(0.225 0.008 265));
+    --tally-hover: light-dark(oklch(0.982 0.003 265), oklch(0.195 0.007 265));
+    --tally-ink: light-dark(oklch(0.21 0.012 265), oklch(0.95 0.004 265));
+    --tally-ink-2: light-dark(oklch(0.46 0.013 265), oklch(0.75 0.01 265));
+    --tally-ink-3: light-dark(oklch(0.62 0.011 265), oklch(0.57 0.012 265));
+    --tally-line: light-dark(oklch(0.922 0.005 265), oklch(0.265 0.008 265));
+    --tally-line-2: light-dark(oklch(0.953 0.004 265), oklch(0.215 0.007 265));
+    --tally-line-strong: light-dark(oklch(0.85 0.008 265), oklch(0.37 0.01 265));
+    --tally-accent: light-dark(oklch(0.53 0.2 268), oklch(0.7 0.16 268));
+    --tally-up: light-dark(oklch(0.55 0.13 155), oklch(0.76 0.14 155));
+    --tally-up-soft: light-dark(oklch(0.95 0.045 155), oklch(0.3 0.06 155));
+    --tally-down: light-dark(oklch(0.56 0.19 25), oklch(0.72 0.16 25));
+    --tally-down-soft: light-dark(oklch(0.96 0.03 25), oklch(0.3 0.07 25));
+    --tally-warn: light-dark(oklch(0.76 0.15 75), oklch(0.8 0.14 80));
+    --tally-warn-ink: light-dark(oklch(0.56 0.13 65), oklch(0.82 0.12 80));
+    --tally-warn-soft: light-dark(oklch(0.97 0.04 80), oklch(0.28 0.05 80));
+    --tally-ai: light-dark(oklch(0.6 0.2 300), oklch(0.72 0.17 300));
+    --tally-ai-soft: light-dark(oklch(0.965 0.025 300), oklch(0.27 0.06 300));
+    --tally-ai-ink: light-dark(oklch(0.5 0.19 300), oklch(0.82 0.12 300));
+    --tally-inverse: light-dark(oklch(0.21 0.012 265), oklch(0.95 0.004 265));
+    --tally-inverse-ink: light-dark(#ffffff, oklch(0.17 0.006 265));
+    --tally-selection: color-mix(in oklch, var(--tally-accent) 12%, var(--tally-bg));
+    --tally-selection-row: color-mix(in oklch, var(--tally-accent) 5%, var(--tally-bg));
+    --tally-ring: color-mix(in oklch, var(--tally-accent) 18%, transparent);
+    --tally-shadow: 0 12px 32px -12px rgb(0 0 0 / 0.18), 0 0 0 1px var(--tally-line);
+    --tally-radius: 12px;
+    --tally-radius-sm: 8px;
+    --tally-font: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --tally-font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
+    --tally-font-size: 13.5px;
+    --tally-row-height: 48px;
+    --tally-header-height: 40px;
+    --tally-group-band-height: 30px;
+    --tally-group-height: 44px;
+    --tally-footer-height: 38px;
+    --tally-gutter-width: 44px;
+    --tally-cell-padding: 12px;
+
+    color-scheme: light dark;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    height: 100%;
+    background: var(--tally-bg);
+    color: var(--tally-ink);
+    font-family: var(--tally-font);
+    font-size: var(--tally-font-size);
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+
+  .tally[data-theme='light'] {
+    color-scheme: light;
+  }
+
+  .tally[data-theme='dark'] {
+    color-scheme: dark;
+  }
+
+  .tally[data-density='compact'] {
+    --tally-row-height: 36px;
+    --tally-font-size: 13px;
+  }
+
+  .tally[data-density='spacious'] {
+    --tally-row-height: 60px;
+  }
+
+  .tally *,
+  .tally *::before,
+  .tally *::after {
+    box-sizing: border-box;
+  }
+
+  .tally button {
+    font: inherit;
+    color: inherit;
+  }
+
+  .tally-viewport {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--tally-line-strong) transparent;
+    outline: none;
+  }
+
+  .tally-viewport:focus-visible {
+    box-shadow: inset 0 0 0 2px var(--tally-ring);
+  }
+
+  .tally-row,
+  .tally-header-row,
+  .tally-footer-row,
+  .tally-group {
+    display: flex;
+    align-items: stretch;
+    min-width: 100%;
+    width: var(--tally-total-width);
+    background: var(--tally-bg);
+  }
+
+  .tally-header {
+    position: sticky;
+    top: 0;
+    z-index: 4;
+    min-width: 100%;
+    width: var(--tally-total-width);
+  }
+
+  .tally-header-row {
+    height: var(--tally-header-height);
+    color: var(--tally-ink-2);
+    font-size: 12.5px;
+    font-weight: 500;
+    box-shadow: inset 0 -1px 0 var(--tally-line);
+  }
+
+  .tally-band {
+    display: flex;
+    height: var(--tally-group-band-height);
+    min-width: 100%;
+    width: var(--tally-total-width);
+    background: var(--tally-canvas);
+    box-shadow: inset 0 -1px 0 var(--tally-line);
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--tally-ink-3);
+  }
+
+  .tally-band-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex: none;
+    padding: 0 var(--tally-cell-padding);
+    white-space: nowrap;
+  }
+
+  .tally-band-cell[data-group] {
+    color: var(--tally-ink-2);
+    box-shadow:
+      inset 1px 0 0 var(--tally-line),
+      inset -1px 0 0 var(--tally-line);
+  }
+
+  .tally-band-cell[data-group]::before,
+  .tally-band-cell[data-group]::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--tally-line-strong);
+    opacity: 0.6;
+  }
+
+  .tally-cell,
+  .tally-header-cell,
+  .tally-footer-cell {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    flex: none;
+    min-width: 0;
+    padding: 0 var(--tally-cell-padding);
+    background: inherit;
+  }
+
+  .tally-cell[data-align='end'],
+  .tally-footer-cell[data-align='end'] {
+    justify-content: flex-end;
+    font-family: var(--tally-font-mono);
+    font-size: 12.5px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .tally-header-cell[data-align='end'] {
+    justify-content: flex-end;
+  }
+
+  .tally-cell[data-align='end'] .tally-text {
+    direction: ltr;
+    unicode-bidi: isolate;
+  }
+
+  .tally-cell[data-pin],
+  .tally-header-cell[data-pin],
+  .tally-footer-cell[data-pin],
+  .tally-gutter {
+    position: sticky;
+    z-index: 2;
+    background: var(--tally-bg);
+  }
+
+  .tally-gutter {
+    inset-inline-start: 0;
+    z-index: 3;
+  }
+
+  .tally-cell[data-pin='left'],
+  .tally-header-cell[data-pin='left'],
+  .tally-footer-cell[data-pin='left'] {
+    inset-inline-start: var(--tally-pin-offset);
+  }
+
+  .tally-cell[data-pin='right'],
+  .tally-header-cell[data-pin='right'],
+  .tally-footer-cell[data-pin='right'] {
+    inset-inline-end: var(--tally-pin-offset);
+  }
+
+  [data-pin='left'][data-pin-edge],
+  .tally-gutter[data-pin-edge] {
+    box-shadow:
+      inset -1px 0 0 var(--tally-line),
+      8px 0 14px -10px rgb(0 0 0 / 0.25);
+  }
+
+  [data-pin='right'][data-pin-edge] {
+    box-shadow:
+      inset 1px 0 0 var(--tally-line),
+      -8px 0 14px -10px rgb(0 0 0 / 0.25);
+  }
+
+  .tally:dir(rtl) [data-pin='left'][data-pin-edge],
+  .tally:dir(rtl) .tally-gutter[data-pin-edge] {
+    box-shadow:
+      inset 1px 0 0 var(--tally-line),
+      -8px 0 14px -10px rgb(0 0 0 / 0.25);
+  }
+
+  .tally:dir(rtl) [data-pin='right'][data-pin-edge] {
+    box-shadow:
+      inset -1px 0 0 var(--tally-line),
+      8px 0 14px -10px rgb(0 0 0 / 0.25);
+  }
+
+  .tally-spacer {
+    flex: none;
+  }
+
+  .tally-header-cell {
+    user-select: none;
+  }
+
+  .tally-header-cell[data-sorted] {
+    color: var(--tally-ink);
+    font-weight: 600;
+  }
+
+  .tally-header-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    text-align: start;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .tally-header-label:hover {
+    color: var(--tally-ink);
+  }
+
+  .tally-sort-glyph {
+    font-family: var(--tally-font-mono);
+    font-size: 11px;
+    color: var(--tally-ink);
+    flex: none;
+  }
+
+  .tally-gutter {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    width: var(--tally-gutter-width);
+    padding: 0;
+    font-family: var(--tally-font-mono);
+    font-size: 11px;
+    color: var(--tally-ink-3);
+  }
+
+  .tally-body {
+    position: relative;
+    min-width: 100%;
+    width: var(--tally-total-width);
+  }
+
+  .tally-row {
+    height: var(--tally-row-height);
+    box-shadow: inset 0 -1px 0 var(--tally-line-2);
+  }
+
+  .tally-body .tally-row {
+    position: absolute;
+    top: 0;
+    inset-inline-start: 0;
+  }
+
+  .tally-row[data-wrap] {
+    height: auto;
+    min-height: var(--tally-row-height);
+  }
+
+  .tally-row[data-wrap] .tally-cell {
+    align-items: flex-start;
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+
+  .tally-row:hover,
+  .tally-row:hover .tally-cell[data-pin],
+  .tally-row:hover .tally-gutter {
+    background: var(--tally-hover);
+  }
+
+  .tally-row[data-selected],
+  .tally-row[data-selected] .tally-cell[data-pin],
+  .tally-row[data-selected] .tally-gutter {
+    background: var(--tally-selection-row);
+  }
+
+  .tally-pinned-rows {
+    position: sticky;
+    top: var(--tally-header-offset);
+    z-index: 3;
+    min-width: 100%;
+    width: var(--tally-total-width);
+  }
+
+  .tally-pinned-rows .tally-row,
+  .tally-pinned-rows .tally-row .tally-cell[data-pin],
+  .tally-pinned-rows .tally-row .tally-gutter {
+    background: var(--tally-canvas);
+  }
+
+  .tally-pinned-rows .tally-row:last-child {
+    box-shadow: inset 0 -1px 0 var(--tally-line-strong);
+  }
+
+  .tally-group {
+    height: var(--tally-group-height);
+    align-items: center;
+    gap: 10px;
+    padding-inline: 14px;
+    background: var(--tally-canvas);
+    box-shadow: inset 0 -1px 0 var(--tally-line);
+    font-weight: 600;
+    position: sticky;
+    inset-inline-start: 0;
+  }
+
+  .tally-body .tally-group {
+    position: absolute;
+    top: 0;
+  }
+
+  .tally-group-sticky {
+    position: sticky;
+    top: var(--tally-header-offset);
+    z-index: 3;
+    min-width: 100%;
+    width: var(--tally-total-width);
+    height: 0;
+    overflow: visible;
+  }
+
+  .tally-group-sticky .tally-group {
+    box-shadow:
+      0 1px 0 var(--tally-line),
+      0 6px 14px -10px rgb(0 0 0 / 0.25);
+  }
+
+  .tally-group-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: 0;
+    border-radius: 6px;
+    background: none;
+    color: var(--tally-ink-3);
+    cursor: pointer;
+  }
+
+  .tally-group-toggle:hover {
+    background: var(--tally-bg);
+    color: var(--tally-ink);
+  }
+
+  .tally-group-count {
+    font-family: var(--tally-font-mono);
+    font-weight: 500;
+    font-size: 11px;
+    color: var(--tally-ink-3);
+    background: var(--tally-bg);
+    border-radius: 6px;
+    padding: 1px 6px;
+    box-shadow: 0 0 0 1px var(--tally-line);
+  }
+
+  .tally-group-aggregates {
+    margin-inline-start: auto;
+    display: flex;
+    gap: 22px;
+    font-family: var(--tally-font-mono);
+    font-weight: 500;
+    font-size: 12px;
+    color: var(--tally-ink-2);
+  }
+
+  .tally-text {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .tally-text[data-wrap] {
+    white-space: normal;
+    line-height: 1.45;
+    overflow: visible;
+  }
+
+  .tally-stack {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.2;
+  }
+
+  .tally-stack .tally-text {
+    font-weight: 500;
+  }
+
+  .tally-sub {
+    font-size: 11.5px;
+    color: var(--tally-ink-3);
+    margin-top: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .tally-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 22px;
+    padding: 0 9px;
+    border-radius: 7px;
+    background: var(--tally-soft);
+    font-size: 12px;
+    color: var(--tally-ink-2);
+    white-space: nowrap;
+    max-width: 100%;
+  }
+
+  .tally-pill i {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--tally-pill-color, currentColor);
+    flex: none;
+  }
+
+  .tally-avatar {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8.5px;
+    font-weight: 600;
+    flex: none;
+    background: oklch(0.9 0.05 var(--tally-avatar-hue));
+    color: oklch(0.4 0.09 var(--tally-avatar-hue));
+  }
+
+  .tally-meter {
+    display: flex;
+    gap: 2px;
+    align-items: center;
+    flex: none;
+  }
+
+  .tally-meter b {
+    width: 4px;
+    height: 12px;
+    border-radius: 1.5px;
+    background: var(--tally-line);
+  }
+
+  .tally-meter b[data-on] {
+    background: var(--tally-meter-color, var(--tally-up));
+  }
+
+  .tally-cell[data-sign='up'] .tally-text {
+    color: var(--tally-up);
+    font-weight: 500;
+  }
+
+  .tally-cell[data-sign='down'] .tally-text {
+    color: var(--tally-down);
+    font-weight: 500;
+  }
+
+  .tally-link {
+    color: inherit;
+    text-decoration: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
+
+  .tally-link:hover {
+    color: var(--tally-accent);
+    text-decoration: underline;
+  }
+
+  .tally-bool {
+    display: inline-flex;
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    align-items: center;
+    justify-content: center;
+    color: var(--tally-inverse-ink);
+    background: var(--tally-accent);
+  }
+
+  .tally-bool[data-off] {
+    background: none;
+    box-shadow: inset 0 0 0 1.5px var(--tally-line-strong);
+  }
+
+  .tally-mono {
+    font-family: var(--tally-font-mono);
+    font-size: 12.5px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .tally-expander {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: 0;
+    border-radius: 5px;
+    background: none;
+    color: var(--tally-ink-3);
+    cursor: pointer;
+    flex: none;
+  }
+
+  .tally-expander:hover {
+    background: var(--tally-soft);
+    color: var(--tally-ink);
+  }
+
+  .tally-expander[data-open] svg {
+    rotate: 90deg;
+  }
+
+  .tally:dir(rtl) .tally-expander svg {
+    scale: -1 1;
+  }
+
+  .tally-cell[data-rule] {
+    background: var(--tally-rule-background, inherit);
+    color: var(--tally-rule-color, inherit);
+  }
+
+  .tally-cell[data-rule] .tally-text {
+    color: inherit;
+  }
+
+  .tally-cell[data-bold] .tally-text {
+    font-weight: 600;
+  }
+
+  .tally-cell[data-italic] .tally-text {
+    font-style: italic;
+  }
+
+  .tally-cell[data-strike] .tally-text {
+    text-decoration: line-through;
+  }
+
+  .tally-footer {
+    position: sticky;
+    bottom: 0;
+    z-index: 4;
+    min-width: 100%;
+    width: var(--tally-total-width);
+  }
+
+  .tally-footer-row {
+    height: var(--tally-footer-height);
+    box-shadow: inset 0 1px 0 var(--tally-line);
+    color: var(--tally-ink-2);
+    font-size: 12.5px;
+  }
+
+  .tally-footer-cell {
+    gap: 6px;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .tally-footer-label {
+    color: var(--tally-ink-3);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-family: var(--tally-font);
+    flex: none;
+  }
+
+  .tally-footer-value {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .tally-footer-cell[data-align='end'] .tally-footer-value {
+    direction: ltr;
+    unicode-bidi: isolate;
+  }
+
+  .tally-progress {
+    position: absolute;
+    top: 0;
+    inset-inline: 0;
+    height: 2px;
+    z-index: 6;
+    background: linear-gradient(90deg, transparent, var(--tally-accent), transparent);
+    background-size: 40% 100%;
+    animation: tally-progress 1s linear infinite;
+  }
+
+  @keyframes tally-progress {
+    from {
+      background-position: -40% 0;
+    }
+    to {
+      background-position: 140% 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tally-progress {
+      animation: none;
+      background: var(--tally-accent);
+    }
+  }
+
+  .tally-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    background: var(--tally-down-soft);
+    color: var(--tally-down);
+    font-size: 12.5px;
+    flex: none;
+  }
+
+  .tally-visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+}

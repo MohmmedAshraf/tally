@@ -44,7 +44,9 @@
     "react/react-in-jsx-scope": "off",
     "react/jsx-no-useless-fragment": "error",
     "react/exhaustive-deps": "error",
-    "react/rules-of-hooks": "error"
+    "react/rules-of-hooks": "error",
+    "jsx-a11y/prefer-tag-over-role": "off",
+    "react/incompatible-library": "off"
   },
   "ignorePatterns": ["**/dist/**", "**/coverage/**", "**/node_modules/**"],
   "overrides": [
@@ -58,6 +60,13 @@
     {
       "files": ["**/test/setup.ts"],
       "rules": {
+        "import/no-unassigned-import": "off"
+      }
+    },
+    {
+      "files": ["**/*.d.ts"],
+      "rules": {
+        "unicorn/require-module-specifiers": "off",
         "import/no-unassigned-import": "off"
       }
     }

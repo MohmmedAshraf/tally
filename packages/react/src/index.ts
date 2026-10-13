@@ -8,3 +8,10 @@ export {
   useSelection,
   useView,
 } from './hooks/use-store.ts'
+export { Tally, type TallyProps } from './components/tally.tsx'
+export {
+  defaultRenderers,
+  type CellProps,
+  type CellRenderer,
+  type CellRenderers,
+} from './components/cells/renderers.tsx'

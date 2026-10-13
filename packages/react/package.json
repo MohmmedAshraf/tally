@@ -18,6 +18,7 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./styles.css": "./dist/styles.css",
     "./package.json": "./package.json"
   },
   "files": [
@@ -40,6 +41,8 @@
     "size": "size-limit"
   },
   "dependencies": {
+    "@tanstack/react-virtual": "catalog:",
+    "lucide-react": "catalog:",
     "tally-core": "workspace:*"
   },
   "peerDependencies": {
@@ -65,7 +68,7 @@
   "size-limit": [
     {
       "path": "dist/index.js",
-      "limit": "2 kB",
+      "limit": "16 kB",
       "ignore": [
         "react",
         "react-dom",
