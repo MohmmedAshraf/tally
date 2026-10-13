@@ -24,6 +24,10 @@ export interface TallyLabels {
   readonly footer: string
   readonly none: string
   readonly resizeColumn: string
+  readonly addRow: string
+  readonly pages: string
+  readonly previousPage: string
+  readonly nextPage: string
   readonly columnMenu: (column: string) => string
   readonly groupBy: (column: string) => string
   readonly filterBy: (column: string) => string
@@ -56,6 +60,10 @@ export const defaultLabels: TallyLabels = {
   footer: 'Footer',
   none: 'None',
   resizeColumn: 'Resize column',
+  addRow: 'Add row',
+  pages: 'Pages',
+  previousPage: 'Previous page',
+  nextPage: 'Next page',
   columnMenu: (column) => `${column} options`,
   groupBy: (column) => `Group by ${column}`,
   filterBy: (column) => `Filter by ${column}`,

@@ -1,11 +1,20 @@
 import { useVirtualizer, type Range } from '@tanstack/react-virtual'
-import { useCallback, useId, useLayoutEffect, useMemo, useState, type ReactNode } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react'
 import type { ColumnLayout, Grid, RowModel } from 'tally-core'
-import { useRowModel, useSelection, useView } from '../hooks/use-store.ts'
+import { useGridState, useRowModel, useSelection, useView } from '../hooks/use-store.ts'
 import { useShell } from './context.ts'
 import { Footer } from './footer.tsx'
 import { GROUP_HEIGHT, GUTTER_WIDTH, ROW_HEIGHT, hasWrap, pinOffsets } from './geometry.ts'
 import { GroupRow } from './group-row.tsx'
+import { NewRow } from './new-row.tsx'
 import { Header } from './header.tsx'
 import { useEditing, useFill } from './editing.ts'
 import { useInteractions, type IntentHandler } from './interactions.ts'
@@ -143,15 +152,24 @@ export function Body({ grid, layout, initialSize, onIntent }: BodyProps): ReactN
     if (activeId === undefined) element.removeAttribute('aria-activedescendant')
     else element.setAttribute('aria-activedescendant', activeId)
   }, [viewport, activeId])
+  const status = useGridState(grid, (state) => state.status)
+  const exhausted = useGridState(grid, (state) => state.exhausted)
   const virtualRows = rows.getVirtualItems()
+  const lastVirtualIndex = virtualRows.at(-1)?.index ?? -1
+  useEffect(() => {
+    if (grid.capabilities.pagination !== 'cursor' || exhausted || status !== 'ready') return
+    if (lastVirtualIndex >= items.length - 12) void grid.loadMore()
+  }, [grid, exhausted, status, lastVirtualIndex, items.length])
   const visibleRows = virtualRows
     .map((virtual) => items[virtual.index])
     .filter((item) => item !== undefined && item.kind === 'row')
   const first = visibleRows[0]
   const last = visibleRows.at(-1)
+  const page = useGridState(grid, (state) => state.page)
+  const pageOffset = grid.capabilities.pagination === 'offset' ? page.index * page.size : 0
   const visible =
     first !== undefined && last !== undefined
-      ? { from: first.index + 1, to: last.index + 1 }
+      ? { from: pageOffset + first.index + 1, to: pageOffset + last.index + 1 }
       : undefined
   const currentGroup = (() => {
     const head = virtualRows.find(
@@ -242,6 +260,23 @@ export function Body({ grid, layout, initialSize, onIntent }: BodyProps): ReactN
           )
         })}
       </div>
+      {grid.capabilities.mutate ? (
+        <NewRow
+          grid={grid}
+          layout={layout}
+          offsets={offsets}
+          window={window}
+          onCreated={(rowIndex, column, move) => {
+            grid.selection.dispatch({ type: 'focus', cell: { row: rowIndex, column } })
+            if (move === 'right' || move === 'left') {
+              const next = column + (move === 'right' ? 1 : -1)
+              if (layout.columns[next] !== undefined) {
+                edit.api.start({ row: rowIndex, column: next }, undefined)
+              }
+            }
+          }}
+        />
+      ) : null}
       <Footer grid={grid} layout={layout} offsets={offsets} window={window} visible={visible} />
     </div>
   )

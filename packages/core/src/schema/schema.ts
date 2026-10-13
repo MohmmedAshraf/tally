@@ -16,6 +16,7 @@ export interface Schema {
   readonly columns: readonly Column[]
   readonly registry: TypeRegistry
   readonly hierarchical: boolean
+  readonly keyField: string | undefined
   column(id: string): Column | undefined
   requireColumn(id: string): Column
   typeOf(column: Column): ColumnType
@@ -94,6 +95,7 @@ export function createSchema(options: SchemaOptions): Schema {
     resolve: (name) => byName.get(name.trim().toLowerCase()),
     names: () => names,
     keyOf,
+    keyField: typeof options.key === 'function' ? undefined : (options.key ?? 'id'),
     parentOf,
     valueOf: (row, column) => row[column.id],
   }

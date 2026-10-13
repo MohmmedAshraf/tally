@@ -204,6 +204,23 @@ describe('createGrid', () => {
     grid.dispose()
   })
 
+  it('creates blank rows keyed by the schema or a custom factory', () => {
+    const grid = createGrid({ schema, source: createArraySource(rows, schema) })
+    const blank = grid.newRow()
+    expect(typeof blank['id']).toBe('string')
+    const custom = createGrid({
+      schema,
+      source: createArraySource(rows, schema),
+      newRow: () => ({ id: 99, name: 'New' }),
+    })
+    expect(custom.newRow()).toEqual({ id: 99, name: 'New' })
+    const keyed = createSchema({ columns: [{ id: 'name' }], key: (row) => String(row['name']) })
+    const unkeyed = createGrid({ schema: keyed, source: createArraySource([], keyed) })
+    expect(() => unkeyed.newRow()).toThrow('Provide newRow')
+    expect(keyed.keyField).toBeUndefined()
+    expect(schema.keyField).toBe('id')
+  })
+
   it('reports source failures', async () => {
     const grid = createGrid({
       schema,

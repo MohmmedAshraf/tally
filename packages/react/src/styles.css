@@ -1352,6 +1352,81 @@
     text-decoration: line-through;
   }
 
+  .tally-new-row {
+    color: var(--tally-ink-3);
+  }
+
+  .tally-new-row .tally-gutter {
+    color: var(--tally-ink-3);
+  }
+
+  .tally-new-cell {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--tally-ink-3);
+    font: inherit;
+    text-align: start;
+    cursor: text;
+    min-width: 0;
+  }
+
+  .tally-cell[data-align='end'] .tally-new-cell {
+    justify-content: flex-end;
+  }
+
+  .tally-new-cell:hover,
+  .tally-new-cell:focus-visible {
+    color: var(--tally-ink-2);
+    outline: none;
+  }
+
+  .tally-pager {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 2px;
+    padding: 6px 12px;
+    border-top: 1px solid var(--tally-line);
+    background: var(--tally-bg);
+    flex: none;
+  }
+
+  .tally-pager-page {
+    min-width: 28px;
+    height: 28px;
+    padding: 0 6px;
+    border: 0;
+    border-radius: 6px;
+    background: none;
+    color: var(--tally-ink-2);
+    font-family: var(--tally-font-mono);
+    font-size: 12px;
+    cursor: pointer;
+  }
+
+  .tally-pager-page:hover {
+    background: var(--tally-soft);
+    color: var(--tally-ink);
+  }
+
+  .tally-pager-page[aria-current='page'] {
+    background: var(--tally-inverse);
+    color: var(--tally-inverse-ink);
+  }
+
+  .tally-pager-gap {
+    width: 20px;
+    text-align: center;
+    color: var(--tally-ink-3);
+    font-family: var(--tally-font-mono);
+    font-size: 12px;
+  }
+
   .tally-footer {
     position: sticky;
     bottom: 0;

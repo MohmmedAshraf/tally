@@ -70,10 +70,11 @@ export function useEditing({
 
   const start = useCallback(
     (cell: CellAddress, initial: string | undefined): void => {
-      const item = model.rows[cell.row]
-      const entry = layout.columns[cell.column]
-      if (item === undefined || entry === undefined || !isEditable(grid, layout, cell.column))
-        return
+      const currentLayout = grid.layout()
+      const item = grid.model().rows[cell.row]
+      const entry = currentLayout.columns[cell.column]
+      if (item === undefined || entry === undefined) return
+      if (!isEditable(grid, currentLayout, cell.column)) return
       const type = grid.schema.typeOf(entry.column)
       if (type.kind === 'boolean') {
         const current = grid.schema.valueOf(item.row, entry.column)
@@ -83,7 +84,7 @@ export function useEditing({
       grid.selection.dispatch({ type: 'focus', cell })
       setEditing({ cell, initial })
     },
-    [grid, layout, model],
+    [grid],
   )
 
   const editor = useMemo((): ReactNode => {

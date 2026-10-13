@@ -7,6 +7,7 @@ import { defaultRenderers, type CellRenderers } from './cells/renderers.tsx'
 import { defaultEditors, type CellEditors } from './editors/editors.tsx'
 import { ShellContext, useShell, type TallyShell } from './context.ts'
 import { LabelsContext, defaultLabels, type TallyLabels } from './labels.ts'
+import { Pager } from './pager.tsx'
 import { Toolbar } from './toolbar/toolbar.tsx'
 import type { AskHandler } from './toolbar/filter-bar.tsx'
 import type { IntentHandler } from './interactions.ts'
@@ -60,6 +61,7 @@ function Viewport({
       >
         <Body grid={grid} layout={layout} initialSize={initialSize} onIntent={onIntent} />
       </div>
+      <Pager grid={grid} />
     </>
   )
 }

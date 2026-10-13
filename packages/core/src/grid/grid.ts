@@ -1,4 +1,5 @@
 import { Store } from '@tanstack/store'
+import { TallyError } from '../errors.ts'
 import type { AggregateResults } from '../execute/aggregate.ts'
 import {
   createExecutionContext,
@@ -72,6 +73,7 @@ export interface GridOptions extends ExecutorOptions {
   readonly source: DataSource
   readonly view?: View | undefined
   readonly pageSize?: number | undefined
+  readonly newRow?: (() => RowData) | undefined
 }
 
 export interface Grid {
@@ -91,6 +93,7 @@ export interface Grid {
   setPage(index: number): void
   commit(mutation: Mutation): Promise<MutationResult>
   setCells(edits: readonly CellEdit[]): Promise<MutationResult>
+  newRow(): RowData
   insertRows(rows: readonly RowData[], index?: number): Promise<MutationResult>
   deleteRows(keys: readonly RowKey[]): Promise<MutationResult>
   undo(): Promise<Mutation | undefined>
@@ -355,6 +358,13 @@ export function createGrid(options: GridOptions): Grid {
           ? `Edit ${columnLabel(target)}`
           : `Edit ${changes.length} cells`
       return commit(createMutation({ label, changes }))
+    },
+    newRow: () => {
+      if (options.newRow !== undefined) return options.newRow()
+      if (schema.keyField === undefined) {
+        throw new TallyError('invalid_value', 'Provide newRow to create rows with a custom key')
+      }
+      return { [schema.keyField]: crypto.randomUUID() }
     },
     insertRows: (inserted, index) =>
       commit(

@@ -120,7 +120,7 @@ describe('Tally', () => {
     )
     const names = within(grid)
       .getAllByRole('row')
-      .slice(1)
+      .filter((row) => row.hasAttribute('data-key'))
       .map((row) => within(row).getAllByRole('gridcell')[0]?.textContent)
     expect(names).toEqual(['Kite Supply', 'Atlas Labs'])
   })
