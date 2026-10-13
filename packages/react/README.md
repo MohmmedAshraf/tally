@@ -120,7 +120,14 @@ The default toolbar is made of exported parts: `Toolbar`, `FilterBar`, `Chip`, `
 
 ## Styling
 
-Import `tally-react/styles.css` once. Every rule sits in `@layer tally`, so unlayered styles win without specificity games. Colors use `light-dark()` and follow `color-scheme`; override tokens on `.tally` or any ancestor:
+Import `tally-react/styles.css` once. The default type is Onest with JetBrains Mono for numbers; import `tally-react/fonts.css` to self-host both through `@fontsource-variable/onest` and `@fontsource-variable/jetbrains-mono`, or leave it out and the system stack takes over.
+
+```ts
+import 'tally-react/styles.css'
+import 'tally-react/fonts.css'
+```
+
+Every rule sits in `@layer tally`, so unlayered styles win without specificity games. Colors use `light-dark()` and follow `color-scheme`; override tokens on `.tally` or any ancestor:
 
 ```css
 .tally {
@@ -131,7 +138,7 @@ Import `tally-react/styles.css` once. Every rule sits in `@layer tally`, so unla
 }
 ```
 
-Tokens: `--tally-bg`, `--tally-canvas`, `--tally-soft`, `--tally-hover`, `--tally-ink`, `--tally-ink-2`, `--tally-ink-3`, `--tally-line`, `--tally-line-2`, `--tally-line-strong`, `--tally-accent`, `--tally-up`, `--tally-up-soft`, `--tally-down`, `--tally-down-soft`, `--tally-warn`, `--tally-warn-ink`, `--tally-warn-soft`, `--tally-ai`, `--tally-ai-soft`, `--tally-ai-ink`, `--tally-selection`, `--tally-selection-row`, `--tally-ring`, `--tally-radius`, `--tally-radius-sm`, `--tally-font`, `--tally-font-mono`, `--tally-font-size`, `--tally-row-height`, `--tally-header-height`, `--tally-group-height`, `--tally-footer-height`, `--tally-gutter-width`, `--tally-cell-padding`.
+Tokens: `--tally-bg`, `--tally-canvas`, `--tally-soft`, `--tally-hover`, `--tally-ink`, `--tally-ink-2`, `--tally-ink-3`, `--tally-line`, `--tally-line-2`, `--tally-line-strong`, `--tally-accent`, `--tally-up`, `--tally-up-soft`, `--tally-down`, `--tally-down-soft`, `--tally-warn`, `--tally-warn-ink`, `--tally-warn-soft`, `--tally-ai`, `--tally-ai-soft`, `--tally-ai-ink`, `--tally-selection`, `--tally-selection-row`, `--tally-ring`, `--tally-popup`, `--tally-radius`, `--tally-radius-sm`, `--tally-radius-xs`, `--tally-font`, `--tally-font-mono`, `--tally-font-size`, `--tally-row-height`, `--tally-header-height`, `--tally-group-height`, `--tally-footer-height`, `--tally-gutter-width`, `--tally-cell-padding`.
 
 State is exposed as data attributes for targeted overrides: `data-density`, `data-theme`, `data-pin`, `data-pin-edge`, `data-sorted`, `data-active`, `data-range`, `data-selected`, `data-editing`, `data-sign`, `data-rule`, `data-layout`.
 

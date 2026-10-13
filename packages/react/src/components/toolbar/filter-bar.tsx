@@ -1,6 +1,13 @@
 import { Autocomplete } from '@base-ui/react/autocomplete'
-import { Sparkles, X } from 'lucide-react'
-import { useLayoutEffect, useMemo, useState, type KeyboardEvent, type ReactNode } from 'react'
+import { CircleAlert, Search, Sparkles, X } from 'lucide-react'
+import {
+  useId,
+  useLayoutEffect,
+  useMemo,
+  useState,
+  type KeyboardEvent,
+  type ReactNode,
+} from 'react'
 import {
   and,
   describeFilter,
@@ -119,6 +126,7 @@ export function FilterBar({ grid, ask }: FilterBarProps): ReactNode {
   const [asking, setAsking] = useState(false)
   const [pending, setPending] = useState<AskResult | undefined>(undefined)
   const [error, setError] = useState<string | undefined>(undefined)
+  const errorId = useId()
   useLayoutEffect(
     () =>
       onPrefillFilter((text) => {
@@ -220,6 +228,7 @@ export function FilterBar({ grid, ask }: FilterBarProps): ReactNode {
   return (
     <div className="tally-filter-bar" data-ask={askMode ? '' : undefined}>
       <div className="tally-filter" data-invalid={error === undefined ? undefined : ''}>
+        <Search size={14} aria-hidden />
         {askMode ? (
           <span className="tally-mode">
             <i />
@@ -246,7 +255,7 @@ export function FilterBar({ grid, ask }: FilterBarProps): ReactNode {
             setError(undefined)
           }}
           itemToStringValue={(item) => item.text}
-          open={completions.length > 0}
+          open={completions.length > 0 && error === undefined}
           onOpenChange={() => undefined}
         >
           <Autocomplete.Input
@@ -255,7 +264,7 @@ export function FilterBar({ grid, ask }: FilterBarProps): ReactNode {
             placeholder={askMode ? labels.askPlaceholder : labels.filterPlaceholder}
             aria-label={labels.filter}
             aria-invalid={error !== undefined}
-            title={error}
+            aria-describedby={error === undefined ? undefined : errorId}
             onKeyDown={onKeyDown}
           />
           <Autocomplete.Portal container={root}>
@@ -290,6 +299,12 @@ export function FilterBar({ grid, ask }: FilterBarProps): ReactNode {
           </button>
         ) : null}
       </div>
+      {error === undefined ? null : (
+        <div id={errorId} className="tally-filter-error" role="alert">
+          <CircleAlert size={14} aria-hidden />
+          {error}
+        </div>
+      )}
       {ask === undefined ? null : (
         <button
           type="button"

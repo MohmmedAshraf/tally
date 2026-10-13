@@ -11,6 +11,7 @@ import {
 } from 'tally-core'
 import { Tally, useGrid } from 'tally-react'
 import 'tally-react/styles.css'
+import 'tally-react/fonts.css'
 import { columns, makeRows } from './data.ts'
 
 const schema = createSchema({ columns, key: 'id' })

@@ -1,3 +1,4 @@
+import { ChevronDown, ChevronUp } from 'lucide-react'
 import { useRef, type CSSProperties, type MouseEvent, type ReactNode } from 'react'
 import {
   columnLabel,
@@ -22,11 +23,6 @@ export interface HeaderProps {
   readonly window: ColumnWindow
   readonly model: RowModel
   readonly selection: SelectionState
-}
-
-function sortGlyph(sort: Sort, count: number, position: number): string {
-  const arrow = sort.direction === 'asc' ? '↑' : '↓'
-  return count > 1 ? `${arrow}${position + 1}` : arrow
 }
 
 function ariaSort(sort: Sort | undefined): 'ascending' | 'descending' | 'none' {
@@ -80,7 +76,19 @@ function HeaderCell({ grid, entry, layout, offsets, sorts }: HeaderCellProps): R
           <span className="tally-text">{columnLabel(column)}</span>
           {sort === undefined ? null : (
             <span className="tally-sort-glyph" aria-hidden>
-              {sortGlyph(sort, sorts.length, position)}
+              <i>
+                <ChevronUp
+                  size={10}
+                  strokeWidth={2.5}
+                  {...(sort.direction === 'asc' ? { 'data-on': '' } : {})}
+                />
+                <ChevronDown
+                  size={10}
+                  strokeWidth={2.5}
+                  {...(sort.direction === 'desc' ? { 'data-on': '' } : {})}
+                />
+              </i>
+              {sorts.length > 1 ? <b>{position + 1}</b> : null}
             </span>
           )}
         </button>

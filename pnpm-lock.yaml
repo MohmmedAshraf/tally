@@ -185,6 +185,12 @@ catalogs:
     '@electric-sql/pglite':
       specifier: 0.5.8
       version: 0.5.8
+    '@fontsource-variable/jetbrains-mono':
+      specifier: 5.3.0
+      version: 5.3.0
+    '@fontsource-variable/onest':
+      specifier: 5.3.1
+      version: 5.3.1
     '@hono/node-server':
       specifier: 2.1.4
       version: 2.1.4
@@ -334,6 +340,12 @@ importers:
 
   examples/playground:
     dependencies:
+      '@fontsource-variable/jetbrains-mono':
+        specifier: 'catalog:'
+        version: 5.3.0
+      '@fontsource-variable/onest':
+        specifier: 'catalog:'
+        version: 5.3.1
       react:
         specifier: 'catalog:'
         version: 19.3.0
@@ -560,6 +572,12 @@ importers:
       '@base-ui/react':
         specifier: 'catalog:'
         version: 1.9.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@fontsource-variable/jetbrains-mono':
+        specifier: '>=5'
+        version: 5.3.0
+      '@fontsource-variable/onest':
+        specifier: '>=5'
+        version: 5.3.1
       '@tanstack/react-virtual':
         specifier: 'catalog:'
         version: 3.14.15(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -854,6 +872,12 @@ packages:
 
   '@floating-ui/utils@0.2.12':
     resolution: {integrity: sha512-HpCo8tmWzLVad5s2d19EhAz5zqrrQ6s69qd6moPMQvkOuSwDT1YgRfWSVuc4ennqrgv3OHppiOGMQ7oC13yIww==}
+
+  '@fontsource-variable/jetbrains-mono@5.3.0':
+    resolution: {integrity: sha512-F32xpS2NsGYoQi2ADSkKTgpJj7ozajsGgDJ8woTnqjmIB+dxDIqImjl4pXZVEExu8UFZ2ndhmX18EBS/hdz3Lw==}
+
+  '@fontsource-variable/onest@5.3.1':
+    resolution: {integrity: sha512-xaaw6G4HDB2/RczsWLD/2bnib4ykmQlTlBUN3GOEOiyErilZukQWVJG95h9zwAy0i8KY+QzDa+COPfqhI72Acw==}
 
   '@hono/node-server@2.1.4':
     resolution: {integrity: sha512-2g1qeHl4BduwDn6L8nkAvDrPUWPMlkQ//a5NhP/zIyaXKMjZNRV+cG9Csu+BiJFf6+68pqzjf4Hi5sJGKHuS1g==}
@@ -2947,6 +2971,10 @@ snapshots:
       react-dom: 19.3.0(react@19.3.0)
 
   '@floating-ui/utils@0.2.12': {}
+
+  '@fontsource-variable/jetbrains-mono@5.3.0': {}
+
+  '@fontsource-variable/onest@5.3.1': {}
 
   '@hono/node-server@2.1.4(hono@4.13.13)':
     dependencies:

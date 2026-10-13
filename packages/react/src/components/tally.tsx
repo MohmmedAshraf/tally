@@ -154,6 +154,7 @@ export function Tally({
             dir={dir}
             data-density={density}
             {...(theme === undefined ? {} : { 'data-theme': theme })}
+            {...(narrow ? { 'data-narrow': '' } : {})}
           >
             {toolbar === true ? (
               <Toolbar grid={grid} ask={ask}>

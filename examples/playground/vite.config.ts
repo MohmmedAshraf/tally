@@ -23,6 +23,7 @@ export default defineConfig({
   resolve: {
     alias: {
       'tally-react/styles.css': source('../../packages/react/src/styles.css'),
+      'tally-react/fonts.css': source('../../packages/react/src/fonts.css'),
       'tally-react': source('../../packages/react/src/index.ts'),
       'tally-adapters': source('../../packages/adapters/src/index.ts'),
       'tally-protocol': source('../../packages/protocol/src/index.ts'),

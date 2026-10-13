@@ -1,5 +1,5 @@
 import { Popover } from '@base-ui/react/popover'
-import { Plus, X } from 'lucide-react'
+import { Check, ChevronDown, Plus, X } from 'lucide-react'
 import type { ReactNode, RefObject } from 'react'
 import {
   OPERATOR_WORDS,
@@ -107,21 +107,24 @@ export function RulesPopover({
             </Popover.Title>
             {mine.map((rule) => (
               <div key={rule.id} className="tally-rule">
-                <select
-                  className="tally-input tally-select"
-                  aria-label={labels.operator}
-                  value={rule.op}
-                  onChange={(event) => {
-                    const op = operators.find((operator) => operator === event.target.value)
-                    if (op !== undefined) update({ ...rule, op })
-                  }}
-                >
-                  {operators.map((operator) => (
-                    <option key={operator} value={operator}>
-                      {OPERATOR_WORDS[operator]}
-                    </option>
-                  ))}
-                </select>
+                <span className="tally-select-wrap">
+                  <select
+                    className="tally-input tally-select"
+                    aria-label={labels.operator}
+                    value={rule.op}
+                    onChange={(event) => {
+                      const op = operators.find((operator) => operator === event.target.value)
+                      if (op !== undefined) update({ ...rule, op })
+                    }}
+                  >
+                    {operators.map((operator) => (
+                      <option key={operator} value={operator}>
+                        {OPERATOR_WORDS[operator]}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown size={14} aria-hidden />
+                </span>
                 {needsValue(rule.op) ? (
                   <input
                     className="tally-input"
@@ -152,7 +155,11 @@ export function RulesPopover({
                       }}
                       onClick={() => update({ ...rule, style: tint.style })}
                     >
-                      {tint.style.bold === true ? 'B' : ''}
+                      {tintOf(rule.style) === tint.id ? (
+                        <Check size={12} strokeWidth={2.5} aria-hidden />
+                      ) : tint.style.bold === true ? (
+                        'B'
+                      ) : null}
                     </button>
                   ))}
                 </div>

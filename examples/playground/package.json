@@ -8,6 +8,8 @@
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
+    "@fontsource-variable/jetbrains-mono": "catalog:",
+    "@fontsource-variable/onest": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
     "tally-adapters": "workspace:*",

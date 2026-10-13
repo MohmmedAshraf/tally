@@ -13,6 +13,7 @@ import {
   type Condition,
   type Facet,
   type Filter,
+  type FormatContext,
   type Grid,
   type HistogramFacet,
   type Operator,
@@ -156,19 +157,42 @@ function EnumEditor({
   )
 }
 
+function binMatches(
+  clause: Condition,
+  column: Column,
+  type: ColumnType,
+  context: FormatContext,
+  start: unknown,
+  end: unknown,
+): boolean {
+  const [low, high] = rangeOf(clause)
+  const after = (value: unknown, bound: unknown): boolean =>
+    type.is(value) && type.is(bound) && type.compare(value, bound, column, context) >= 0
+  const before = (value: unknown, bound: unknown): boolean =>
+    type.is(value) && type.is(bound) && type.compare(value, bound, column, context) <= 0
+  if (clause.op === 'gt' || clause.op === 'gte') return after(start, low)
+  if (clause.op === 'lt' || clause.op === 'lte') return before(end, low)
+  if (clause.op === 'between') return after(start, low) && before(end, high)
+  if (clause.op === 'eq') return after(low, start) && before(low, end)
+  return false
+}
+
 function Histogram({
   facet,
   column,
   type,
   grid,
+  clause,
   onPick,
 }: {
   readonly facet: HistogramFacet
   readonly column: Column
   readonly type: ColumnType
   readonly grid: Grid
+  readonly clause: Condition
   readonly onPick: (start: unknown, end: unknown) => void
 }): ReactNode {
+  if (facet.bins.every((bin) => bin.count === 0)) return null
   const max = Math.max(1, ...facet.bins.map((bin) => bin.count))
   const text = (value: unknown): string =>
     type.is(value) ? type.format(value, column, grid.context.format) : rawText(value)
@@ -179,11 +203,15 @@ function Histogram({
           key={rawText(bin.start)}
           type="button"
           className="tally-histogram-bar"
+          tabIndex={-1}
           aria-label={`${text(bin.start)} – ${text(bin.end)} · ${bin.count}`}
           title={`${text(bin.start)} – ${text(bin.end)} · ${bin.count}`}
           style={{ height: `${Math.max(4, (bin.count / max) * 100)}%` }}
           onClick={() => onPick(bin.start, bin.end)}
           {...(bin.count === 0 ? { 'data-empty': '' } : {})}
+          {...(binMatches(clause, column, type, grid.context.format, bin.start, bin.end)
+            ? { 'data-in': '' }
+            : {})}
         />
       ))}
     </div>
@@ -233,6 +261,7 @@ function ScalarEditor({
           column={column}
           type={type}
           grid={grid}
+          clause={clause}
           onPick={(start, end) => onChange(condition(column.id, 'between', [start, end]))}
         />
       ) : null}

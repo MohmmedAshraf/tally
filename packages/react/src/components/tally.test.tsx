@@ -1,4 +1,4 @@
-import { act, render, screen, within } from '@testing-library/react'
+import { act, render, screen, waitFor, within } from '@testing-library/react'
 import { useState, type ReactNode } from 'react'
 import { createArraySource, createSchema, type View } from 'tally-core'
 import { describe, expect, it } from 'vitest'
@@ -144,11 +144,13 @@ describe('Tally', () => {
     const header = within(grid).getByRole('columnheader', { name: /^mrr/ })
     expect(header).toHaveAttribute('aria-sort', 'none')
     act(() => within(header).getByRole('button', { name: 'mrr' }).click())
-    await within(grid).findByText('↓')
-    expect(within(grid).getByRole('columnheader', { name: /mrr/ })).toHaveAttribute(
-      'aria-sort',
-      'descending',
+    await waitFor(() =>
+      expect(within(grid).getByRole('columnheader', { name: /mrr/ })).toHaveAttribute(
+        'aria-sort',
+        'descending',
+      ),
     )
+    expect(header.querySelector('.tally-sort-glyph svg[data-on]')).not.toBeNull()
     const names = within(grid)
       .getAllByRole('row')
       .filter((row) => row.hasAttribute('data-key'))

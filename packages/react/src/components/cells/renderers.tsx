@@ -60,6 +60,7 @@ function Enum({ value, text, column }: CellProps): ReactNode {
     <span
       className="tally-pill"
       style={color === undefined ? undefined : { '--tally-pill-color': color }}
+      {...(color === undefined ? {} : { 'data-color': '' })}
     >
       {color === undefined ? null : <i />}
       <span className="tally-text">{text}</span>

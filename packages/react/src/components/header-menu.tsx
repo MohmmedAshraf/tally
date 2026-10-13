@@ -3,8 +3,8 @@ import {
   ArrowDown,
   ArrowUp,
   Check,
-  ChevronDown,
   ChevronRight,
+  Ellipsis,
   EyeOff,
   Filter,
   Layers,
@@ -62,7 +62,7 @@ export function HeaderMenu({ grid, entry, anchor }: HeaderMenuProps): ReactNode 
           aria-label={labels.columnMenu(label)}
           title={labels.columnMenu(label)}
         >
-          <ChevronDown size={14} aria-hidden />
+          <Ellipsis size={14} aria-hidden />
         </Menu.Trigger>
         <Menu.Portal container={root}>
           <Menu.Positioner
@@ -72,7 +72,7 @@ export function HeaderMenu({ grid, entry, anchor }: HeaderMenuProps): ReactNode 
             align="end"
           >
             <Menu.Popup className="tally-popup tally-menu">
-              <div className="tally-menu-heading">
+              <div className="tally-menu-heading" data-stacked="">
                 <span className="tally-text">{label}</span>
                 <span className="tally-menu-detail">{type.name}</span>
               </div>

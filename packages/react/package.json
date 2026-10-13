@@ -19,6 +19,7 @@
       "default": "./dist/index.js"
     },
     "./styles.css": "./dist/styles.css",
+    "./fonts.css": "./dist/fonts.css",
     "./package.json": "./package.json"
   },
   "files": [
@@ -49,8 +50,18 @@
     "tally-core": "workspace:*"
   },
   "peerDependencies": {
+    "@fontsource-variable/jetbrains-mono": ">=5",
+    "@fontsource-variable/onest": ">=5",
     "react": ">=19",
     "react-dom": ">=19"
+  },
+  "peerDependenciesMeta": {
+    "@fontsource-variable/jetbrains-mono": {
+      "optional": true
+    },
+    "@fontsource-variable/onest": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "catalog:",

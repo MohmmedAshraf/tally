@@ -6,7 +6,7 @@ const config: UserConfig = defineConfig({
   platform: 'neutral',
   dts: true,
   clean: true,
-  copy: 'src/styles.css',
+  copy: ['src/styles.css', 'src/fonts.css'],
 })
 
 export default config
