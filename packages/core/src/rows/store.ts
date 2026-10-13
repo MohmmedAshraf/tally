@@ -23,6 +23,7 @@ export interface RowStore {
   byKey(key: RowKey): RowData | undefined
   subscribe(listener: (state: RowState) => void): () => void
   replace(rows: readonly RowData[]): void
+  reload(rows: readonly RowData[]): void
   patch(patch: RowPatch): void
   commit(mutation: Mutation): boolean
   undo(): Mutation | undefined
@@ -63,6 +64,7 @@ export function createRowStore(schema: Schema, initial: readonly RowData[] = [])
   let base: readonly RowData[] = initial
   let entries: Mutation[] = []
   let pointer = 0
+  let basePointer = 0
   const store = new Store<RowState>({ rows: initial, version: 0, changed: new Map() })
   let index: Map<RowKey, RowData> | undefined
 
@@ -77,7 +79,15 @@ export function createRowStore(schema: Schema, initial: readonly RowData[] = [])
 
   const rebuild = (): readonly RowData[] => {
     let rows = base
-    for (const entry of entries.slice(0, pointer)) rows = applyMutation(rows, entry, schema)
+    if (pointer >= basePointer) {
+      for (const entry of entries.slice(basePointer, pointer)) {
+        rows = applyMutation(rows, entry, schema)
+      }
+      return rows
+    }
+    for (const entry of entries.slice(pointer, basePointer).toReversed()) {
+      rows = applyMutation(rows, entry, schema, 'backward')
+    }
     return rows
   }
 
@@ -99,7 +109,13 @@ export function createRowStore(schema: Schema, initial: readonly RowData[] = [])
       base = rows
       entries = []
       pointer = 0
+      basePointer = 0
       publish(rows, new Map())
+    },
+    reload: (rows) => {
+      base = rows
+      basePointer = pointer
+      publish(rows)
     },
     patch: (patch) => {
       const deletes = new Set(patch.deletes ?? [])
@@ -144,8 +160,13 @@ export function createRowStore(schema: Schema, initial: readonly RowData[] = [])
     revert: (id) => {
       const at = entries.findIndex((entry) => entry.id === id)
       if (at === -1) return false
-      entries = entries.filter((entry) => entry.id !== id)
+      const entry = entries[at]
+      entries = entries.filter((candidate) => candidate.id !== id)
       if (at < pointer) pointer -= 1
+      if (entry !== undefined && at < basePointer) {
+        base = applyMutation(base, entry, schema, 'backward')
+        basePointer -= 1
+      }
       publish(rebuild())
       return true
     },

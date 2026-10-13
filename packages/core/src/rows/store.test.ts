@@ -158,4 +158,31 @@ describe('createRowStore', () => {
     expect(store.rows()).toHaveLength(1)
     expect(store.canUndo()).toBe(false)
   })
+
+  it('keeps history across a reload so undo still reverses accepted edits', () => {
+    const store = createRowStore(schema, rows)
+    const edit = createMutation({
+      label: 'Edit',
+      changes: [{ key: 'a', column: 'mrr', from: 100, to: 1 }],
+    })
+    const insert = createMutation({ label: 'Add', inserted: [{ row: { id: 'n', name: 'N' } }] })
+    store.commit(edit)
+    store.commit(insert)
+    store.reload([
+      { id: 'a', name: 'A', mrr: 1, seats: 1 },
+      { id: 'n', name: 'N' },
+    ])
+    expect(store.canUndo()).toBe(true)
+    expect(store.undo()).toBe(insert)
+    expect(store.rows().map((row) => row['id'])).toEqual(['a'])
+    expect(store.undo()).toBe(edit)
+    expect(store.byKey('a')?.['mrr']).toBe(100)
+    store.jumpTo(2)
+    expect(store.rows().map((row) => row['id'])).toEqual(['a', 'n'])
+    expect(store.byKey('a')?.['mrr']).toBe(1)
+    expect(store.revert(edit.id)).toBe(true)
+    expect(store.byKey('a')?.['mrr']).toBe(100)
+    expect(store.rows().map((row) => row['id'])).toEqual(['a', 'n'])
+    expect(store.history()).toEqual([insert])
+  })
 })
