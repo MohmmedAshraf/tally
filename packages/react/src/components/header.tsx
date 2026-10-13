@@ -87,7 +87,7 @@ function HeaderCell({ grid, entry, layout, offsets, sorts }: HeaderCellProps): R
       ) : (
         <span className="tally-text">{columnLabel(column)}</span>
       )}
-      <HeaderMenu grid={grid} entry={entry} />
+      <HeaderMenu grid={grid} entry={entry} anchor={element} />
       <ResizeHandle grid={grid} entry={entry} />
     </div>
   )

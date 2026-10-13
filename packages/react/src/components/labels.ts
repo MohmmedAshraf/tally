@@ -25,6 +25,16 @@ export interface TallyLabels {
   readonly none: string
   readonly resizeColumn: string
   readonly addRow: string
+  readonly formattingRules: string
+  readonly addRule: string
+  readonly removeRule: string
+  readonly operator: string
+  readonly value: string
+  readonly style: string
+  readonly copy: string
+  readonly pinRow: (count: number) => string
+  readonly unpinRow: (count: number) => string
+  readonly deleteRows: (count: number) => string
   readonly pages: string
   readonly previousPage: string
   readonly nextPage: string
@@ -61,6 +71,16 @@ export const defaultLabels: TallyLabels = {
   none: 'None',
   resizeColumn: 'Resize column',
   addRow: 'Add row',
+  formattingRules: 'Formatting rules',
+  addRule: 'Add rule',
+  removeRule: 'Remove rule',
+  operator: 'Operator',
+  value: 'Value',
+  style: 'Style',
+  copy: 'Copy',
+  pinRow: (count) => (count > 1 ? `Pin ${count} rows` : 'Pin row'),
+  unpinRow: (count) => (count > 1 ? `Unpin ${count} rows` : 'Unpin row'),
+  deleteRows: (count) => (count > 1 ? `Delete ${count} rows` : 'Delete row'),
   pages: 'Pages',
   previousPage: 'Previous page',
   nextPage: 'Next page',

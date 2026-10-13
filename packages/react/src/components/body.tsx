@@ -15,6 +15,7 @@ import { Footer } from './footer.tsx'
 import { GROUP_HEIGHT, GUTTER_WIDTH, ROW_HEIGHT, hasWrap, pinOffsets } from './geometry.ts'
 import { GroupRow } from './group-row.tsx'
 import { NewRow } from './new-row.tsx'
+import { RowMenu } from './row-menu.tsx'
 import { Header } from './header.tsx'
 import { useEditing, useFill } from './editing.ts'
 import { useInteractions, type IntentHandler } from './interactions.ts'
@@ -185,99 +186,101 @@ export function Body({ grid, layout, initialSize, onIntent }: BodyProps): ReactN
   const totalWidth = `${GUTTER_WIDTH + layout.totalWidth}px`
 
   return (
-    <div
-      style={{ '--tally-total-width': totalWidth, '--tally-header-offset': headerOffset }}
-      className="tally-sheet"
-    >
-      <Header
-        grid={grid}
-        layout={layout}
-        offsets={offsets}
-        window={window}
-        model={model}
-        selection={selection}
-      />
-      {model.pinned.length > 0 ? (
-        <div className="tally-pinned-rows" role="rowgroup">
-          {model.pinned.map((item) => (
-            <RowView
-              key={item.key}
-              grid={grid}
-              item={item}
-              layout={layout}
-              offsets={offsets}
-              window={window}
-              rules={compiledRules}
-              treeColumn={treeColumn}
-              wrap={false}
-              selection={selection}
-              fill={filling.fill}
-              editing={editingFor(item.index)}
-              cellId={cellId}
-            />
-          ))}
-        </div>
-      ) : null}
-      {currentGroup === undefined ? null : (
-        <div className="tally-group-sticky" aria-hidden>
-          <GroupRow grid={grid} item={currentGroup} />
-        </div>
-      )}
+    <RowMenu grid={grid}>
       <div
-        ref={setBodyElement}
-        role="rowgroup"
-        className="tally-body"
-        style={{ height: rows.getTotalSize() }}
+        style={{ '--tally-total-width': totalWidth, '--tally-header-offset': headerOffset }}
+        className="tally-sheet"
       >
-        {virtualRows.map((virtual) => {
-          const item = items[virtual.index]
-          if (item === undefined) return null
-          const style = {
-            transform: `translateY(${virtual.start - rows.options.scrollMargin}px)`,
-          }
-          if (item.kind === 'group') {
-            return <GroupRow key={virtual.key} grid={grid} item={item} style={style} />
-          }
-          return (
-            <RowView
-              key={virtual.key}
-              ref={wrap ? rows.measureElement : undefined}
-              index={virtual.index}
-              grid={grid}
-              item={item}
-              layout={layout}
-              offsets={offsets}
-              window={window}
-              rules={compiledRules}
-              treeColumn={treeColumn}
-              wrap={wrap}
-              selection={selection}
-              fill={filling.fill}
-              editing={editingFor(item.index)}
-              cellId={cellId}
-              style={style}
-            />
-          )
-        })}
-      </div>
-      {grid.capabilities.mutate ? (
-        <NewRow
+        <Header
           grid={grid}
           layout={layout}
           offsets={offsets}
           window={window}
-          onCreated={(rowIndex, column, move) => {
-            grid.selection.dispatch({ type: 'focus', cell: { row: rowIndex, column } })
-            if (move === 'right' || move === 'left') {
-              const next = column + (move === 'right' ? 1 : -1)
-              if (layout.columns[next] !== undefined) {
-                edit.api.start({ row: rowIndex, column: next }, undefined)
-              }
-            }
-          }}
+          model={model}
+          selection={selection}
         />
-      ) : null}
-      <Footer grid={grid} layout={layout} offsets={offsets} window={window} visible={visible} />
-    </div>
+        {model.pinned.length > 0 ? (
+          <div className="tally-pinned-rows" role="rowgroup">
+            {model.pinned.map((item) => (
+              <RowView
+                key={item.key}
+                grid={grid}
+                item={item}
+                layout={layout}
+                offsets={offsets}
+                window={window}
+                rules={compiledRules}
+                treeColumn={treeColumn}
+                wrap={false}
+                selection={selection}
+                fill={filling.fill}
+                editing={editingFor(item.index)}
+                cellId={cellId}
+              />
+            ))}
+          </div>
+        ) : null}
+        {currentGroup === undefined ? null : (
+          <div className="tally-group-sticky" aria-hidden>
+            <GroupRow grid={grid} item={currentGroup} />
+          </div>
+        )}
+        <div
+          ref={setBodyElement}
+          role="rowgroup"
+          className="tally-body"
+          style={{ height: rows.getTotalSize() }}
+        >
+          {virtualRows.map((virtual) => {
+            const item = items[virtual.index]
+            if (item === undefined) return null
+            const style = {
+              transform: `translateY(${virtual.start - rows.options.scrollMargin}px)`,
+            }
+            if (item.kind === 'group') {
+              return <GroupRow key={virtual.key} grid={grid} item={item} style={style} />
+            }
+            return (
+              <RowView
+                key={virtual.key}
+                ref={wrap ? rows.measureElement : undefined}
+                index={virtual.index}
+                grid={grid}
+                item={item}
+                layout={layout}
+                offsets={offsets}
+                window={window}
+                rules={compiledRules}
+                treeColumn={treeColumn}
+                wrap={wrap}
+                selection={selection}
+                fill={filling.fill}
+                editing={editingFor(item.index)}
+                cellId={cellId}
+                style={style}
+              />
+            )
+          })}
+        </div>
+        {grid.capabilities.mutate ? (
+          <NewRow
+            grid={grid}
+            layout={layout}
+            offsets={offsets}
+            window={window}
+            onCreated={(rowIndex, column, move) => {
+              grid.selection.dispatch({ type: 'focus', cell: { row: rowIndex, column } })
+              if (move === 'right' || move === 'left') {
+                const next = column + (move === 'right' ? 1 : -1)
+                if (layout.columns[next] !== undefined) {
+                  edit.api.start({ row: rowIndex, column: next }, undefined)
+                }
+              }
+            }}
+          />
+        ) : null}
+        <Footer grid={grid} layout={layout} offsets={offsets} window={window} visible={visible} />
+      </div>
+    </RowMenu>
   )
 }

@@ -35,3 +35,10 @@ export {
 export { DisplayMenu } from './components/toolbar/display-menu.tsx'
 export { HeaderMenu, type HeaderMenuProps } from './components/header-menu.tsx'
 export { Pager } from './components/pager.tsx'
+export {
+  RULE_TINTS,
+  RulesPopover,
+  type RuleTint,
+  type RulesPopoverProps,
+} from './components/rules-popover.tsx'
+export { RowMenu, type RowMenuProps } from './components/row-menu.tsx'
