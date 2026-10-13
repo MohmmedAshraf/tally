@@ -10,6 +10,8 @@ import {
 } from 'tally-core'
 import { useView } from '../hooks/use-store.ts'
 import { groupSpans, hasColumnGroups, isPinEdge, type PinOffsets } from './geometry.ts'
+import { HeaderMenu } from './header-menu.tsx'
+import { ResizeHandle } from './resize-handle.tsx'
 import type { ColumnWindow } from './row.tsx'
 
 export interface HeaderProps {
@@ -88,6 +90,8 @@ export function Header({
         ) : (
           <span className="tally-text">{columnLabel(column)}</span>
         )}
+        <HeaderMenu grid={grid} entry={entry} />
+        <ResizeHandle grid={grid} entry={entry} />
       </div>
     )
   }

@@ -70,8 +70,8 @@ describe('Tally', () => {
     expect(grid).toHaveAttribute('aria-rowcount', '3')
     expect(grid).toHaveAttribute('aria-colcount', '9')
     const headers = within(grid).getAllByRole('columnheader')
-    expect(headers.map((header) => header.textContent)).toEqual([
-      '',
+    expect(headers.map((header) => header.querySelector('.tally-text')?.textContent)).toEqual([
+      undefined,
       'Account',
       'status',
       'owner',
@@ -110,9 +110,9 @@ describe('Tally', () => {
     render(<Harness />)
     const grid = screen.getByRole('grid')
     await within(grid).findByText('Kite Supply')
-    const header = within(grid).getByRole('columnheader', { name: 'mrr' })
+    const header = within(grid).getByRole('columnheader', { name: /^mrr/ })
     expect(header).toHaveAttribute('aria-sort', 'none')
-    act(() => within(header).getByRole('button').click())
+    act(() => within(header).getByRole('button', { name: 'mrr' }).click())
     await within(grid).findByText('↓')
     expect(within(grid).getByRole('columnheader', { name: /mrr/ })).toHaveAttribute(
       'aria-sort',

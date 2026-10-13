@@ -32,3 +32,5 @@ export {
   type AskResult,
   type FilterBarProps,
 } from './components/toolbar/filter-bar.tsx'
+export { DisplayMenu } from './components/toolbar/display-menu.tsx'
+export { HeaderMenu, type HeaderMenuProps } from './components/header-menu.tsx'

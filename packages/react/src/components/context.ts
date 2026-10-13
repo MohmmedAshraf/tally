@@ -6,6 +6,8 @@ export interface TallyShell {
   readonly root: RefObject<HTMLDivElement | null>
   readonly viewport: RefObject<HTMLDivElement | null>
   readonly filterInput: RefObject<HTMLInputElement | null>
+  readonly prefillFilter: (text: string) => void
+  readonly onPrefillFilter: (listener: (text: string) => void) => () => void
   readonly renderers: CellRenderers
   readonly editors: CellEditors
 }

@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import type { Grid } from 'tally-core'
 import { useGridState, useRows, useSelection } from '../../hooks/use-store.ts'
 import { useLabels } from '../labels.ts'
+import { DisplayMenu } from './display-menu.tsx'
 import { FilterBar, type AskHandler } from './filter-bar.tsx'
 
 export interface ToolbarProps {
@@ -54,6 +55,7 @@ export function Toolbar({ grid, ask, children }: ToolbarProps): ReactNode {
           </button>
         </span>
       ) : null}
+      <DisplayMenu grid={grid} />
       {children}
     </div>
   )

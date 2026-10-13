@@ -84,12 +84,20 @@ export function Tally({
   const root = useRef<HTMLDivElement>(null)
   const viewport = useRef<HTMLDivElement>(null)
   const filterInput = useRef<HTMLInputElement>(null)
+  const filterListener = useRef<((text: string) => void) | null>(null)
   const density = useView(grid, (view) => view.density)
   const shell = useMemo<TallyShell>(
     () => ({
       root,
       viewport,
       filterInput,
+      prefillFilter: (text) => filterListener.current?.(text),
+      onPrefillFilter: (listener) => {
+        filterListener.current = listener
+        return () => {
+          filterListener.current = null
+        }
+      },
       renderers: { ...defaultRenderers, ...renderers },
       editors: { ...defaultEditors, ...editors },
     }),

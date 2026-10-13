@@ -1,6 +1,6 @@
 import { Autocomplete } from '@base-ui/react/autocomplete'
 import { Sparkles, X } from 'lucide-react'
-import { useMemo, useState, type KeyboardEvent, type ReactNode } from 'react'
+import { useLayoutEffect, useMemo, useState, type KeyboardEvent, type ReactNode } from 'react'
 import {
   and,
   describeFilter,
@@ -93,7 +93,7 @@ export interface FilterBarProps {
 
 export function FilterBar({ grid, ask }: FilterBarProps): ReactNode {
   const labels = useLabels()
-  const { root, filterInput } = useShell()
+  const { root, filterInput, onPrefillFilter } = useShell()
   const filter = useView(grid, (view) => view.filter)
   const facets = useGridState(grid, (state) => state.facets)
   const [draft, setDraft] = useState('')
@@ -101,6 +101,15 @@ export function FilterBar({ grid, ask }: FilterBarProps): ReactNode {
   const [asking, setAsking] = useState(false)
   const [pending, setPending] = useState<AskResult | undefined>(undefined)
   const [error, setError] = useState<string | undefined>(undefined)
+  useLayoutEffect(
+    () =>
+      onPrefillFilter((text) => {
+        setDraft(text)
+        setError(undefined)
+        filterInput.current?.focus()
+      }),
+    [onPrefillFilter, filterInput],
+  )
   const clauses = topLevelClauses(filter)
   const keys = clauseKeys(clauses, grid)
   const pendingChips = (
