@@ -81,12 +81,12 @@ function printCondition(column: string, op: Operator, value: unknown, schema: Sc
     case 'notEmpty':
       return `${column} ${word}`
     case 'between': {
-      const [low, high] = Array.isArray(value) ? value : [value, value]
-      return `${column} between ${printValue(low, schema)} and ${printValue(high, schema)}`
+      const pair: readonly unknown[] = Array.isArray(value) ? value : [value, value]
+      return `${column} between ${printValue(pair[0], schema)} and ${printValue(pair[1], schema)}`
     }
     case 'in':
     case 'notIn': {
-      const values = Array.isArray(value) ? value : [value]
+      const values: readonly unknown[] = Array.isArray(value) ? value : [value]
       return `${column} ${word} (${values.map((item) => printValue(item, schema)).join(', ')})`
     }
     case 'within':
