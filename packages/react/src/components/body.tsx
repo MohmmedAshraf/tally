@@ -7,6 +7,7 @@ import { Footer } from './footer.tsx'
 import { GROUP_HEIGHT, GUTTER_WIDTH, ROW_HEIGHT, hasWrap, pinOffsets } from './geometry.ts'
 import { GroupRow } from './group-row.tsx'
 import { Header } from './header.tsx'
+import { useEditing, useFill } from './editing.ts'
 import { useInteractions, type IntentHandler } from './interactions.ts'
 import { RowView, type ColumnWindow } from './row.tsx'
 import { useCompiledRules } from './rules.ts'
@@ -108,6 +109,9 @@ export function Body({ grid, layout, initialSize, onIntent }: BodyProps): ReactN
         : offsets.centerWidth - (lastColumn.end - columns.options.scrollMargin),
   }
 
+  const { editors } = useShell()
+  const edit = useEditing({ grid, viewport, layout, model, editors })
+  const filling = useFill(grid, layout, model)
   useInteractions({
     grid,
     viewport,
@@ -118,10 +122,16 @@ export function Body({ grid, layout, initialSize, onIntent }: BodyProps): ReactN
     columns,
     pageSize: Math.max(
       1,
-      Math.floor(((viewport.current?.clientHeight ?? 0) - scrollMargin) / rowHeight) - 1,
+      Math.floor(((rows.scrollRect?.height ?? 0) - scrollMargin) / rowHeight) - 1,
     ),
     onIntent,
+    editing: edit.api,
+    fill: filling.api,
   })
+  const editingFor = (row: number): { column: number; node: ReactNode } | undefined =>
+    edit.editing?.cell.row === row
+      ? { column: edit.editing.cell.column, node: edit.editor }
+      : undefined
   const activeId =
     selection.active === undefined
       ? undefined
@@ -182,6 +192,8 @@ export function Body({ grid, layout, initialSize, onIntent }: BodyProps): ReactN
               treeColumn={treeColumn}
               wrap={false}
               selection={selection}
+              fill={filling.fill}
+              editing={editingFor(item.index)}
               cellId={cellId}
             />
           ))}
@@ -221,6 +233,8 @@ export function Body({ grid, layout, initialSize, onIntent }: BodyProps): ReactN
               treeColumn={treeColumn}
               wrap={wrap}
               selection={selection}
+              fill={filling.fill}
+              editing={editingFor(item.index)}
               cellId={cellId}
               style={style}
             />

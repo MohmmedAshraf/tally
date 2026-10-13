@@ -9,6 +9,7 @@ export {
   type RowDelete,
   type RowInsert,
 } from './mutation.ts'
+export { fillSeries } from './fill.ts'
 export { isRowKey, type RowData, type RowKey } from './row.ts'
 export {
   createRowStore,

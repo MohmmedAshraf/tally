@@ -21,6 +21,9 @@ export interface CellViewProps {
   readonly rule: FormatRule | undefined
   readonly active: boolean
   readonly inRange: boolean
+  readonly inFill: boolean
+  readonly handle: boolean
+  readonly editor: ReactNode
 }
 
 function signOf(type: string, value: unknown): 'up' | 'down' | undefined {
@@ -39,6 +42,9 @@ export function CellView({
   rule,
   active,
   inRange,
+  inFill,
+  handle,
+  editor,
 }: CellViewProps): ReactNode {
   const { renderers } = useShell()
   const { column } = entry
@@ -70,6 +76,8 @@ export function CellView({
       {...(pinEdge ? { 'data-pin-edge': '' } : {})}
       {...(active ? { 'data-active': '' } : {})}
       {...(inRange ? { 'data-range': '' } : {})}
+      {...(inFill ? { 'data-fill': '' } : {})}
+      {...(editor === null ? {} : { 'data-editing': '' })}
       {...(sign === undefined ? {} : { 'data-sign': sign })}
       {...(rule === undefined ? {} : { 'data-rule': '' })}
       {...(rule?.style.bold === true ? { 'data-bold': '' } : {})}
@@ -89,14 +97,16 @@ export function CellView({
       ) : treeColumn ? (
         <span className="tally-expander" aria-hidden />
       ) : null}
-      {createElement(renderer, {
-        value,
-        text,
-        row: item.row,
-        column,
-        type,
-        format: grid.context.format,
-      })}
+      {editor ??
+        createElement(renderer, {
+          value,
+          text,
+          row: item.row,
+          column,
+          type,
+          format: grid.context.format,
+        })}
+      {handle ? <span className="tally-fill-handle" data-fill-handle aria-hidden /> : null}
     </div>
   )
 }

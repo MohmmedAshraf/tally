@@ -15,3 +15,11 @@ export {
   type CellRenderer,
   type CellRenderers,
 } from './components/cells/renderers.tsx'
+export {
+  defaultEditors,
+  type CellEditor,
+  type CellEditorProps,
+  type CellEditors,
+  type EditorMove,
+} from './components/editors/editors.tsx'
+export type { IntentHandler } from './components/interactions.ts'

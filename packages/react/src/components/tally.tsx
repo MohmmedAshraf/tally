@@ -4,12 +4,14 @@ import { GridProvider } from '../hooks/context.tsx'
 import { useColumnLayout, useGridState, useView } from '../hooks/use-store.ts'
 import { Body } from './body.tsx'
 import { defaultRenderers, type CellRenderers } from './cells/renderers.tsx'
+import { defaultEditors, type CellEditors } from './editors/editors.tsx'
 import { ShellContext, useShell, type TallyShell } from './context.ts'
 import type { IntentHandler } from './interactions.ts'
 
 export interface TallyProps {
   readonly grid: Grid
   readonly renderers?: CellRenderers | undefined
+  readonly editors?: CellEditors | undefined
   readonly theme?: 'light' | 'dark' | undefined
   readonly dir?: 'ltr' | 'rtl' | undefined
   readonly className?: string | undefined
@@ -59,6 +61,7 @@ function Viewport({
 export function Tally({
   grid,
   renderers,
+  editors,
   theme,
   dir,
   className,
@@ -68,16 +71,23 @@ export function Tally({
   onIntent,
   children,
 }: TallyProps): ReactNode {
+  const root = useRef<HTMLDivElement>(null)
   const viewport = useRef<HTMLDivElement>(null)
   const density = useView(grid, (view) => view.density)
   const shell = useMemo<TallyShell>(
-    () => ({ viewport, renderers: { ...defaultRenderers, ...renderers } }),
-    [renderers],
+    () => ({
+      root,
+      viewport,
+      renderers: { ...defaultRenderers, ...renderers },
+      editors: { ...defaultEditors, ...editors },
+    }),
+    [renderers, editors],
   )
   return (
     <GridProvider grid={grid}>
       <ShellContext value={shell}>
         <div
+          ref={root}
           className={className === undefined ? 'tally' : `tally ${className}`}
           style={style}
           dir={dir}

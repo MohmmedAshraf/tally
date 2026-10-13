@@ -41,6 +41,7 @@
     "size": "size-limit"
   },
   "dependencies": {
+    "@base-ui/react": "catalog:",
     "@tanstack/react-virtual": "catalog:",
     "lucide-react": "catalog:",
     "tally-core": "workspace:*"

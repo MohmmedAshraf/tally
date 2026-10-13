@@ -1,5 +1,13 @@
 import type { CSSProperties, MouseEvent, ReactNode, Ref } from 'react'
-import type { ColumnLayout, Grid, LayoutColumn, RowItem, SelectionState } from 'tally-core'
+import {
+  normalizeRange,
+  type ColumnLayout,
+  type Grid,
+  type LayoutColumn,
+  type NormalizedRange,
+  type RowItem,
+  type SelectionState,
+} from 'tally-core'
 import { CellView } from './cell.tsx'
 import { isPinEdge, type PinOffsets } from './geometry.ts'
 import { isActive, isInRange } from './interactions.ts'
@@ -21,6 +29,8 @@ export interface RowViewProps {
   readonly treeColumn: string | undefined
   readonly wrap: boolean
   readonly selection: SelectionState
+  readonly fill: NormalizedRange | undefined
+  readonly editing: { readonly column: number; readonly node: ReactNode } | undefined
   readonly cellId: (row: number, column: number) => string
   readonly style?: CSSProperties | undefined
   readonly ref?: Ref<HTMLDivElement> | undefined
@@ -37,12 +47,15 @@ export function RowView({
   treeColumn,
   wrap,
   selection,
+  fill,
+  editing,
   cellId,
   style,
   ref,
   index,
 }: RowViewProps): ReactNode {
   const selected = selection.rows.has(item.key)
+  const box = selection.range === undefined ? undefined : normalizeRange(selection.range)
   const cell = (entry: LayoutColumn): ReactNode => (
     <CellView
       key={entry.column.id}
@@ -62,6 +75,15 @@ export function RowView({
       rule={ruleFor(rules, entry.column.id, item.row)}
       active={isActive(selection, item.index, entry.index)}
       inRange={isInRange(selection, item.index, entry.index)}
+      inFill={
+        fill !== undefined &&
+        item.index >= fill.top &&
+        item.index <= fill.bottom &&
+        entry.index >= fill.left &&
+        entry.index <= fill.right
+      }
+      handle={box !== undefined && item.index === box.bottom && entry.index === box.right}
+      editor={editing?.column === entry.index ? editing.node : null}
     />
   )
   const onToggle = (event: MouseEvent<HTMLInputElement>): void => {

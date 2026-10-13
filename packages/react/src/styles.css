@@ -51,7 +51,7 @@
     font-size: var(--tally-font-size);
     line-height: 1.4;
     -webkit-font-smoothing: antialiased;
-    overflow: hidden;
+    overflow: clip;
     box-sizing: border-box;
   }
 
@@ -356,6 +356,110 @@
     box-shadow: inset 0 0 0 2px var(--tally-accent);
   }
 
+  .tally-cell[data-fill] {
+    box-shadow: inset 0 0 0 1.5px var(--tally-accent);
+    background: color-mix(in oklch, var(--tally-accent) 6%, transparent);
+  }
+
+  .tally-fill-handle {
+    position: absolute;
+    inset-inline-end: -4px;
+    bottom: -4px;
+    width: 8px;
+    height: 8px;
+    background: var(--tally-accent);
+    border: 1.5px solid var(--tally-bg);
+    border-radius: 2px;
+    z-index: 3;
+    cursor: crosshair;
+  }
+
+  .tally-editor-input {
+    width: 100%;
+    align-self: stretch;
+    min-height: var(--tally-row-height);
+    margin: 0;
+    padding: 0 var(--tally-cell-padding);
+    border: 0;
+    outline: none;
+    background: var(--tally-bg);
+    color: var(--tally-ink);
+    font: inherit;
+    box-shadow: inset 0 0 0 2px var(--tally-accent);
+    resize: none;
+  }
+
+  .tally-cell[data-align='end'] .tally-editor-input {
+    text-align: end;
+    font-family: var(--tally-font-mono);
+    font-size: 12.5px;
+  }
+
+  textarea.tally-editor-input {
+    padding-block: 12px;
+    line-height: 1.45;
+  }
+
+  .tally-popup-positioner {
+    z-index: 50;
+    outline: none;
+    color: var(--tally-ink);
+    font-family: var(--tally-font);
+  }
+
+  .tally-popup {
+    min-width: var(--anchor-width, 180px);
+    max-height: var(--available-height, 320px);
+    overflow: auto;
+    padding: 4px;
+    border: 1px solid var(--tally-line);
+    border-radius: var(--tally-radius-sm);
+    background: var(--tally-bg);
+    color: var(--tally-ink);
+    font-family: var(--tally-font);
+    font-size: 13px;
+    outline: none;
+  }
+
+  .tally-popup-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .tally-popup-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 30px;
+    padding: 0 8px;
+    border-radius: 6px;
+    cursor: default;
+    outline: none;
+    user-select: none;
+  }
+
+  .tally-popup-item[data-highlighted] {
+    background: var(--tally-soft);
+  }
+
+  .tally-popup-item[data-selected] {
+    font-weight: 500;
+  }
+
+  .tally-popup-indicator {
+    margin-inline-start: auto;
+    display: flex;
+    color: var(--tally-ink-2);
+  }
+
+  .tally-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex: none;
+  }
+
   .tally-body {
     position: relative;
     min-width: 100%;
@@ -387,6 +491,15 @@
 
   .tally-row[data-wrap] .tally-gutter {
     padding-top: 16px;
+  }
+
+  .tally-row .tally-cell[data-editing] {
+    padding: 0;
+    z-index: 3;
+    overflow: visible;
+    align-items: stretch;
+    background: var(--tally-bg);
+    box-shadow: none;
   }
 
   .tally-row:hover,

@@ -1,9 +1,12 @@
 import { createContext, useContext, type Context, type RefObject } from 'react'
 import type { CellRenderers } from './cells/renderers.tsx'
+import type { CellEditors } from './editors/editors.tsx'
 
 export interface TallyShell {
+  readonly root: RefObject<HTMLDivElement | null>
   readonly viewport: RefObject<HTMLDivElement | null>
   readonly renderers: CellRenderers
+  readonly editors: CellEditors
 }
 
 export const ShellContext: Context<TallyShell | undefined> = createContext<TallyShell | undefined>(
