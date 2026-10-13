@@ -140,3 +140,8 @@ export const defaultRenderers: CellRenderers = {
 export function rendererFor(renderers: CellRenderers, type: ColumnType): CellRenderer {
   return renderers[type.name] ?? renderers[type.kind] ?? Text
 }
+
+export function signOf(type: string, value: unknown): 'up' | 'down' | undefined {
+  if (type !== 'percent' || typeof value !== 'number' || value === 0) return undefined
+  return value > 0 ? 'up' : 'down'
+}

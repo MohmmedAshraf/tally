@@ -44,6 +44,7 @@ export interface TallyLabels {
   readonly rows: (count: number) => string
   readonly selected: (count: number) => string
   readonly removeFilter: (text: string) => string
+  readonly selectRow: (title: string) => string
 }
 
 export const defaultLabels: TallyLabels = {
@@ -90,6 +91,7 @@ export const defaultLabels: TallyLabels = {
   rows: (count) => `${count.toLocaleString()} rows`,
   selected: (count) => `${count.toLocaleString()} selected`,
   removeFilter: (text) => `Remove ${text}`,
+  selectRow: (title) => `Select ${title}`,
 }
 
 export const LabelsContext: Context<TallyLabels> = createContext<TallyLabels>(defaultLabels)

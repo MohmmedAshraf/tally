@@ -51,7 +51,13 @@ const rows = [
   },
 ]
 
-function Harness({ view }: { readonly view?: View | undefined }): ReactNode {
+function Harness({
+  view,
+  layout,
+}: {
+  readonly view?: View | undefined
+  readonly layout?: 'cards' | undefined
+}): ReactNode {
   const [source] = useState(() => createArraySource(rows, schema))
   const grid = useGrid({
     schema,
@@ -59,7 +65,14 @@ function Harness({ view }: { readonly view?: View | undefined }): ReactNode {
     view,
     format: { locale: 'en-US', timeZone: 'UTC', numberingSystem: 'latn' },
   })
-  return <Tally grid={grid} initialSize={{ width: 1200, height: 600 }} label="Accounts" />
+  return (
+    <Tally
+      grid={grid}
+      initialSize={{ width: 1200, height: 600 }}
+      label="Accounts"
+      layout={layout}
+    />
+  )
 }
 
 describe('Tally', () => {
@@ -104,6 +117,24 @@ describe('Tally', () => {
     expect(range?.getAttribute('title')).toMatch(/2027.*2027/)
     expect(range).toHaveTextContent('Feb–Mar 27')
     expect(footer).toHaveTextContent('1–2 / 2')
+  })
+
+  it('renders cards grouped by role when layout is cards', async () => {
+    render(<Harness layout="cards" />)
+    const card = await screen.findByRole('article', { name: 'Kite Supply' })
+    expect(screen.queryByRole('grid')).not.toBeInTheDocument()
+    expect(within(card).getByText('Active').closest('.tally-card-badges')).not.toBeNull()
+    const metrics = within(card)
+      .getAllByRole('term')
+      .map((term) => term.textContent)
+    expect(metrics).toEqual(['mrr', 'growth', 'health'])
+    expect(within(card).getByText('48.8%').closest('.tally-card-metric')).toHaveAttribute(
+      'data-sign',
+      'up',
+    )
+    expect(within(card).getByText('PR').closest('.tally-card-meta')).not.toBeNull()
+    act(() => within(card).getByRole('checkbox', { name: 'Select Kite Supply' }).click())
+    expect(card).toHaveAttribute('data-selected')
   })
 
   it('sorts from the header and exposes aria-sort', async () => {

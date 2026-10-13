@@ -7,7 +7,7 @@ import {
   type LayoutColumn,
   type RowItem,
 } from 'tally-core'
-import { rendererFor } from './cells/renderers.tsx'
+import { rendererFor, signOf } from './cells/renderers.tsx'
 import { useShell } from './context.ts'
 
 export interface CellViewProps {
@@ -24,11 +24,6 @@ export interface CellViewProps {
   readonly inFill: boolean
   readonly handle: boolean
   readonly editor: ReactNode
-}
-
-function signOf(type: string, value: unknown): 'up' | 'down' | undefined {
-  if (type !== 'percent' || typeof value !== 'number' || value === 0) return undefined
-  return value > 0 ? 'up' : 'down'
 }
 
 export function CellView({

@@ -137,10 +137,12 @@
     background: none;
     color: var(--tally-ink);
     font: inherit;
+    unicode-bidi: plaintext;
   }
 
   .tally-filter-input::placeholder {
     color: var(--tally-ink-3);
+    unicode-bidi: plaintext;
   }
 
   .tally-filter-text-toggle {
@@ -255,6 +257,7 @@
     font-size: 12px;
     color: var(--tally-ink-2);
     white-space: nowrap;
+    unicode-bidi: plaintext;
     flex: none;
   }
 
@@ -508,6 +511,7 @@
     flex: 1;
     min-width: 0;
     height: 30px;
+    unicode-bidi: plaintext;
     padding: 0 9px;
     border: 1px solid var(--tally-line);
     border-radius: 7px;
@@ -1249,6 +1253,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    unicode-bidi: plaintext;
   }
 
   .tally-text[data-wrap] {
@@ -1331,12 +1336,14 @@
     background: var(--tally-meter-color, var(--tally-up));
   }
 
-  .tally-cell[data-sign='up'] .tally-text {
+  .tally-cell[data-sign='up'] .tally-text,
+  .tally-card-metric[data-sign='up'] .tally-text {
     color: var(--tally-up);
     font-weight: 500;
   }
 
-  .tally-cell[data-sign='down'] .tally-text {
+  .tally-cell[data-sign='down'] .tally-text,
+  .tally-card-metric[data-sign='down'] .tally-text {
     color: var(--tally-down);
     font-weight: 500;
   }
@@ -1501,6 +1508,119 @@
     font-size: 12px;
   }
 
+  .tally-viewport[data-layout='cards'] {
+    padding: 10px 12px 16px;
+    background: var(--tally-canvas);
+  }
+
+  .tally-cards {
+    position: relative;
+  }
+
+  .tally-card-slot {
+    position: absolute;
+    top: 0;
+    inset-inline: 0;
+    padding-bottom: 8px;
+  }
+
+  .tally-card-slot .tally-group {
+    position: static;
+    width: auto;
+    min-width: 0;
+    border-radius: 10px;
+    border-bottom: 0;
+  }
+
+  .tally-card {
+    padding: 12px;
+    border: 1px solid var(--tally-line);
+    border-radius: var(--tally-radius);
+    background: var(--tally-bg);
+  }
+
+  .tally-card[data-selected] {
+    border-color: var(--tally-accent);
+    background: var(--tally-selection-row);
+  }
+
+  .tally-card-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .tally-card-title {
+    flex: 1;
+    min-width: 0;
+    font-size: 14px;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .tally-card-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .tally-card-metrics {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin: 10px 0 0;
+  }
+
+  .tally-card-metric {
+    padding: 7px 9px;
+    border-radius: 8px;
+    background: var(--tally-canvas);
+    min-width: 0;
+  }
+
+  .tally-card-metric dt {
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--tally-ink-3);
+  }
+
+  .tally-card-metric dd {
+    margin: 2px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--tally-font-mono);
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .tally-card-metric dd .tally-text {
+    direction: ltr;
+    unicode-bidi: isolate;
+  }
+
+  .tally-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 14px;
+    margin-top: 10px;
+    font-size: 12.5px;
+    color: var(--tally-ink-2);
+  }
+
+  .tally-card-meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+  }
+
   .tally-footer {
     position: sticky;
     bottom: 0;
@@ -1534,6 +1654,7 @@
   .tally-footer-value {
     overflow: hidden;
     text-overflow: ellipsis;
+    unicode-bidi: plaintext;
   }
 
   .tally-footer-cell[data-align='end'] .tally-footer-value {
