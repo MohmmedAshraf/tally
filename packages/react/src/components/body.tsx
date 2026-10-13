@@ -109,7 +109,7 @@ export function Body({ grid, layout, initialSize, onIntent }: BodyProps): ReactN
         : offsets.centerWidth - (lastColumn.end - columns.options.scrollMargin),
   }
 
-  const { editors } = useShell()
+  const { editors, filterInput } = useShell()
   const edit = useEditing({ grid, viewport, layout, model, editors })
   const filling = useFill(grid, layout, model)
   useInteractions({
@@ -127,6 +127,7 @@ export function Body({ grid, layout, initialSize, onIntent }: BodyProps): ReactN
     onIntent,
     editing: edit.api,
     fill: filling.api,
+    focusFilter: () => filterInput.current?.focus(),
   })
   const editingFor = (row: number): { column: number; node: ReactNode } | undefined =>
     edit.editing?.cell.row === row

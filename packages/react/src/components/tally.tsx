@@ -6,6 +6,9 @@ import { Body } from './body.tsx'
 import { defaultRenderers, type CellRenderers } from './cells/renderers.tsx'
 import { defaultEditors, type CellEditors } from './editors/editors.tsx'
 import { ShellContext, useShell, type TallyShell } from './context.ts'
+import { LabelsContext, defaultLabels, type TallyLabels } from './labels.ts'
+import { Toolbar } from './toolbar/toolbar.tsx'
+import type { AskHandler } from './toolbar/filter-bar.tsx'
 import type { IntentHandler } from './interactions.ts'
 
 export interface TallyProps {
@@ -19,6 +22,9 @@ export interface TallyProps {
   readonly label?: string | undefined
   readonly initialSize?: { readonly width: number; readonly height: number } | undefined
   readonly onIntent?: IntentHandler | undefined
+  readonly labels?: Partial<TallyLabels> | undefined
+  readonly toolbar?: ReactNode
+  readonly ask?: AskHandler | undefined
   readonly children?: ReactNode
 }
 
@@ -69,15 +75,21 @@ export function Tally({
   label,
   initialSize,
   onIntent,
+  labels,
+  toolbar = true,
+  ask,
   children,
 }: TallyProps): ReactNode {
+  const mergedLabels = useMemo<TallyLabels>(() => ({ ...defaultLabels, ...labels }), [labels])
   const root = useRef<HTMLDivElement>(null)
   const viewport = useRef<HTMLDivElement>(null)
+  const filterInput = useRef<HTMLInputElement>(null)
   const density = useView(grid, (view) => view.density)
   const shell = useMemo<TallyShell>(
     () => ({
       root,
       viewport,
+      filterInput,
       renderers: { ...defaultRenderers, ...renderers },
       editors: { ...defaultEditors, ...editors },
     }),
@@ -86,17 +98,27 @@ export function Tally({
   return (
     <GridProvider grid={grid}>
       <ShellContext value={shell}>
-        <div
-          ref={root}
-          className={className === undefined ? 'tally' : `tally ${className}`}
-          style={style}
-          dir={dir}
-          data-density={density}
-          {...(theme === undefined ? {} : { 'data-theme': theme })}
-        >
-          {children}
-          <Viewport grid={grid} initialSize={initialSize} label={label} onIntent={onIntent} />
-        </div>
+        <LabelsContext value={mergedLabels}>
+          <div
+            ref={root}
+            className={className === undefined ? 'tally' : `tally ${className}`}
+            style={style}
+            dir={dir}
+            data-density={density}
+            {...(theme === undefined ? {} : { 'data-theme': theme })}
+          >
+            {toolbar === true ? (
+              <Toolbar grid={grid} ask={ask}>
+                {children}
+              </Toolbar>
+            ) : toolbar === false ? (
+              children
+            ) : (
+              toolbar
+            )}
+            <Viewport grid={grid} initialSize={initialSize} label={label} onIntent={onIntent} />
+          </div>
+        </LabelsContext>
       </ShellContext>
     </GridProvider>
   )

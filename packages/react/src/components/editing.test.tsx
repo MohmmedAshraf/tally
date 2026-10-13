@@ -107,7 +107,7 @@ describe('editing', () => {
     await within(grid).findByText('One')
     fireEvent.mouseDown(cell(0, 2))
     fireEvent.keyDown(grid, { key: 'Enter' })
-    const combobox = await screen.findByRole('combobox')
+    const combobox = await within(cell(0, 2)).findByRole('combobox')
     expect(combobox).toHaveFocus()
     expect(await screen.findByRole('option', { name: 'Pro' })).toHaveAttribute(
       'aria-selected',
@@ -116,7 +116,7 @@ describe('editing', () => {
     expect(screen.getByRole('option', { name: 'team' })).toBeInTheDocument()
     fireEvent.keyDown(combobox, { key: 'Escape' })
     await settle()
-    expect(screen.queryByRole('combobox')).toBeNull()
+    expect(within(cell(0, 2)).queryByRole('combobox')).toBeNull()
     expect(current?.rows.byKey(1)?.['plan']).toBe('pro')
   })
 

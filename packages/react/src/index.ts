@@ -23,3 +23,12 @@ export {
   type EditorMove,
 } from './components/editors/editors.tsx'
 export type { IntentHandler } from './components/interactions.ts'
+export { defaultLabels, type TallyLabels } from './components/labels.ts'
+export { Toolbar, type ToolbarProps } from './components/toolbar/toolbar.tsx'
+export {
+  Chip,
+  FilterBar,
+  type AskHandler,
+  type AskResult,
+  type FilterBarProps,
+} from './components/toolbar/filter-bar.tsx'

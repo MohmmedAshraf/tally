@@ -5,6 +5,7 @@ import type { CellEditors } from './editors/editors.tsx'
 export interface TallyShell {
   readonly root: RefObject<HTMLDivElement | null>
   readonly viewport: RefObject<HTMLDivElement | null>
+  readonly filterInput: RefObject<HTMLInputElement | null>
   readonly renderers: CellRenderers
   readonly editors: CellEditors
 }

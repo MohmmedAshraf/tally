@@ -41,6 +41,7 @@ export interface InteractionOptions {
   readonly onIntent: IntentHandler | undefined
   readonly editing: EditingApi
   readonly fill: FillApi
+  readonly focusFilter: () => void
 }
 
 function cellAddressOf(target: EventTarget | null): CellAddress | undefined {
@@ -217,8 +218,10 @@ export function useInteractions(options: InteractionOptions): void {
           if (item?.hasChildren === true) grid.view.setExpanded(item.key, intent.open)
           return
         }
-        case 'inspect':
         case 'focusFilter':
+          latest.current.focusFilter()
+          return
+        case 'inspect':
         case 'commandPalette':
           return
       }
