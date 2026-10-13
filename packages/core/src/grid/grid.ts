@@ -208,6 +208,7 @@ export function createGrid(options: GridOptions): Grid {
   let sequence = 0
   let controller: AbortController | undefined
   let stopLive: (() => void) | undefined
+  let stopView: (() => void) | undefined
 
   const pageFor = (): OffsetPage | CursorPage | undefined => {
     const { page } = store.state
@@ -228,6 +229,10 @@ export function createGrid(options: GridOptions): Grid {
     if (!started) {
       started = true
       stopLive = source.subscribe?.((incoming) => rows.patch(incoming))
+      stopView = view.select(queryKey, () => {
+        store.setState((state) => ({ ...state, page: { ...state.page, index: 0 } }))
+        void load()
+      })
     }
     controller?.abort()
     const current = new AbortController()
@@ -295,11 +300,6 @@ export function createGrid(options: GridOptions): Grid {
     if (!rows.commit(mutation)) return Promise.resolve(accepted)
     return send(mutation, () => rows.revert(mutation.id))
   }
-
-  const stopView = view.select(queryKey, () => {
-    store.setState((state) => ({ ...state, page: { ...state.page, index: 0 } }))
-    if (started) void load()
-  })
 
   return {
     schema,
@@ -394,8 +394,11 @@ export function createGrid(options: GridOptions): Grid {
     dispose: () => {
       controller?.abort()
       sequence += 1
-      stopView()
+      stopView?.()
       stopLive?.()
+      stopView = undefined
+      stopLive = undefined
+      started = false
     },
   }
 }

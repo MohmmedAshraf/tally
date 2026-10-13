@@ -36,7 +36,9 @@ export function fillSeries(source: readonly unknown[], count: number, kind: Valu
     }
   }
   if (kind === 'date' && present.length === source.length) {
-    const dates = source.filter((value): value is string => isIsoDate(value))
+    const dates = source.filter(
+      (value): value is string => typeof value === 'string' && isIsoDate(value),
+    )
     if (dates.length === source.length) {
       const series = dateSeries(dates, count)
       if (series !== undefined) return series

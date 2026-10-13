@@ -1,4 +1,4 @@
-import { resolveRelativeRange, type RelativeRange } from '../format/date.ts'
+import { isRelativeRange, resolveRelativeRange } from '../format/date.ts'
 import type { Condition, Filter } from '../query/ast.ts'
 import type { RowData } from '../rows/row.ts'
 import type { Column } from '../schema/column.ts'
@@ -10,10 +10,6 @@ export type Predicate = (row: RowData) => boolean
 
 const ALWAYS: Predicate = () => true
 const NEVER: Predicate = () => false
-
-function isRelative(value: unknown): value is RelativeRange {
-  return typeof value === 'object' && value !== null && 'direction' in value && 'unit' in value
-}
 
 function lower(value: unknown): string {
   return typeof value === 'string' ? value.toLowerCase() : String(value)
@@ -92,7 +88,7 @@ function conditionPredicate(
       }
     }
     case 'within': {
-      if (!isRelative(target)) return NEVER
+      if (!isRelativeRange(target)) return NEVER
       const range = resolveRelativeRange(target, context.today)
       const low = compareWith(type, column, context, range.start, (order) => order >= 0)
       const high = compareWith(type, column, context, range.end, (order) => order <= 0)

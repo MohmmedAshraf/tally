@@ -191,6 +191,19 @@ describe('createGrid', () => {
     grid.dispose()
   })
 
+  it('can be disposed and loaded again', async () => {
+    const source = createArraySource(rows, schema)
+    const grid = createGrid({ schema, source })
+    await grid.load()
+    grid.dispose()
+    await grid.load()
+    grid.view.setFilter(condition('plan', 'eq', 'b'))
+    await vi.waitFor(() => expect(grid.model().rows.map((item) => item.key)).toEqual([2]))
+    source.patch({ upserts: [{ id: 2, name: 'Two', plan: 'b', mrr: 21 }] })
+    expect(grid.rows.byKey(2)?.['mrr']).toBe(21)
+    grid.dispose()
+  })
+
   it('reports source failures', async () => {
     const grid = createGrid({
       schema,

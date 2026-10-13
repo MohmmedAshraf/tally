@@ -1,4 +1,4 @@
-import type { RelativeRange } from '../format/date.ts'
+import { isRelativeRange, type RelativeRange } from '../format/date.ts'
 import type { Schema } from '../schema/schema.ts'
 import type { Operator } from '../types/operator.ts'
 import type { Filter, Query, Sort } from './ast.ts'
@@ -64,16 +64,6 @@ const OPERATOR_WORDS: Readonly<Record<Operator, string>> = {
   within: 'in',
 }
 
-function isRelative(value: unknown): value is RelativeRange {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    'direction' in value &&
-    'unit' in value &&
-    'amount' in value
-  )
-}
-
 function printCondition(column: string, op: Operator, value: unknown, schema: Schema): string {
   const word = OPERATOR_WORDS[op]
   switch (op) {
@@ -90,7 +80,7 @@ function printCondition(column: string, op: Operator, value: unknown, schema: Sc
       return `${column} ${word} (${values.map((item) => printValue(item, schema)).join(', ')})`
     }
     case 'within':
-      return isRelative(value)
+      return isRelativeRange(value)
         ? `${column} in ${printRelative(value)}`
         : `${column} in ${printValue(value, schema)}`
     case 'eq':

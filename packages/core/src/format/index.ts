@@ -7,6 +7,7 @@ export {
   dayNumber,
   formatIsoDate,
   isIsoDate,
+  isRelativeRange,
   parseIsoDate,
   resolveRelativeRange,
   today,

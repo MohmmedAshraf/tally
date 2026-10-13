@@ -113,6 +113,16 @@ const DURATION_OF: Readonly<Record<RelativeUnit, (amount: number) => Temporal.Du
   year: (amount) => ({ years: amount }),
 }
 
+export function isRelativeRange(value: unknown): value is RelativeRange {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'direction' in value &&
+    'unit' in value &&
+    'amount' in value
+  )
+}
+
 export function resolveRelativeRange(range: RelativeRange, todayIso: string): DateRange {
   const now = Temporal.PlainDate.from(todayIso)
   if (range.direction === 'this') {
