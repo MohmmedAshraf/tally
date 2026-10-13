@@ -27,3 +27,10 @@ export type { Clause, ClauseKind } from './build.ts'
 export { parseQuery, type ParseResult } from './parse.ts'
 export type { ParseErrorPosition } from './parser.ts'
 export { printFilter, printQuery, printRelative, printSort } from './print.ts'
+export {
+  suggest,
+  tokenAt,
+  type SuggestOptions,
+  type Suggestion,
+  type SuggestionKind,
+} from './suggest.ts'
