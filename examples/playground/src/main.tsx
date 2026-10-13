@@ -1,6 +1,14 @@
-import { StrictMode, useState } from 'react'
+import { StrictMode, Suspense, use, useState, type ReactNode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { createArraySource, createSchema, type Pagination } from 'tally-core'
+import { connectHttpSource, type HttpConnection } from 'tally-adapters'
+import {
+  createArraySource,
+  createSchema,
+  type DataSource,
+  type FormatContext,
+  type Pagination,
+  type Schema,
+} from 'tally-core'
 import { Tally, useGrid } from 'tally-react'
 import 'tally-react/styles.css'
 import { columns, makeRows } from './data.ts'
@@ -15,22 +23,50 @@ const rows = makeRows(5000)
 
 type Locale = (typeof LOCALES)[number]
 
+type Theme = 'light' | 'dark'
+
+type Direction = 'ltr' | 'rtl'
+
+type Transport = 'array' | 'http'
+
 function isLocale(value: string): value is Locale {
   return LOCALES.some((entry) => entry === value)
 }
 
+let remote: Promise<HttpConnection> | undefined
+
+function connect(): Promise<HttpConnection> {
+  remote ??= connectHttpSource({ url: '/api/tally' })
+  return remote
+}
+
+interface WorkbenchProps {
+  readonly schema: Schema
+  readonly source: DataSource
+  readonly format: FormatContext
+  readonly theme: Theme
+  readonly dir: Direction
+}
+
+function Workbench({ schema: current, source, format, theme, dir }: WorkbenchProps): ReactNode {
+  const grid = useGrid({ schema: current, source, format })
+  return <Tally grid={grid} label="Accounts" theme={theme} dir={dir} />
+}
+
+function RemoteWorkbench(props: Omit<WorkbenchProps, 'schema' | 'source'>): ReactNode {
+  const connection = use(connect())
+  return <Workbench {...props} schema={connection.schema} source={connection.source} />
+}
+
 function App() {
+  const [transport, setTransport] = useState<Transport>('array')
   const [pagination, setPagination] = useState<Pagination>('none')
   const [source, setSource] = useState(() => createArraySource(rows, schema))
-  const [theme, setTheme] = useState<'light' | 'dark'>('light')
-  const [dir, setDir] = useState<'ltr' | 'rtl'>('ltr')
+  const [theme, setTheme] = useState<Theme>('light')
+  const [dir, setDir] = useState<Direction>('ltr')
   const [locale, setLocale] = useState<Locale>('en-US')
   const [width, setWidth] = useState<'full' | 'phone'>('full')
-  const grid = useGrid({
-    schema,
-    source,
-    format: { locale, timeZone: 'UTC', numberingSystem: 'latn' },
-  })
+  const format: FormatContext = { locale, timeZone: 'UTC', numberingSystem: 'latn' }
   return (
     <div
       style={{
@@ -62,15 +98,23 @@ function App() {
         </button>
         <button
           type="button"
-          onClick={() => {
-            const next = PAGINATIONS[(PAGINATIONS.indexOf(pagination) + 1) % PAGINATIONS.length]
-            if (next === undefined) return
-            setPagination(next)
-            setSource(createArraySource(source.rows(), schema, { pagination: next }))
-          }}
+          onClick={() => setTransport(transport === 'array' ? 'http' : 'array')}
         >
-          {pagination}
+          {transport}
         </button>
+        {transport === 'array' ? (
+          <button
+            type="button"
+            onClick={() => {
+              const next = PAGINATIONS[(PAGINATIONS.indexOf(pagination) + 1) % PAGINATIONS.length]
+              if (next === undefined) return
+              setPagination(next)
+              setSource(createArraySource(source.rows(), schema, { pagination: next }))
+            }}
+          >
+            {pagination}
+          </button>
+        ) : null}
       </div>
       <div
         style={{
@@ -83,7 +127,13 @@ function App() {
           overflow: 'hidden',
         }}
       >
-        <Tally grid={grid} label="Accounts" theme={theme} dir={dir} />
+        {transport === 'array' ? (
+          <Workbench schema={schema} source={source} format={format} theme={theme} dir={dir} />
+        ) : (
+          <Suspense fallback={null}>
+            <RemoteWorkbench format={format} theme={theme} dir={dir} />
+          </Suspense>
+        )}
       </div>
     </div>
   )

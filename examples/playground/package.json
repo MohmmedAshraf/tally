@@ -10,13 +10,18 @@
   "dependencies": {
     "react": "catalog:",
     "react-dom": "catalog:",
+    "tally-adapters": "workspace:*",
     "tally-core": "workspace:*",
     "tally-react": "workspace:*"
   },
   "devDependencies": {
+    "@hono/node-server": "catalog:",
+    "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
+    "kysely": "catalog:",
+    "tally-server": "workspace:*",
     "typescript": "catalog:",
     "vite": "catalog:"
   }
