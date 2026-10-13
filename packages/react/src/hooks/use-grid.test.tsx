@@ -1,6 +1,6 @@
 import { act, render, screen } from '@testing-library/react'
 import type { ReactNode } from 'react'
-import { createArraySource, createSchema, type DataSource } from 'tally-core'
+import { createArraySource, createSchema, type DataSource, type FormatContext } from 'tally-core'
 import { describe, expect, it, vi } from 'vitest'
 import { GridProvider, useGridContext } from './context.tsx'
 import { useGrid } from './use-grid.ts'
@@ -23,15 +23,21 @@ function Status(): ReactNode {
   const changed = useRows(grid).changed.size
   const selection = useSelection(grid)
   return (
-    <output>
+    <output data-locale={grid.context.format.locale}>
       {status}:{model.rows.map((item) => item.key).join(',')}:{sort[0]?.direction ?? '-'}:{changed}:
       {selection.active?.row ?? '-'}
     </output>
   )
 }
 
-function Harness({ source }: { readonly source: DataSource }): ReactNode {
-  const grid = useGrid({ schema, source })
+function Harness({
+  source,
+  format,
+}: {
+  readonly source: DataSource
+  readonly format?: FormatContext | undefined
+}): ReactNode {
+  const grid = useGrid({ schema, source, format })
   return (
     <GridProvider grid={grid}>
       <Status />
@@ -73,6 +79,18 @@ describe('useGrid', () => {
     await screen.findByText('ready:9:-:0:-')
     expect(spy).toHaveBeenCalledTimes(1)
     expect(stop).toHaveBeenCalledTimes(1)
+  })
+
+  it('recreates the grid with the current view when the format changes', async () => {
+    const source = createArraySource(rows, schema)
+    const english = { locale: 'en-US', timeZone: 'UTC', numberingSystem: 'latn' }
+    const view = render(<Harness source={source} format={english} />)
+    await screen.findByText('ready:1,2:-:0:-')
+    act(() => screen.getByText('sort').click())
+    await screen.findByText('ready:2,1:desc:0:-')
+    view.rerender(<Harness source={source} format={{ ...english, locale: 'de-DE' }} />)
+    await screen.findByText('ready:2,1:desc:0:-')
+    expect(screen.getByRole('status')).toHaveAttribute('data-locale', 'de-DE')
   })
 
   it('throws outside of a provider', () => {
