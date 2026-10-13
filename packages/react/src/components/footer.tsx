@@ -1,7 +1,7 @@
 import type { CSSProperties, ReactNode } from 'react'
 import { aggregateKey, type ColumnLayout, type Grid, type LayoutColumn } from 'tally-core'
 import { useGridState, useView } from '../hooks/use-store.ts'
-import { aggregateLabel, dateFooter, formatAggregate, isDateRangeFooter } from './format.ts'
+import { aggregateLabel, dateRange, formatAggregate, isDateRangeFooter } from './format.ts'
 import { isPinEdge, type PinOffsets } from './geometry.ts'
 import type { ColumnWindow } from './row.tsx'
 
@@ -32,7 +32,9 @@ export function Footer({ grid, layout, offsets, window, visible }: FooterProps):
     if (pinOffset !== undefined) style['--tally-pin-offset'] = `${pinOffset}px`
     let content: ReactNode = null
     if (fn !== undefined) {
-      const range = isDateRangeFooter(grid, column, fn) ? dateFooter(grid, column) : undefined
+      const range = isDateRangeFooter(grid, column, fn)
+        ? dateRange(grid, column, state.aggregates)
+        : undefined
       const value = state.aggregates?.[aggregateKey({ column: column.id, fn })]
       if (range !== undefined) {
         content = (

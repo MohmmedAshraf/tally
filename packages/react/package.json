@@ -41,6 +41,8 @@
     "size": "size-limit"
   },
   "dependencies": {
+    "@atlaskit/pragmatic-drag-and-drop": "catalog:",
+    "@atlaskit/pragmatic-drag-and-drop-hitbox": "catalog:",
     "@base-ui/react": "catalog:",
     "@tanstack/react-virtual": "catalog:",
     "lucide-react": "catalog:",

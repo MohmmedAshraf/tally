@@ -5,6 +5,8 @@ packages:
 
 catalog:
   '@arethetypeswrong/cli': 0.18.5
+  '@atlaskit/pragmatic-drag-and-drop': 4.0.0
+  '@atlaskit/pragmatic-drag-and-drop-hitbox': 3.0.0
   '@base-ui/react': 1.9.0
   '@changesets/changelog-github': 1.0.1
   '@changesets/cli': 3.0.3

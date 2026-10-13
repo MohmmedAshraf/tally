@@ -1,4 +1,10 @@
-import { isIsoDate, type AggregateName, type Column, type Grid } from 'tally-core'
+import {
+  isIsoDate,
+  type AggregateName,
+  type AggregateResults,
+  type Column,
+  type Grid,
+} from 'tally-core'
 
 const AGGREGATE_LABELS: Readonly<Record<AggregateName, string>> = {
   sum: 'Sum',
@@ -54,11 +60,11 @@ export function isDateRangeFooter(grid: Grid, column: Column, fn: AggregateName)
   return grid.schema.typeOf(column).kind === 'date' && (fn === 'min' || fn === 'max')
 }
 
-export function dateFooter(
+export function dateRange(
   grid: Grid,
   column: Column,
+  aggregates: AggregateResults | undefined,
 ): { readonly text: string; readonly title: string } | undefined {
-  const { aggregates } = grid.get()
   const min = aggregates?.[`${column.id}:min`]
   const max = aggregates?.[`${column.id}:max`]
   if (typeof min !== 'string' || typeof max !== 'string' || !isIsoDate(min) || !isIsoDate(max)) {

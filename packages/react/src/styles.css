@@ -605,6 +605,29 @@
     margin-inline-end: auto;
   }
 
+  .tally-header-cell[data-dragging] {
+    opacity: 0.4;
+  }
+
+  .tally-header-cell[data-drop-edge]::before {
+    content: '';
+    position: absolute;
+    top: 6px;
+    bottom: 6px;
+    width: 2px;
+    border-radius: 1px;
+    background: var(--tally-accent);
+    z-index: 5;
+  }
+
+  .tally-header-cell[data-drop-edge='left']::before {
+    left: -1px;
+  }
+
+  .tally-header-cell[data-drop-edge='right']::before {
+    right: -1px;
+  }
+
   .tally-resize-handle {
     position: absolute;
     inset-inline-end: -4px;

@@ -1,7 +1,7 @@
 import { ChevronRight } from 'lucide-react'
 import type { CSSProperties, ReactNode } from 'react'
 import { aggregateKey, isEmptyValue, type Grid, type GroupItem } from 'tally-core'
-import { aggregateLabel, formatAggregate } from './format.ts'
+import { aggregateLabel, dateRange, formatAggregate, isDateRangeFooter } from './format.ts'
 
 export interface GroupRowProps {
   readonly grid: Grid
@@ -21,6 +21,10 @@ export function GroupRow({ grid, item, style }: GroupRowProps): ReactNode {
     .map(([id, fn]) => {
       const target = grid.schema.column(id)
       if (target === undefined) return undefined
+      const range = isDateRangeFooter(grid, target, fn)
+        ? dateRange(grid, target, item.aggregates)
+        : undefined
+      if (range !== undefined) return { id, text: range.text }
       const value = item.aggregates[aggregateKey({ column: id, fn })]
       if (value === undefined) return undefined
       return { id, text: `${aggregateLabel(fn)} ${formatAggregate(grid, target, fn, value)}` }
