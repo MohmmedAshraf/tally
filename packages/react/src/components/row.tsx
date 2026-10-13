@@ -1,7 +1,8 @@
-import type { CSSProperties, ReactNode, Ref } from 'react'
-import type { ColumnLayout, Grid, LayoutColumn, RowItem } from 'tally-core'
+import type { CSSProperties, MouseEvent, ReactNode, Ref } from 'react'
+import type { ColumnLayout, Grid, LayoutColumn, RowItem, SelectionState } from 'tally-core'
 import { CellView } from './cell.tsx'
 import { isPinEdge, type PinOffsets } from './geometry.ts'
+import { isActive, isInRange } from './interactions.ts'
 import { ruleFor, type CompiledRule } from './rules.ts'
 
 export interface ColumnWindow {
@@ -19,7 +20,8 @@ export interface RowViewProps {
   readonly rules: readonly CompiledRule[]
   readonly treeColumn: string | undefined
   readonly wrap: boolean
-  readonly selected: boolean
+  readonly selection: SelectionState
+  readonly cellId: (row: number, column: number) => string
   readonly style?: CSSProperties | undefined
   readonly ref?: Ref<HTMLDivElement> | undefined
   readonly index?: number | undefined
@@ -34,14 +36,17 @@ export function RowView({
   rules,
   treeColumn,
   wrap,
-  selected,
+  selection,
+  cellId,
   style,
   ref,
   index,
 }: RowViewProps): ReactNode {
+  const selected = selection.rows.has(item.key)
   const cell = (entry: LayoutColumn): ReactNode => (
     <CellView
       key={entry.column.id}
+      id={cellId(item.index, entry.index)}
       grid={grid}
       item={item}
       entry={entry}
@@ -55,8 +60,17 @@ export function RowView({
       pinEdge={isPinEdge(entry, layout)}
       treeColumn={treeColumn === entry.column.id}
       rule={ruleFor(rules, entry.column.id, item.row)}
+      active={isActive(selection, item.index, entry.index)}
+      inRange={isInRange(selection, item.index, entry.index)}
     />
   )
+  const onToggle = (event: MouseEvent<HTMLInputElement>): void => {
+    grid.selection.dispatch({
+      type: 'selectRow',
+      index: item.index,
+      mode: event.shiftKey ? 'range' : 'toggle',
+    })
+  }
   return (
     <div
       ref={ref}
@@ -76,7 +90,17 @@ export function RowView({
         className="tally-gutter"
         {...(layout.left.length === 0 ? { 'data-pin-edge': '' } : {})}
       >
-        {item.position}
+        <span className="tally-row-number" aria-hidden>
+          {item.position}
+        </span>
+        <input
+          type="checkbox"
+          className="tally-check"
+          aria-label={`Select row ${item.position}`}
+          checked={selected}
+          onClick={onToggle}
+          readOnly
+        />
       </div>
       {layout.left.map(cell)}
       {window.before > 0 ? (

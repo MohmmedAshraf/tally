@@ -1,5 +1,13 @@
 import type { CSSProperties, MouseEvent, ReactNode } from 'react'
-import { columnLabel, type ColumnLayout, type Grid, type LayoutColumn, type Sort } from 'tally-core'
+import {
+  columnLabel,
+  type ColumnLayout,
+  type Grid,
+  type LayoutColumn,
+  type RowModel,
+  type SelectionState,
+  type Sort,
+} from 'tally-core'
 import { useView } from '../hooks/use-store.ts'
 import { groupSpans, hasColumnGroups, isPinEdge, type PinOffsets } from './geometry.ts'
 import type { ColumnWindow } from './row.tsx'
@@ -9,6 +17,8 @@ export interface HeaderProps {
   readonly layout: ColumnLayout
   readonly offsets: PinOffsets
   readonly window: ColumnWindow
+  readonly model: RowModel
+  readonly selection: SelectionState
 }
 
 function sortGlyph(sort: Sort | undefined, count: number, position: number): string {
@@ -22,8 +32,21 @@ function ariaSort(sort: Sort | undefined): 'ascending' | 'descending' | 'none' {
   return sort.direction === 'asc' ? 'ascending' : 'descending'
 }
 
-export function Header({ grid, layout, offsets, window }: HeaderProps): ReactNode {
+export function Header({
+  grid,
+  layout,
+  offsets,
+  window,
+  model,
+  selection,
+}: HeaderProps): ReactNode {
   const sorts = useView(grid, (view) => view.sort)
+  const selectedCount = model.rows.filter((item) => selection.rows.has(item.key)).length
+  const allSelected = model.rows.length > 0 && selectedCount === model.rows.length
+  const toggleAll = (): void => {
+    if (selectedCount > 0) grid.selection.dispatch({ type: 'clearRows' })
+    else grid.selection.dispatch({ type: 'selectRows', keys: model.rows.map((item) => item.key) })
+  }
   const cell = (entry: LayoutColumn): ReactNode => {
     const { column } = entry
     const type = grid.schema.typeOf(column)
@@ -91,7 +114,18 @@ export function Header({ grid, layout, offsets, window }: HeaderProps): ReactNod
           className="tally-gutter"
           aria-colindex={1}
           {...(layout.left.length === 0 ? { 'data-pin-edge': '' } : {})}
-        />
+        >
+          <input
+            type="checkbox"
+            className="tally-check"
+            aria-label="Select all rows"
+            checked={allSelected}
+            ref={(input) => {
+              if (input !== null) input.indeterminate = selectedCount > 0 && !allSelected
+            }}
+            onChange={toggleAll}
+          />
+        </div>
         {layout.left.map(cell)}
         {window.before > 0 ? (
           <div className="tally-spacer" style={{ width: window.before }} aria-hidden />

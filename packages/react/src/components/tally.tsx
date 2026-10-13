@@ -5,6 +5,7 @@ import { useColumnLayout, useGridState, useView } from '../hooks/use-store.ts'
 import { Body } from './body.tsx'
 import { defaultRenderers, type CellRenderers } from './cells/renderers.tsx'
 import { ShellContext, useShell, type TallyShell } from './context.ts'
+import type { IntentHandler } from './interactions.ts'
 
 export interface TallyProps {
   readonly grid: Grid
@@ -15,6 +16,7 @@ export interface TallyProps {
   readonly style?: CSSProperties | undefined
   readonly label?: string | undefined
   readonly initialSize?: { readonly width: number; readonly height: number } | undefined
+  readonly onIntent?: IntentHandler | undefined
   readonly children?: ReactNode
 }
 
@@ -22,7 +24,8 @@ function Viewport({
   grid,
   initialSize,
   label,
-}: Pick<TallyProps, 'grid' | 'initialSize' | 'label'>): ReactNode {
+  onIntent,
+}: Pick<TallyProps, 'grid' | 'initialSize' | 'label' | 'onIntent'>): ReactNode {
   const layout = useColumnLayout(grid)
   const { viewport } = useShell()
   const status = useGridState(grid, (state) => state.status)
@@ -47,7 +50,7 @@ function Viewport({
         aria-colcount={layout.columns.length + 1}
         aria-multiselectable
       >
-        <Body grid={grid} layout={layout} initialSize={initialSize} />
+        <Body grid={grid} layout={layout} initialSize={initialSize} onIntent={onIntent} />
       </div>
     </>
   )
@@ -62,6 +65,7 @@ export function Tally({
   style,
   label,
   initialSize,
+  onIntent,
   children,
 }: TallyProps): ReactNode {
   const viewport = useRef<HTMLDivElement>(null)
@@ -81,7 +85,7 @@ export function Tally({
           {...(theme === undefined ? {} : { 'data-theme': theme })}
         >
           {children}
-          <Viewport grid={grid} initialSize={initialSize} label={label} />
+          <Viewport grid={grid} initialSize={initialSize} label={label} onIntent={onIntent} />
         </div>
       </ShellContext>
     </GridProvider>

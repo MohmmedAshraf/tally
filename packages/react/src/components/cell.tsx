@@ -11,6 +11,7 @@ import { rendererFor } from './cells/renderers.tsx'
 import { useShell } from './context.ts'
 
 export interface CellViewProps {
+  readonly id: string
   readonly grid: Grid
   readonly item: RowItem
   readonly entry: LayoutColumn
@@ -18,6 +19,8 @@ export interface CellViewProps {
   readonly pinEdge: boolean
   readonly treeColumn: boolean
   readonly rule: FormatRule | undefined
+  readonly active: boolean
+  readonly inRange: boolean
 }
 
 function signOf(type: string, value: unknown): 'up' | 'down' | undefined {
@@ -26,6 +29,7 @@ function signOf(type: string, value: unknown): 'up' | 'down' | undefined {
 }
 
 export function CellView({
+  id,
   grid,
   item,
   entry,
@@ -33,6 +37,8 @@ export function CellView({
   pinEdge,
   treeColumn,
   rule,
+  active,
+  inRange,
 }: CellViewProps): ReactNode {
   const { renderers } = useShell()
   const { column } = entry
@@ -50,14 +56,20 @@ export function CellView({
   const sign = signOf(type.name, value)
   return (
     <div
+      id={id}
       role="gridcell"
       className="tally-cell"
       aria-colindex={entry.index + 2}
+      aria-selected={inRange}
       data-column={column.id}
+      data-row-index={item.index}
+      data-col-index={entry.index}
       data-align={align}
       style={style}
       {...(entry.pin === undefined ? {} : { 'data-pin': entry.pin })}
       {...(pinEdge ? { 'data-pin-edge': '' } : {})}
+      {...(active ? { 'data-active': '' } : {})}
+      {...(inRange ? { 'data-range': '' } : {})}
       {...(sign === undefined ? {} : { 'data-sign': sign })}
       {...(rule === undefined ? {} : { 'data-rule': '' })}
       {...(rule?.style.bold === true ? { 'data-bold': '' } : {})}

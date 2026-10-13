@@ -1,5 +1,5 @@
 import { useVirtualizer, type Range } from '@tanstack/react-virtual'
-import { useCallback, useLayoutEffect, useMemo, useState, type ReactNode } from 'react'
+import { useCallback, useId, useLayoutEffect, useMemo, useState, type ReactNode } from 'react'
 import type { ColumnLayout, Grid, RowModel } from 'tally-core'
 import { useRowModel, useSelection, useView } from '../hooks/use-store.ts'
 import { useShell } from './context.ts'
@@ -7,6 +7,7 @@ import { Footer } from './footer.tsx'
 import { GROUP_HEIGHT, GUTTER_WIDTH, ROW_HEIGHT, hasWrap, pinOffsets } from './geometry.ts'
 import { GroupRow } from './group-row.tsx'
 import { Header } from './header.tsx'
+import { useInteractions, type IntentHandler } from './interactions.ts'
 import { RowView, type ColumnWindow } from './row.tsx'
 import { useCompiledRules } from './rules.ts'
 
@@ -14,6 +15,7 @@ export interface BodyProps {
   readonly grid: Grid
   readonly layout: ColumnLayout
   readonly initialSize: { readonly width: number; readonly height: number } | undefined
+  readonly onIntent: IntentHandler | undefined
 }
 
 function useOffsetTop(element: HTMLElement | null): number {
@@ -38,7 +40,12 @@ function bodyItems(model: RowModel): RowModel['items'] {
   return model.items.filter((item) => item.kind === 'group' || !item.pinned)
 }
 
-export function Body({ grid, layout, initialSize }: BodyProps): ReactNode {
+export function Body({ grid, layout, initialSize, onIntent }: BodyProps): ReactNode {
+  const id = useId()
+  const cellId = useCallback(
+    (row: number, column: number): string => `${id}r${row}c${column}`,
+    [id],
+  )
   const { viewport } = useShell()
   const model = useRowModel(grid)
   const selection = useSelection(grid)
@@ -59,6 +66,8 @@ export function Body({ grid, layout, initialSize }: BodyProps): ReactNode {
     estimateSize: (index) => (items[index]?.kind === 'group' ? GROUP_HEIGHT : rowHeight),
     overscan: 6,
     scrollMargin,
+    scrollPaddingStart: model.pinned.length * rowHeight,
+    scrollPaddingEnd: 38,
     ...(initialSize === undefined ? {} : { initialRect: initialSize }),
     getItemKey: (index) => {
       const item = items[index]
@@ -99,6 +108,30 @@ export function Body({ grid, layout, initialSize }: BodyProps): ReactNode {
         : offsets.centerWidth - (lastColumn.end - columns.options.scrollMargin),
   }
 
+  useInteractions({
+    grid,
+    viewport,
+    layout,
+    model,
+    items,
+    rows,
+    columns,
+    pageSize: Math.max(
+      1,
+      Math.floor(((viewport.current?.clientHeight ?? 0) - scrollMargin) / rowHeight) - 1,
+    ),
+    onIntent,
+  })
+  const activeId =
+    selection.active === undefined
+      ? undefined
+      : cellId(selection.active.row, selection.active.column)
+  useLayoutEffect(() => {
+    const element = viewport.current
+    if (element === null) return
+    if (activeId === undefined) element.removeAttribute('aria-activedescendant')
+    else element.setAttribute('aria-activedescendant', activeId)
+  }, [viewport, activeId])
   const virtualRows = rows.getVirtualItems()
   const visibleRows = virtualRows
     .map((virtual) => items[virtual.index])
@@ -127,7 +160,14 @@ export function Body({ grid, layout, initialSize }: BodyProps): ReactNode {
       style={{ '--tally-total-width': totalWidth, '--tally-header-offset': headerOffset }}
       className="tally-sheet"
     >
-      <Header grid={grid} layout={layout} offsets={offsets} window={window} />
+      <Header
+        grid={grid}
+        layout={layout}
+        offsets={offsets}
+        window={window}
+        model={model}
+        selection={selection}
+      />
       {model.pinned.length > 0 ? (
         <div className="tally-pinned-rows" role="rowgroup">
           {model.pinned.map((item) => (
@@ -141,7 +181,8 @@ export function Body({ grid, layout, initialSize }: BodyProps): ReactNode {
               rules={compiledRules}
               treeColumn={treeColumn}
               wrap={false}
-              selected={selection.rows.has(item.key)}
+              selection={selection}
+              cellId={cellId}
             />
           ))}
         </div>
@@ -179,7 +220,8 @@ export function Body({ grid, layout, initialSize }: BodyProps): ReactNode {
               rules={compiledRules}
               treeColumn={treeColumn}
               wrap={wrap}
-              selected={selection.rows.has(item.key)}
+              selection={selection}
+              cellId={cellId}
               style={style}
             />
           )
