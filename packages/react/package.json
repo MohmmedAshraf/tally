@@ -39,24 +39,38 @@
     "attw": "attw --pack . --profile esm-only",
     "size": "size-limit"
   },
+  "dependencies": {
+    "tally-core": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": ">=19",
+    "react-dom": ">=19"
+  },
   "devDependencies": {
     "@arethetypeswrong/cli": "catalog:",
     "@size-limit/preset-small-lib": "catalog:",
+    "@testing-library/jest-dom": "catalog:",
+    "@testing-library/react": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "happy-dom": "catalog:",
     "publint": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
     "size-limit": "catalog:",
     "tsdown": "catalog:",
     "typescript": "catalog:",
-    "vitest": "catalog:",
-    "happy-dom": "catalog:"
+    "vitest": "catalog:"
   },
   "size-limit": [
     {
       "path": "dist/index.js",
-      "limit": "1 kB"
+      "limit": "2 kB",
+      "ignore": [
+        "react",
+        "react-dom",
+        "tally-core"
+      ]
     }
-  ],
-  "peerDependencies": {
-    "react": "catalog:",
-    "react-dom": "catalog:"
-  }
+  ]
 }

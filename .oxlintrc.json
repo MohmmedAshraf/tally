@@ -4,6 +4,12 @@
     "typeAware": true
   },
   "plugins": ["typescript", "unicorn", "import", "promise", "vitest", "react", "jsx-a11y"],
+  "settings": {
+    "react": {
+      "version": "19",
+      "jsxRuntime": "automatic"
+    }
+  },
   "categories": {
     "correctness": "error",
     "suspicious": "error",
@@ -34,7 +40,11 @@
     "typescript/restrict-template-expressions": "error",
     "import/no-cycle": "error",
     "unicorn/no-array-for-each": "off",
-    "consistent-return": "off"
+    "consistent-return": "off",
+    "react/react-in-jsx-scope": "off",
+    "react/jsx-no-useless-fragment": "error",
+    "react/exhaustive-deps": "error",
+    "react/rules-of-hooks": "error"
   },
   "ignorePatterns": ["**/dist/**", "**/coverage/**", "**/node_modules/**"],
   "overrides": [
@@ -43,6 +53,12 @@
       "rules": {
         "typescript/explicit-module-boundary-types": "off",
         "typescript/no-non-null-assertion": "off"
+      }
+    },
+    {
+      "files": ["**/test/setup.ts"],
+      "rules": {
+        "import/no-unassigned-import": "off"
       }
     }
   ]
