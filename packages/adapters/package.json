@@ -1,7 +1,7 @@
 {
   "name": "tally-adapters",
   "version": "0.0.0",
-  "description": "Client data sources for Tally: array, TanStack Query, TanStack DB, Supabase.",
+  "description": "Client data sources for Tally: HTTP, TanStack Query, TanStack DB and Supabase.",
   "license": "MIT",
   "author": "Mohamed Ashraf <cupo.ashraf@gmail.com>",
   "repository": {
@@ -44,6 +44,7 @@
     "@size-limit/preset-small-lib": "catalog:",
     "publint": "catalog:",
     "size-limit": "catalog:",
+    "tally-server": "workspace:*",
     "tsdown": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
@@ -51,7 +52,19 @@
   "size-limit": [
     {
       "path": "dist/index.js",
-      "limit": "1 kB"
+      "limit": "6 kB",
+      "ignore": [
+        "tally-core",
+        "tally-protocol",
+        "eventsource",
+        "zod"
+      ]
     }
-  ]
+  ],
+  "dependencies": {
+    "eventsource": "catalog:",
+    "tally-core": "workspace:*",
+    "tally-protocol": "workspace:*",
+    "zod": "catalog:"
+  }
 }
