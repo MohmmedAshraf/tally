@@ -81,7 +81,7 @@ export const columns: Column[] = [
     relative: true,
   },
   { id: 'seats', label: 'Seats', type: 'int', width: 90, aggregate: 'sum' },
-  { id: 'notes', label: 'Notes', type: 'text', width: 320, wrap: true },
+  { id: 'notes', label: 'Notes', type: 'text', width: 320, flex: 1, wrap: true },
   { id: 'site', label: 'Website', type: 'url', width: 180 },
 ]
 

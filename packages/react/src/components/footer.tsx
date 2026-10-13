@@ -144,9 +144,7 @@ export function Footer({ grid, layout, offsets, window, visible }: FooterProps):
         <div
           className="tally-gutter"
           {...(layout.left.length === 0 ? { 'data-pin-edge': '' } : {})}
-        >
-          Σ
-        </div>
+        />
         {layout.left.map((entry) => cell(entry, entry.column.id === firstId))}
         {window.before > 0 ? (
           <div className="tally-spacer" style={{ width: window.before }} />

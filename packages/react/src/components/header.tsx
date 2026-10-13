@@ -1,8 +1,8 @@
-import { ChevronDown, ChevronUp } from 'lucide-react'
-import { useRef, type CSSProperties, type MouseEvent, type ReactNode } from 'react'
+import { useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from 'react'
 import {
   columnLabel,
   type ColumnLayout,
+  type Filter,
   type Grid,
   type LayoutColumn,
   type RowModel,
@@ -30,15 +30,23 @@ function ariaSort(sort: Sort | undefined): 'ascending' | 'descending' | 'none' {
   return sort.direction === 'asc' ? 'ascending' : 'descending'
 }
 
+function collectFiltered(filter: Filter | undefined, into: Set<string>): void {
+  if (filter === undefined) return
+  if ('column' in filter) into.add(filter.column)
+  if ('filters' in filter) for (const child of filter.filters) collectFiltered(child, into)
+  if ('filter' in filter) collectFiltered(filter.filter, into)
+}
+
 interface HeaderCellProps {
   readonly grid: Grid
   readonly entry: LayoutColumn
   readonly layout: ColumnLayout
   readonly offsets: PinOffsets
   readonly sorts: readonly Sort[]
+  readonly filtered: boolean
 }
 
-function HeaderCell({ grid, entry, layout, offsets, sorts }: HeaderCellProps): ReactNode {
+function HeaderCell({ grid, entry, layout, offsets, sorts, filtered }: HeaderCellProps): ReactNode {
   const { column } = entry
   const element = useRef<HTMLDivElement>(null)
   const { dragging, edge } = useColumnDrag(element, column.id, true)
@@ -55,6 +63,12 @@ function HeaderCell({ grid, entry, layout, offsets, sorts }: HeaderCellProps): R
   const style: CSSProperties = { width: entry.width }
   if (pinOffset !== undefined) style['--tally-pin-offset'] = `${pinOffset}px`
   const onSort = (event: MouseEvent): void => grid.view.toggleSort(column.id, event.shiftKey)
+  const [menuPoint, setMenuPoint] = useState<{ readonly x: number; readonly y: number }>()
+  const onContextMenu = (event: MouseEvent): void => {
+    event.preventDefault()
+    event.stopPropagation()
+    setMenuPoint({ x: event.clientX, y: event.clientY })
+  }
   return (
     <div
       ref={element}
@@ -62,9 +76,11 @@ function HeaderCell({ grid, entry, layout, offsets, sorts }: HeaderCellProps): R
       className="tally-header-cell"
       aria-colindex={entry.index + 2}
       aria-sort={ariaSort(sort)}
+      tabIndex={-1}
       data-column={column.id}
       data-align={column.align ?? type.align}
       style={style}
+      onContextMenu={onContextMenu}
       {...(entry.pin === undefined ? {} : { 'data-pin': entry.pin })}
       {...(isPinEdge(entry, layout) ? { 'data-pin-edge': '' } : {})}
       {...(sort === undefined ? {} : { 'data-sorted': sort.direction })}
@@ -73,29 +89,44 @@ function HeaderCell({ grid, entry, layout, offsets, sorts }: HeaderCellProps): R
     >
       {sortable ? (
         <button type="button" className="tally-header-label" onClick={onSort}>
+          <svg
+            className="tally-sort-chevrons"
+            width="8"
+            height="14"
+            viewBox="0 0 8 14"
+            fill="none"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden
+          >
+            <path
+              d="M1.5 5 4 2.5 6.5 5"
+              {...(sort?.direction === 'asc' ? { 'data-on': '' } : {})}
+            />
+            <path
+              d="M1.5 9 4 11.5 6.5 9"
+              {...(sort?.direction === 'desc' ? { 'data-on': '' } : {})}
+            />
+          </svg>
           <span className="tally-text">{columnLabel(column)}</span>
-          {sort === undefined ? null : (
-            <span className="tally-sort-glyph" aria-hidden>
-              <i>
-                <ChevronUp
-                  size={10}
-                  strokeWidth={2.5}
-                  {...(sort.direction === 'asc' ? { 'data-on': '' } : {})}
-                />
-                <ChevronDown
-                  size={10}
-                  strokeWidth={2.5}
-                  {...(sort.direction === 'desc' ? { 'data-on': '' } : {})}
-                />
-              </i>
-              {sorts.length > 1 ? <b>{position + 1}</b> : null}
-            </span>
-          )}
+          {sort !== undefined && sorts.length > 1 ? (
+            <b className="tally-sort-index" aria-hidden>
+              {position + 1}
+            </b>
+          ) : null}
         </button>
       ) : (
         <span className="tally-text">{columnLabel(column)}</span>
       )}
-      <HeaderMenu grid={grid} entry={entry} anchor={element} />
+      {filtered ? <i className="tally-header-filtered" aria-hidden /> : null}
+      <HeaderMenu
+        grid={grid}
+        entry={entry}
+        anchor={element}
+        point={menuPoint}
+        onPointClose={() => setMenuPoint(undefined)}
+      />
       <ResizeHandle grid={grid} entry={entry} />
     </div>
   )
@@ -110,6 +141,9 @@ export function Header({
   selection,
 }: HeaderProps): ReactNode {
   const sorts = useView(grid, (view) => view.sort)
+  const filter = useView(grid, (view) => view.filter)
+  const filtered = new Set<string>()
+  collectFiltered(filter, filtered)
   useColumnDropMonitor(grid)
   const selectedCount = model.rows.filter((item) => selection.rows.has(item.key)).length
   const allSelected = model.rows.length > 0 && selectedCount === model.rows.length
@@ -125,6 +159,7 @@ export function Header({
       layout={layout}
       offsets={offsets}
       sorts={sorts}
+      filtered={filtered.has(entry.column.id)}
     />
   )
   return (

@@ -89,6 +89,8 @@ const renderers = {
 <Tally grid={grid} renderers={renderers} />
 ```
 
+A column with `flex` grows into spare viewport width in proportion to its value; its `width` stays the floor. The column menu toggles it with Fill remaining width, Fit width measures the rendered cells, and dragging a resize handle pins a fixed width again.
+
 Four column options shape the default renderers: `avatar` draws an initials tile before a text value, `subtitle` names another column whose value sits under it, `sparkline` names a row field holding a numeric series drawn before a number, and `relative` adds a relative line such as "in 17 days" under a date. Subtitles and relative lines hide at compact density.
 
 An editor receives `commit(value, move?)` and `cancel()`. `move` is `'down'`, `'up'`, `'right'` or `'left'` and decides where focus goes after the commit.

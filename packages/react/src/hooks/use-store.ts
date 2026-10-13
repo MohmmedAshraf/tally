@@ -55,10 +55,10 @@ export function useSelection(grid: Grid): SelectionState {
   )
 }
 
-export function useColumnLayout(grid: Grid): ColumnLayout {
+export function useColumnLayout(grid: Grid, available?: number): ColumnLayout {
   return useSnapshot(
     (listener) => grid.view.subscribe(listener),
-    () => grid.layout(),
+    () => grid.layout(available),
   )
 }
 

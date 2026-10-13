@@ -14,8 +14,15 @@ export interface TallyLabels {
   readonly density: string
   readonly densities: Readonly<Record<'compact' | 'comfortable' | 'spacious', string>>
   readonly columns: string
-  readonly sortAscending: string
-  readonly sortDescending: string
+  readonly sortAZ: string
+  readonly sortZA: string
+  readonly sortHighLow: string
+  readonly sortLowHigh: string
+  readonly addToSort: string
+  readonly addToSortHint: string
+  readonly fitWidthHint: string
+  readonly uniqueValues: (count: number) => string
+  readonly typeName: (type: string) => string
   readonly ungroup: string
   readonly pinLeft: string
   readonly pinRight: string
@@ -23,6 +30,8 @@ export interface TallyLabels {
   readonly pin: string
   readonly pinned: string
   readonly hideColumn: string
+  readonly fitWidth: string
+  readonly fillWidth: string
   readonly footer: string
   readonly none: string
   readonly resizeColumn: string
@@ -37,6 +46,8 @@ export interface TallyLabels {
   readonly pinRow: (count: number) => string
   readonly unpinRow: (count: number) => string
   readonly deleteRows: (count: number) => string
+  readonly deleteRowsTitle: (count: number) => string
+  readonly cancel: string
   readonly empty: string
   readonly noMatches: string
   readonly noMatchesDetail: (query: string) => string
@@ -51,9 +62,27 @@ export interface TallyLabels {
   readonly groupBy: (column: string) => string
   readonly filterBy: (column: string) => string
   readonly rows: (count: number) => string
+  readonly pageRange: (from: number, to: number, total: number) => string
   readonly selected: (count: number) => string
   readonly removeFilter: (text: string) => string
   readonly selectRow: (title: string) => string
+}
+
+const TYPE_NAMES: Readonly<Record<string, string>> = {
+  text: 'Text',
+  enum: 'Category',
+  currency: 'Currency',
+  int: 'Integer',
+  number: 'Decimal',
+  percent: 'Percent',
+  bar: 'Score 0–100',
+  date: 'Date',
+  bool: 'Boolean',
+  email: 'Email',
+  url: 'URL',
+  id: 'Identifier',
+  person: 'Person',
+  duration: 'Duration',
 }
 
 export const defaultLabels: TallyLabels = {
@@ -70,8 +99,15 @@ export const defaultLabels: TallyLabels = {
   density: 'Row height',
   densities: { compact: 'Compact', comfortable: 'Comfortable', spacious: 'Spacious' },
   columns: 'Columns',
-  sortAscending: 'Sort ascending',
-  sortDescending: 'Sort descending',
+  sortAZ: 'Sort A to Z',
+  sortZA: 'Sort Z to A',
+  sortHighLow: 'Sort high to low',
+  sortLowHigh: 'Sort low to high',
+  addToSort: 'Add to sort',
+  addToSortHint: '⇧ click',
+  fitWidthHint: 'dbl-click edge',
+  uniqueValues: (count) => `${count.toLocaleString()} unique values`,
+  typeName: (type) => TYPE_NAMES[type] ?? type,
   ungroup: 'Ungroup',
   pinLeft: 'Pin left',
   pinRight: 'Pin right',
@@ -79,6 +115,8 @@ export const defaultLabels: TallyLabels = {
   pin: 'Pin',
   pinned: 'Pinned',
   hideColumn: 'Hide column',
+  fitWidth: 'Fit width',
+  fillWidth: 'Fill remaining width',
   footer: 'Footer',
   none: 'None',
   resizeColumn: 'Resize column',
@@ -93,6 +131,8 @@ export const defaultLabels: TallyLabels = {
   pinRow: (count) => (count > 1 ? `Pin ${count} rows` : 'Pin row'),
   unpinRow: (count) => (count > 1 ? `Unpin ${count} rows` : 'Unpin row'),
   deleteRows: (count) => (count > 1 ? `Delete ${count} rows` : 'Delete row'),
+  deleteRowsTitle: (count) => (count > 1 ? `Delete ${count} rows?` : 'Delete this row?'),
+  cancel: 'Cancel',
   empty: 'No rows',
   noMatches: 'No rows match',
   noMatchesDetail: (query) => `Nothing fits “${query}”. Loosen a condition or clear the filter.`,
@@ -107,6 +147,8 @@ export const defaultLabels: TallyLabels = {
   groupBy: (column) => `Group by ${column}`,
   filterBy: (column) => `Filter by ${column}`,
   rows: (count) => `${count.toLocaleString()} rows`,
+  pageRange: (from, to, total) =>
+    `${from.toLocaleString()}–${to.toLocaleString()} of ${total.toLocaleString()}`,
   selected: (count) => `${count.toLocaleString()} selected`,
   removeFilter: (text) => `Remove ${text}`,
   selectRow: (title) => `Select ${title}`,

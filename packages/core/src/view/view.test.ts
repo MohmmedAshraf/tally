@@ -130,6 +130,20 @@ describe('store', () => {
     store.setFooter('mrr', undefined)
     expect(store.get().footer).toEqual({ plan: 'count' })
     expect(store.get().columns.find((state) => state.id === 'plan')?.pin).toBe('right')
+    store.setColumnFlex('plan', 1)
+    expect(store.get().columns.find((state) => state.id === 'plan')?.flex).toBe(1)
+    store.resizeColumn('plan', 180)
+    expect(store.get().columns.find((state) => state.id === 'plan')).toEqual({
+      id: 'plan',
+      pin: 'right',
+      width: 180,
+      flex: 0,
+    })
+    store.resizeColumn('plan', undefined)
+    expect(store.get().columns.find((state) => state.id === 'plan')).toEqual({
+      id: 'plan',
+      pin: 'right',
+    })
     store.setExpanded('a', true)
     store.setExpanded('a', true)
     store.setExpanded('b', true)

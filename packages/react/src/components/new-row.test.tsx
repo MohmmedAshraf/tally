@@ -98,14 +98,11 @@ describe('NewRow', () => {
     await within(grid).findByText('Row 1')
     expect(within(grid).queryByRole('row', { name: 'Add row' })).toBeNull()
     const pager = screen.getByRole('navigation', { name: 'Pages' })
-    expect(
-      within(pager)
-        .getAllByRole('button')
-        .map((button) => button.textContent),
-    ).toEqual(['', '1', '2', '3', ''])
+    expect(screen.getByText('1–10 of 25')).toBeInTheDocument()
+    expect(within(pager).getByRole('button', { name: 'Previous page' })).toBeDisabled()
     fireEvent.click(within(pager).getByRole('button', { name: 'Next page' }))
     await within(grid).findByText('Row 11')
-    expect(within(pager).getByRole('button', { name: '2' })).toHaveAttribute('aria-current', 'page')
+    expect(screen.getByText('11–20 of 25')).toBeInTheDocument()
     expect(screen.getByText('11–20 / 25')).toBeInTheDocument()
   })
 })

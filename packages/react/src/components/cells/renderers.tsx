@@ -166,15 +166,18 @@ function Enum({ value, text, column }: CellProps): ReactNode {
   if (isEmptyValue(value)) return null
   const option = typeof value === 'string' ? findOption(column, value) : undefined
   const color = option?.color
+  if (color === undefined) {
+    return (
+      <span className="tally-pill">
+        <span className="tally-text">{text}</span>
+      </span>
+    )
+  }
   return (
-    <span
-      className="tally-pill"
-      style={color === undefined ? undefined : { '--tally-pill-color': color }}
-      {...(color === undefined ? {} : { 'data-color': '' })}
-    >
-      {color === undefined ? null : <i />}
+    <>
+      <i className="tally-enum-dot" style={{ '--tally-enum-color': color }} aria-hidden />
       <span className="tally-text">{text}</span>
-    </span>
+    </>
   )
 }
 
@@ -203,19 +206,18 @@ function Person({ value, text }: CellProps): ReactNode {
 
 function Bar({ value, text }: CellProps): ReactNode {
   if (typeof value !== 'number') return null
-  const filled = Math.round(Math.max(0, Math.min(100, value)) / 10)
+  const percent = Math.max(0, Math.min(100, value))
   const color = value < 40 ? 'var(--tally-down)' : value < 70 ? 'var(--tally-warn)' : undefined
   return (
     <>
       <span
         className="tally-meter"
-        style={color === undefined ? undefined : { '--tally-meter-color': color }}
+        style={{
+          '--tally-meter-value': `${percent}%`,
+          ...(color === undefined ? {} : { '--tally-meter-color': color }),
+        }}
         aria-hidden
-      >
-        {Array.from({ length: 10 }, (_, index) => (
-          <b key={index} {...(index < filled ? { 'data-on': '' } : {})} />
-        ))}
-      </span>
+      />
       <span className="tally-text tally-mono">{text}</span>
     </>
   )

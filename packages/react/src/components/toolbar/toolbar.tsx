@@ -5,6 +5,7 @@ import { useGridState, useRows, useSelection } from '../../hooks/use-store.ts'
 import { useLabels } from '../labels.ts'
 import { DisplayMenu } from './display-menu.tsx'
 import { FilterBar, type AskHandler } from './filter-bar.tsx'
+import { Pager } from '../pager.tsx'
 
 export interface ToolbarProps {
   readonly grid: Grid
@@ -15,6 +16,8 @@ export interface ToolbarProps {
 export function Toolbar({ grid, ask, children }: ToolbarProps): ReactNode {
   const labels = useLabels()
   const matched = useGridState(grid, (state) => state.matched ?? state.total)
+  const page = useGridState(grid, (state) => state.page)
+  const paged = grid.capabilities.pagination === 'offset'
   const selected = useSelection(grid).rows.size
   const rows = useRows(grid)
   const history = grid.rows.history()
@@ -29,8 +32,16 @@ export function Toolbar({ grid, ask, children }: ToolbarProps): ReactNode {
           ? labels.selected(selected)
           : matched === undefined
             ? ''
-            : labels.rows(matched)}
+            : paged
+              ? labels.pageRange(
+                  page.index * page.size + 1,
+                  Math.min(matched, (page.index + 1) * page.size),
+                  matched,
+                )
+              : labels.rows(matched)}
       </span>
+      {paged ? <Pager grid={grid} /> : null}
+      <span className="tally-toolbar-separator" aria-hidden />
       {grid.capabilities.mutate ? (
         <span className="tally-toolbar-group">
           <button

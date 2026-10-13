@@ -30,6 +30,7 @@ export interface ViewStore {
   setDensity(density: Density): void
   moveColumn(id: string, toIndex: number): void
   resizeColumn(id: string, width: number | undefined): void
+  setColumnFlex(id: string, flex: number | undefined): void
   setColumnHidden(id: string, hidden: boolean): void
   pinColumn(id: string, side: PinSide | undefined): void
   setFooter(column: string, fn: AggregateName | undefined): void
@@ -134,7 +135,16 @@ export function createViewStore(schema: Schema, initial?: View): ViewStore {
     resizeColumn: (id, width) =>
       update((view) => ({
         ...view,
-        columns: updateColumn(view.columns, id, (state) => ({ ...state, width })),
+        columns: updateColumn(view.columns, id, ({ flex: _flex, width: _width, ...state }) =>
+          width === undefined ? state : { ...state, width, flex: 0 },
+        ),
+      })),
+    setColumnFlex: (id, flex) =>
+      update((view) => ({
+        ...view,
+        columns: updateColumn(view.columns, id, ({ flex: _flex, ...state }) =>
+          flex === undefined ? state : { ...state, flex },
+        ),
       })),
     setColumnHidden: (id, hidden) =>
       update((view) => ({

@@ -89,6 +89,8 @@ describe('RulesPopover', () => {
     expect(writeText).toHaveBeenCalledWith('Two\t80')
     fireEvent.contextMenu(cellOf('Two'))
     fireEvent.click(await screen.findByRole('menuitem', { name: 'Delete row' }))
+    const dialog = await screen.findByRole('alertdialog', { name: 'Delete this row?' })
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Delete row' }))
     await settle()
     expect(current?.rows.rows().map((row) => row['id'])).toEqual([1, 3])
   })

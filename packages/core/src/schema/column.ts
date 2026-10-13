@@ -41,6 +41,7 @@ export interface Column {
   readonly width?: number | undefined
   readonly minWidth?: number | undefined
   readonly maxWidth?: number | undefined
+  readonly flex?: number | undefined
   readonly align?: Alignment | undefined
   readonly wrap?: boolean | undefined
   readonly pin?: PinSide | undefined
@@ -91,6 +92,7 @@ export const columnSchema: z.ZodType<Column> = z.strictObject({
   width: z.number().positive().optional(),
   minWidth: z.number().positive().optional(),
   maxWidth: z.number().positive().optional(),
+  flex: z.number().nonnegative().optional(),
   align: z.enum(['start', 'end']).optional(),
   wrap: z.boolean().optional(),
   pin: z.enum(['left', 'right']).optional(),

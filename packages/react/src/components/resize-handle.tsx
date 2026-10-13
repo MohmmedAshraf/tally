@@ -1,5 +1,7 @@
 import type { KeyboardEvent, PointerEvent, ReactNode } from 'react'
 import { clampWidth, type Grid, type LayoutColumn } from 'tally-core'
+import { measureColumnWidth } from './autosize.ts'
+import { useShell } from './context.ts'
 import { useLabels } from './labels.ts'
 
 export function ResizeHandle({
@@ -10,6 +12,7 @@ export function ResizeHandle({
   readonly entry: LayoutColumn
 }): ReactNode {
   const labels = useLabels()
+  const { root } = useShell()
   const onPointerDown = (event: PointerEvent<HTMLDivElement>): void => {
     if (event.button !== 0) return
     event.preventDefault()
@@ -49,7 +52,11 @@ export function ResizeHandle({
       title={labels.resizeColumn}
       onPointerDown={onPointerDown}
       onKeyDown={onKeyDown}
-      onDoubleClick={() => grid.view.resizeColumn(entry.column.id, undefined)}
+      onDoubleClick={() => {
+        const width =
+          root.current === null ? undefined : measureColumnWidth(root.current, entry.column)
+        if (width !== undefined) grid.view.resizeColumn(entry.column.id, width)
+      }}
     />
   )
 }

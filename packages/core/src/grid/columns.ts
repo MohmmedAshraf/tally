@@ -27,9 +27,33 @@ export function clampWidth(column: Column, width: number): number {
   return Math.min(max, Math.max(min, Math.round(width)))
 }
 
-export function layoutColumns(view: View, schema: Schema): ColumnLayout {
+function flexOf(entry: Pick<LayoutColumn, 'column' | 'state'>): number {
+  return Math.max(0, entry.state.flex ?? entry.column.flex ?? 0)
+}
+
+function fillWidths(
+  ordered: readonly Omit<LayoutColumn, 'index'>[],
+  available: number,
+): readonly Omit<LayoutColumn, 'index'>[] {
+  const total = ordered.reduce((sum, entry) => sum + entry.width, 0)
+  const flexTotal = ordered.reduce((sum, entry) => sum + flexOf(entry), 0)
+  let extra = available - total
+  if (extra <= 0 || flexTotal === 0) return ordered
+  let remaining = flexTotal
+  return ordered.map((entry) => {
+    const flex = flexOf(entry)
+    if (flex === 0) return entry
+    const share = Math.round((extra * flex) / remaining)
+    const width = clampWidth(entry.column, entry.width + share)
+    extra -= width - entry.width
+    remaining -= flex
+    return { ...entry, width }
+  })
+}
+
+export function layoutColumns(view: View, schema: Schema, available?: number): ColumnLayout {
   const visible = view.columns.filter((state) => state.hidden !== true)
-  const ordered: Array<Omit<LayoutColumn, 'index'>> = []
+  let ordered: Array<Omit<LayoutColumn, 'index'>> = []
   for (const state of visible) {
     const column = schema.column(state.id)
     if (column === undefined) continue
@@ -40,6 +64,7 @@ export function layoutColumns(view: View, schema: Schema): ColumnLayout {
       pin: state.pin,
     })
   }
+  if (available !== undefined) ordered = [...fillWidths(ordered, available)]
   const bySide = (side: PinSide | undefined): typeof ordered =>
     ordered.filter((entry) => entry.pin === side)
   const columns = [...bySide('left'), ...bySide(undefined), ...bySide('right')].map(

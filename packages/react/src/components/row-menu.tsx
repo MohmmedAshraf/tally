@@ -1,3 +1,4 @@
+import { AlertDialog } from '@base-ui/react/alert-dialog'
 import { ContextMenu } from '@base-ui/react/context-menu'
 import { Copy, Pin, PinOff, Trash2 } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
@@ -19,6 +20,7 @@ export function RowMenu({ grid, children }: RowMenuProps): ReactNode {
   const labels = useLabels()
   const { root } = useShell()
   const [keys, setKeys] = useState<readonly RowKey[]>([])
+  const [doomed, setDoomed] = useState<readonly RowKey[]>()
   const pinned = keys.length > 0 && keys.every((key) => grid.view.get().pinnedRows.includes(key))
   const capture = (target: EventTarget | null): void => {
     const key = rowKeyOf(target)
@@ -76,7 +78,7 @@ export function RowMenu({ grid, children }: RowMenuProps): ReactNode {
                     <ContextMenu.Item
                       className="tally-popup-item"
                       data-danger=""
-                      onClick={() => void grid.deleteRows(keys)}
+                      onClick={() => setDoomed(keys)}
                     >
                       <Trash2 size={14} aria-hidden />
                       {labels.deleteRows(keys.length)}
@@ -88,6 +90,35 @@ export function RowMenu({ grid, children }: RowMenuProps): ReactNode {
           </ContextMenu.Popup>
         </ContextMenu.Positioner>
       </ContextMenu.Portal>
+      <AlertDialog.Root
+        open={doomed !== undefined}
+        onOpenChange={(open) => {
+          if (!open) setDoomed(undefined)
+        }}
+      >
+        <AlertDialog.Portal container={root}>
+          <AlertDialog.Backdrop className="tally-dialog-backdrop" />
+          <AlertDialog.Popup className="tally-dialog">
+            <AlertDialog.Title className="tally-dialog-title">
+              {labels.deleteRowsTitle(doomed?.length ?? 0)}
+            </AlertDialog.Title>
+            <div className="tally-dialog-actions">
+              <AlertDialog.Close className="tally-button">{labels.cancel}</AlertDialog.Close>
+              <button
+                type="button"
+                className="tally-button"
+                data-danger=""
+                onClick={() => {
+                  if (doomed !== undefined) void grid.deleteRows(doomed)
+                  setDoomed(undefined)
+                }}
+              >
+                {labels.deleteRows(doomed?.length ?? 0)}
+              </button>
+            </div>
+          </AlertDialog.Popup>
+        </AlertDialog.Portal>
+      </AlertDialog.Root>
     </ContextMenu.Root>
   )
 }

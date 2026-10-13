@@ -35,6 +35,30 @@ describe('layoutColumns', () => {
     ])
   })
 
+  it('fills spare width across flex columns and keeps fixed columns', () => {
+    const flexed = createSchema({
+      columns: [
+        { id: 'a', width: 100 },
+        { id: 'b', width: 100, flex: 1 },
+        { id: 'c', flex: 3 },
+      ],
+    })
+    const view = defaultView(flexed)
+    const widths = (available?: number): number[] =>
+      layoutColumns(view, flexed, available).columns.map((entry) => entry.width)
+    expect(widths()).toEqual([100, 100, 160])
+    expect(widths(300)).toEqual([100, 100, 160])
+    expect(widths(760)).toEqual([100, 200, 460])
+    expect(layoutColumns(view, flexed, 760).totalWidth).toBe(760)
+    expect(
+      layoutColumns(
+        { ...view, columns: [{ id: 'a' }, { id: 'b', flex: 0 }, { id: 'c', flex: 1 }] },
+        flexed,
+        760,
+      ).columns.map((entry) => entry.width),
+    ).toEqual([100, 100, 560])
+  })
+
   it('clamps widths to column bounds', () => {
     expect(clampWidth({ id: 'x', type: 'text', minWidth: 80 }, 10)).toBe(80)
     expect(clampWidth({ id: 'x', type: 'text' }, 10)).toBe(48)

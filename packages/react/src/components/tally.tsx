@@ -12,11 +12,11 @@ import { GridProvider } from '../hooks/context.tsx'
 import { useColumnLayout, useGridState, useRowModel, useView } from '../hooks/use-store.ts'
 import { Body } from './body.tsx'
 import { Cards } from './cards.tsx'
+import { GUTTER_WIDTH } from './geometry.ts'
 import { defaultRenderers, type CellRenderers } from './cells/renderers.tsx'
 import { defaultEditors, type CellEditors } from './editors/editors.tsx'
 import { ShellContext, useShell, type TallyShell } from './context.ts'
 import { LabelsContext, defaultLabels, useLabels, type TallyLabels } from './labels.ts'
-import { Pager } from './pager.tsx'
 import { Toolbar } from './toolbar/toolbar.tsx'
 import type { AskHandler } from './toolbar/filter-bar.tsx'
 import type { IntentHandler } from './interactions.ts'
@@ -40,19 +40,18 @@ export interface TallyProps {
   readonly children?: ReactNode
 }
 
-function useNarrow(root: { readonly current: HTMLElement | null }, threshold: number): boolean {
-  const [narrow, setNarrow] = useState(false)
+function useClientWidth(element: { readonly current: HTMLElement | null }): number {
+  const [width, setWidth] = useState(0)
   useLayoutEffect(() => {
-    const element = root.current
-    if (element === null || typeof ResizeObserver === 'undefined') return
-    const measure = (): void =>
-      setNarrow(element.clientWidth > 0 && element.clientWidth < threshold)
+    const node = element.current
+    if (node === null || typeof ResizeObserver === 'undefined') return
+    const measure = (): void => setWidth(node.clientWidth)
     measure()
     const observer = new ResizeObserver(measure)
-    observer.observe(element)
+    observer.observe(node)
     return () => observer.disconnect()
-  }, [root, threshold])
-  return narrow
+  }, [element])
+  return width
 }
 
 function EmptyState({
@@ -128,8 +127,12 @@ function Viewport({
   readonly cards: boolean
 }): ReactNode {
   const labels = useLabels()
-  const layout = useColumnLayout(grid)
   const { viewport } = useShell()
+  const viewportWidth = useClientWidth(viewport)
+  const layout = useColumnLayout(
+    grid,
+    viewportWidth > GUTTER_WIDTH ? viewportWidth - GUTTER_WIDTH : undefined,
+  )
   const status = useGridState(grid, (state) => state.status)
   const error = useGridState(grid, (state) => state.error)
   const matched = useGridState(grid, (state) => state.matched ?? state.total)
@@ -178,7 +181,6 @@ function Viewport({
           {empty}
         </div>
       )}
-      <Pager grid={grid} />
     </>
   )
 }
@@ -203,7 +205,8 @@ export function Tally({
 }: TallyProps): ReactNode {
   const mergedLabels = useMemo<TallyLabels>(() => ({ ...defaultLabels, ...labels }), [labels])
   const root = useRef<HTMLDivElement>(null)
-  const narrow = useNarrow(root, cardsBelow)
+  const rootWidth = useClientWidth(root)
+  const narrow = rootWidth > 0 && rootWidth < cardsBelow
   const cards = layout === 'cards' || (layout === 'auto' && narrow)
   const viewport = useRef<HTMLDivElement>(null)
   const filterInput = useRef<HTMLInputElement>(null)

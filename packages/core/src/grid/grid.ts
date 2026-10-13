@@ -86,7 +86,7 @@ export interface Grid {
   readonly selection: SelectionStore
   get(): GridState
   subscribe(listener: (state: GridState) => void): Unsubscribe
-  layout(): ColumnLayout
+  layout(available?: number): ColumnLayout
   model(): RowModel
   load(): Promise<void>
   loadMore(): Promise<void>
@@ -193,10 +193,15 @@ export function createGrid(options: GridOptions): Grid {
   const patch = (partial: Partial<GridState>): void =>
     store.setState((state) => ({ ...state, ...partial }))
 
-  const layout = memo(
-    () => [view.get()] as const,
-    ([current]) => layoutColumns(current, schema),
-  )
+  let layoutCache: { view: View; available: number | undefined; layout: ColumnLayout } | undefined
+  const layout = (available?: number): ColumnLayout => {
+    const current = view.get()
+    if (layoutCache?.view === current && layoutCache.available === available) {
+      return layoutCache.layout
+    }
+    layoutCache = { view: current, available, layout: layoutColumns(current, schema, available) }
+    return layoutCache.layout
+  }
   const model = memo(
     () => [rows.get().rows, view.get(), store.state.groups, store.state.page] as const,
     ([data, current, groups, page]) =>

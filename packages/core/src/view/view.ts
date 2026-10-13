@@ -13,6 +13,7 @@ export type Density = 'compact' | 'comfortable' | 'spacious'
 export interface ColumnState {
   readonly id: string
   readonly width?: number | undefined
+  readonly flex?: number | undefined
   readonly hidden?: boolean | undefined
   readonly pin?: PinSide | undefined
 }
@@ -51,6 +52,7 @@ const rowKeySchema = z.union([z.string(), z.number()])
 const columnStateSchema: z.ZodType<ColumnState> = z.strictObject({
   id: z.string().min(1),
   width: z.number().positive().optional(),
+  flex: z.number().nonnegative().optional(),
   hidden: z.boolean().optional(),
   pin: z.enum(['left', 'right']).optional(),
 })
@@ -91,6 +93,7 @@ export function defaultView(schema: Schema): View {
     columns: schema.columns.map((column) => ({
       id: column.id,
       ...(column.width === undefined ? {} : { width: column.width }),
+      ...(column.flex === undefined ? {} : { flex: column.flex }),
       ...(column.hidden === true ? { hidden: true } : {}),
       ...(column.pin === undefined ? {} : { pin: column.pin }),
     })),
