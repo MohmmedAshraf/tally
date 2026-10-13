@@ -135,7 +135,3 @@ export function columnsOf(query: Query): readonly string[] {
   if (query.group !== undefined) ids.add(query.group.column)
   return [...ids]
 }
-
-export function isEmptyFilter(filter: Filter | undefined): boolean {
-  return filter === undefined
-}

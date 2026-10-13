@@ -18,6 +18,10 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./import": {
+      "types": "./dist/import.d.ts",
+      "default": "./dist/import.js"
+    },
     "./package.json": "./package.json"
   },
   "files": [
@@ -37,7 +41,8 @@
     "test": "vitest run --passWithNoTests --coverage.enabled=false",
     "publint": "publint",
     "attw": "attw --pack . --profile esm-only",
-    "size": "size-limit"
+    "size": "size-limit",
+    "bench": "vitest bench --run"
   },
   "dependencies": {
     "@tanstack/store": "catalog:",
@@ -59,7 +64,11 @@
   "size-limit": [
     {
       "path": "dist/index.js",
-      "limit": "1 kB"
+      "limit": "92 kB"
+    },
+    {
+      "path": "dist/import.js",
+      "limit": "28 kB"
     }
   ]
 }

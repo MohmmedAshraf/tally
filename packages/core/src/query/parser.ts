@@ -348,7 +348,7 @@ const messages: IParserErrorMessageProvider = {
 
 let instance: QueryParser | undefined
 
-export function queryParser(): QueryParser {
+function queryParser(): QueryParser {
   instance ??= new QueryParser()
   return instance
 }

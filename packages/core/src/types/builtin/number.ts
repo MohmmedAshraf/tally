@@ -1,6 +1,6 @@
 import type { FormatContext } from '../../format/context.ts'
 import { numberFormatter, parseNumber } from '../../format/number.ts'
-import type { Column, ColumnFormat } from '../../schema/column.ts'
+import type { ColumnFormat } from '../../schema/column.ts'
 import type { ColumnType, JsonSchema } from '../column-type.ts'
 import { NUMBER_OPERATORS, compareNumbers, isNumber } from './shared.ts'
 
@@ -178,8 +178,4 @@ export const durationType: ColumnType<number> = {
     const value = parseDuration(input)
     return value === undefined ? undefined : Math.max(0, value)
   },
-}
-
-export function numberFormatOf(column: Column): ColumnFormat {
-  return column.format ?? {}
 }

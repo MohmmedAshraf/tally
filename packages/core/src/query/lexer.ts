@@ -59,7 +59,7 @@ function keyword(spec: KeywordSpec): TokenType {
   })
 }
 
-export const WhiteSpace: TokenType = createToken({
+const WhiteSpace: TokenType = createToken({
   name: 'WhiteSpace',
   pattern: /\s+/,
   group: Lexer.SKIPPED,
@@ -248,7 +248,7 @@ export const Unit: TokenType = keyword({
     'y',
   ],
 })
-export const BoolWord: TokenType = keyword({
+const BoolWord: TokenType = keyword({
   name: 'BoolWord',
   words: ['true', 'false', 'yes', 'no'],
 })
@@ -273,7 +273,7 @@ export const NumberLiteral: TokenType = createToken({
   categories: [Term],
 })
 
-export const Word: TokenType = createToken({
+const Word: TokenType = createToken({
   name: 'Word',
   pattern: { exec: matcher(/[\p{L}\p{N}_#@][\p{L}\p{N}_\-'’.#@/]*/uy) },
   line_breaks: false,
@@ -286,13 +286,13 @@ export const ColumnRef: TokenType = createToken({
   categories: [Term],
 })
 
-export const OptionRef: TokenType = createToken({
+const OptionRef: TokenType = createToken({
   name: 'OptionRef',
   pattern: Lexer.NA,
   categories: [Term],
 })
 
-export const staticTokens: readonly TokenType[] = [
+const staticTokens: readonly TokenType[] = [
   WhiteSpace,
   QuotedString,
   Flag,
@@ -363,7 +363,7 @@ function optionNames(schema: Schema): readonly string[] {
   return [...names]
 }
 
-export function lexerFor(schema: Schema): Lexer {
+function lexerFor(schema: Schema): Lexer {
   let lexer = lexers.get(schema)
   if (lexer === undefined) {
     const column = schemaToken(
@@ -393,10 +393,6 @@ export function tokenize(text: string, schema: Schema): LexResult {
     tokens: result.tokens,
     errors: result.errors.map((error) => ({ offset: error.offset, length: error.length })),
   }
-}
-
-export function tokenEnd(token: IToken): number {
-  return token.startOffset + token.image.length
 }
 
 export function isKeyword(text: string): boolean {

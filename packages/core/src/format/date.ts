@@ -53,7 +53,7 @@ export function dateFromDayNumber(day: number): string {
 
 const cache = new Map<string, Intl.DateTimeFormat>()
 
-export function dateFormatter(
+function dateFormatter(
   context: FormatContext,
   options: Intl.DateTimeFormatOptions,
 ): Intl.DateTimeFormat {

@@ -1,4 +1,4 @@
-import { Store, batch, type Subscription } from '@tanstack/store'
+import { Store, type Subscription } from '@tanstack/store'
 import type { Filter, GroupGranularity, Sort } from '../query/ast.ts'
 import type { RowKey } from '../rows/row.ts'
 import type { PinSide } from '../schema/column.ts'
@@ -166,8 +166,4 @@ export function createViewStore(schema: Schema, initial?: View): ViewStore {
     toggleGroupCollapsed: (key) =>
       update((view) => ({ ...view, collapsedGroups: toggleKey(view.collapsedGroups, key) })),
   }
-}
-
-export function batchViewUpdates(run: () => void): void {
-  batch(run)
 }

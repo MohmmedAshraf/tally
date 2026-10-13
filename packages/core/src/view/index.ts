@@ -1,4 +1,4 @@
-export { batchViewUpdates, createViewStore, type Unsubscribe, type ViewStore } from './store.ts'
+export { createViewStore, type Unsubscribe, type ViewStore } from './store.ts'
 export {
   viewFromSearchParams,
   viewFromUrlString,
