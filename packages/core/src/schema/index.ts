@@ -1,5 +1,6 @@
 export {
   columnLabel,
+  columnSchema,
   validateColumns,
   type Alignment,
   type CardRole,

@@ -71,7 +71,7 @@ const columnFormatSchema = z.strictObject({
   durationUnit: z.enum(['seconds', 'milliseconds', 'minutes']).optional(),
 })
 
-const columnSchema: z.ZodType<Column> = z.strictObject({
+export const columnSchema: z.ZodType<Column> = z.strictObject({
   id: identifier,
   type: identifier,
   label: z.string().optional(),

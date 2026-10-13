@@ -31,6 +31,7 @@ export {
   type ClauseDescription,
 } from './describe.ts'
 export { parseQuery, type ParseResult } from './parse.ts'
+export { filterSchema, groupSchema, sortSchema } from './schema.ts'
 export type { ParseErrorPosition } from './parser.ts'
 export { printFilter, printQuery, printRelative, printSort } from './print.ts'
 export {

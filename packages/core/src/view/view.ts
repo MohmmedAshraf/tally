@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { TallyError } from '../errors.ts'
 import type { Filter, Group, Sort } from '../query/ast.ts'
+import { filterSchema, groupSchema, sortSchema } from '../query/schema.ts'
 import type { RowKey } from '../rows/row.ts'
 import type { PinSide } from '../schema/column.ts'
 import type { Schema } from '../schema/schema.ts'
@@ -46,32 +47,6 @@ export interface View {
 }
 
 const rowKeySchema = z.union([z.string(), z.number()])
-
-const filterSchema: z.ZodType<Filter> = z.lazy(() =>
-  z.discriminatedUnion('type', [
-    z.strictObject({ type: z.literal('and'), filters: z.array(filterSchema).readonly() }),
-    z.strictObject({ type: z.literal('or'), filters: z.array(filterSchema).readonly() }),
-    z.strictObject({ type: z.literal('not'), filter: filterSchema }),
-    z.strictObject({
-      type: z.literal('condition'),
-      column: z.string().min(1),
-      op: z.enum(OPERATORS),
-      value: z.unknown().optional(),
-    }),
-    z.strictObject({ type: z.literal('search'), text: z.string() }),
-    z.strictObject({ type: z.literal('flag'), name: z.string().min(1) }),
-  ]),
-)
-
-const sortSchema: z.ZodType<Sort> = z.strictObject({
-  column: z.string().min(1),
-  direction: z.enum(['asc', 'desc']),
-})
-
-const groupSchema: z.ZodType<Group> = z.strictObject({
-  column: z.string().min(1),
-  granularity: z.enum(['day', 'week', 'month', 'quarter', 'year']).optional(),
-})
 
 const columnStateSchema: z.ZodType<ColumnState> = z.strictObject({
   id: z.string().min(1),
