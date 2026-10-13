@@ -244,6 +244,43 @@ describe('createKyselyAdapter', () => {
     await db.destroy()
   })
 
+  it('selects, orders and mutates by a key that is not a column', async () => {
+    const db = new Kysely<SqlDatabase>({
+      dialect: new SqliteDialect({ database: nodeSqlite(new DatabaseSync(':memory:')) }),
+    })
+    await sql.raw('create table t (pk integer primary key, name text)').execute(db)
+    await db
+      .insertInto('t')
+      .values([
+        { pk: 1, name: 'Ann' },
+        { pk: 2, name: 'Bob' },
+      ])
+      .execute()
+    const schema = createSchema({ columns: [{ id: 'name' }], key: 'id' })
+    const adapter = createKyselyAdapter({ db, table: 't', schema, columns: { id: 'pk' } })
+    const response = await adapter.query({ version: 1, sort: [] })
+    expect(response.rows).toEqual([
+      { id: 1, name: 'Ann' },
+      { id: 2, name: 'Bob' },
+    ])
+    const result = await adapter.mutate([
+      createMutation({
+        label: 'edit',
+        changes: [{ key: 2, column: 'name', from: 'Bob', to: 'Bo' }],
+        inserted: [{ row: { id: 3, name: 'Cy' } }],
+        deleted: [{ row: { id: 1, name: 'Ann' }, index: 0 }],
+      }),
+    ])
+    expect(result).toEqual({
+      accepted: true,
+      rows: [
+        { id: 2, name: 'Bo' },
+        { id: 3, name: 'Cy' },
+      ],
+    })
+    await db.destroy()
+  })
+
   it('needs a key field', () => {
     const db = new Kysely<SqlDatabase>({
       dialect: new SqliteDialect({ database: nodeSqlite(new DatabaseSync(':memory:')) }),

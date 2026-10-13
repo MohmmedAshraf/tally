@@ -29,20 +29,20 @@ const schema = createSchema({ key: 'id', columns })
 const accounts = createKyselyAdapter({ db, table: 'accounts', schema, dialect: sqliteDialect })
 ```
 
-| Option       | Default  | Notes                                                                 |
-| ------------ | -------- | --------------------------------------------------------------------- |
-| `db`         |          | A `Kysely` instance.                                                  |
-| `table`      |          | Table or view name.                                                   |
-| `schema`     |          | From `createSchema`. The key must be a field name, not a function.    |
-| `dialect`    | `sqlite` | `sqliteDialect`, `postgresDialect` or your own `SqlDialect`.          |
-| `columns`    |          | Column id to SQL column name, for `{ fullName: 'full_name' }`.        |
-| `flags`      |          | Named `sql` expressions that `flag` filters compile to.               |
-| `pagination` | `offset` | `offset` or `cursor`. Cursors are opaque and encode the offset.       |
-| `maxLimit`   | `1000`   | Page sizes above this are clamped.                                    |
-| `mutable`    | `true`   | `false` refuses `PATCH /rows`.                                        |
-| `today`      | now      | ISO date that relative ranges such as `last 30 days` resolve against. |
-| `bins`       | `20`     | Histogram bins.                                                       |
-| `maxTerms`   | `50`     | Terms facet size.                                                     |
+| Option       | Default  | Notes                                                                                       |
+| ------------ | -------- | ------------------------------------------------------------------------------------------- |
+| `db`         |          | A `Kysely` instance.                                                                        |
+| `table`      |          | Table or view name.                                                                         |
+| `schema`     |          | From `createSchema`. The key must be a field name, not a function. It need not be a column. |
+| `dialect`    | `sqlite` | `sqliteDialect`, `postgresDialect` or your own `SqlDialect`.                                |
+| `columns`    |          | Column id to SQL column name, for `{ fullName: 'full_name' }`.                              |
+| `flags`      |          | Named `sql` expressions that `flag` filters compile to.                                     |
+| `pagination` | `offset` | `offset` or `cursor`. Cursors are opaque and encode the offset.                             |
+| `maxLimit`   | `1000`   | Page sizes above this are clamped.                                                          |
+| `mutable`    | `true`   | `false` refuses `PATCH /rows`.                                                              |
+| `today`      | now      | ISO date that relative ranges such as `last 30 days` resolve against.                       |
+| `bins`       | `20`     | Histogram bins.                                                                             |
+| `maxTerms`   | `50`     | Terms facet size.                                                                           |
 
 Every request is validated with `tally-protocol` before any SQL runs. Mutations run in one transaction and return the canonical rows read back from the database.
 

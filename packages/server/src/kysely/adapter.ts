@@ -118,11 +118,16 @@ export function createKyselyAdapter(options: KyselyAdapterOptions): KyselyAdapte
     columns: options.columns,
     flags: options.flags,
   })
-  const key = compiler.require(keyField)
-  const selection = schema.columns.map((column) => compiler.require(column.id).ref.as(column.id))
+  const keyColumn = options.columns?.[keyField] ?? keyField
+  const keyRef = compiler.target(keyField)?.ref ?? sql.ref(keyColumn)
+  const hiddenKey = schema.column(keyField) === undefined
+  const selection = [
+    ...schema.columns.map((column) => compiler.require(column.id).ref.as(column.id)),
+    ...(hiddenKey ? [keyRef.as(keyField)] : []),
+  ]
 
   const hydrate = (row: Row): RowData => {
-    const out: Record<string, unknown> = {}
+    const out: Record<string, unknown> = hiddenKey ? { [keyField]: row[keyField] } : {}
     for (const column of schema.columns) {
       out[column.id] = dialect.decode(schema.typeOf(column).kind, row[column.id])
     }
@@ -314,7 +319,7 @@ export function createKyselyAdapter(options: KyselyAdapterOptions): KyselyAdapte
     const order = [...(bucket?.order ?? []), ...compiler.order(request.sort)]
     const rowsQuery = applyOrder(from(where).select(selection), [
       ...order,
-      { expression: key.ref, direction: 'asc' },
+      { expression: keyRef, direction: 'asc' },
     ])
     const slice = page(request)
     const paged =
@@ -348,7 +353,7 @@ export function createKyselyAdapter(options: KyselyAdapterOptions): KyselyAdapte
   }
 
   const encodeRow = (row: RowData): Record<string, unknown> => {
-    const out: Record<string, unknown> = {}
+    const out: Record<string, unknown> = hiddenKey ? { [keyColumn]: row[keyField] } : {}
     for (const column of schema.columns) {
       if (column.id in row) {
         out[options.columns?.[column.id] ?? column.id] = dialect.encode(
@@ -361,7 +366,7 @@ export function createKyselyAdapter(options: KyselyAdapterOptions): KyselyAdapte
   }
 
   const keysIn = (keys: readonly RowKey[]): RawBuilder<SqlBool> =>
-    sql<SqlBool>`${key.ref} in (${sql.join(keys)})`
+    sql<SqlBool>`${keyRef} in (${sql.join(keys)})`
 
   const apply = async (trx: Kysely<SqlDatabase>, mutation: Mutation): Promise<void> => {
     const deletes = mutation.deleted.map((removal) => schema.keyOf(removal.row))
@@ -382,7 +387,7 @@ export function createKyselyAdapter(options: KyselyAdapterOptions): KyselyAdapte
       trx
         .updateTable(table)
         .set(patch)
-        .where(sql<SqlBool>`${key.ref} = ${rowKey}`)
+        .where(sql<SqlBool>`${keyRef} = ${rowKey}`)
         .execute(),
     )
   }
