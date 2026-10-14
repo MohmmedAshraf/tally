@@ -10,10 +10,11 @@ import { Pager } from '../pager.tsx'
 export interface ToolbarProps {
   readonly grid: Grid
   readonly ask?: AskHandler | undefined
+  readonly start?: ReactNode
   readonly children?: ReactNode
 }
 
-export function Toolbar({ grid, ask, children }: ToolbarProps): ReactNode {
+export function Toolbar({ grid, ask, start, children }: ToolbarProps): ReactNode {
   const labels = useLabels()
   const matched = useGridState(grid, (state) => state.matched ?? state.total)
   const page = useGridState(grid, (state) => state.page)
@@ -26,6 +27,7 @@ export function Toolbar({ grid, ask, children }: ToolbarProps): ReactNode {
   const redoEntry = history[position]
   return (
     <div className="tally-toolbar" data-version={rows.version}>
+      {start}
       <FilterBar grid={grid} ask={ask} />
       <span className="tally-count" aria-live="polite">
         {selected > 0

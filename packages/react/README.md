@@ -50,6 +50,7 @@ function Accounts({ rows }) {
 | `layout`             | `'auto' \| 'grid' \| 'cards'`                  | `auto` switches to cards below `cardsBelow` pixels.                         |
 | `cardsBelow`         | `number`                                       | Default `620`.                                                              |
 | `toolbar`            | `ReactNode \| boolean`                         | `true` renders the default toolbar, `false` hides it, a node replaces it.   |
+| `toolbarStart`       | `ReactNode`                                    | Renders before the filter bar in the default toolbar, for tabs or titles.   |
 | `ask`                | `(question, grid) => Promise<AskResult>`       | Enables ask mode in the filter bar. `tally-ai` provides a handler.          |
 | `renderers`          | `CellRenderers`                                | Cell renderers by column type name or kind, merged over `defaultRenderers`. |
 | `editors`            | `CellEditors`                                  | Cell editors by column type name or kind, merged over `defaultEditors`.     |
@@ -58,7 +59,7 @@ function Accounts({ rows }) {
 | `initialSize`        | `{ width, height }`                            | Viewport size before the first measurement, for server rendering and tests. |
 | `className`, `style` |                                                | Applied to the root element.                                                |
 
-Children render inside the toolbar.
+Children render at the end of the default toolbar.
 
 ## Hooks
 

@@ -27,7 +27,7 @@
   --tally-ring: color-mix(in oklch, var(--tally-accent) 18%, transparent);
   --tally-popup: light-dark(#ffffff, oklch(0.215 0.007 265));
   --tally-radius: 12px;
-  --tally-radius-sm: 8px;
+  --tally-radius-sm: 10px;
   --tally-radius-xs: 6px;
   --tally-font:
     'Onest Variable', 'Onest', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
@@ -35,7 +35,7 @@
   --tally-font-mono:
     'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, 'SF Mono', 'Cascadia Mono',
     'Segoe UI Mono', Menlo, Consolas, monospace;
-  --tally-font-size: 13.5px;
+  --tally-font-size: 14px;
   --tally-row-height: 48px;
   --tally-header-height: 40px;
   --tally-group-band-height: 30px;
@@ -92,10 +92,10 @@
   position: relative;
   display: flex;
   align-items: center;
-  gap: 10px;
-  min-height: 48px;
-  padding-block: 8px;
-  padding-inline: 15px 10px;
+  gap: 8px;
+  min-height: 56px;
+  padding-block: 10px;
+  padding-inline: 16px;
   border-bottom: 1px solid var(--tally-line);
   background: var(--tally-bg);
   flex: none;
@@ -147,11 +147,13 @@
   gap: 6px;
   flex: 1;
   min-width: 0;
-  min-height: 32px;
-  padding: 3px 6px 3px 8px;
-  border: 1px solid var(--tally-line);
+  max-width: 760px;
+  min-height: 36px;
+  padding: 4px 8px 4px 12px;
   border-radius: var(--tally-radius-sm);
-  background: var(--tally-bg);
+  background: var(--tally-canvas);
+  box-shadow: inset 0 0 0 1px var(--tally-line);
+  transition: box-shadow 0.12s ease;
 }
 
 .tally-filter > svg {
@@ -160,18 +162,20 @@
 }
 
 .tally-filter:focus-within {
-  border-color: var(--tally-accent);
-  box-shadow: 0 0 0 3px var(--tally-ring);
+  background: var(--tally-bg);
+  box-shadow:
+    inset 0 0 0 1px var(--tally-accent),
+    0 0 0 3px var(--tally-ring);
 }
 
 .tally-filter[data-invalid] {
-  border-color: var(--tally-down);
+  box-shadow: inset 0 0 0 1px var(--tally-down);
 }
 
 .tally-filter-input {
   flex: 1;
   min-width: 160px;
-  height: 24px;
+  height: 26px;
   padding: 0 2px;
   border: 0;
   outline: none;
@@ -207,9 +211,9 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  height: 24px;
-  padding: 0 3px 0 8px;
-  border-radius: var(--tally-radius-xs);
+  height: 26px;
+  padding: 0 4px 0 9px;
+  border-radius: 7px;
   background: var(--tally-selection);
   color: var(--tally-ink);
   font-size: 12.5px;
@@ -319,14 +323,14 @@
 .tally-button {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 30px;
-  padding: 0 9px;
+  gap: 7px;
+  height: 36px;
+  padding: 0 11px;
   border: 0;
   border-radius: var(--tally-radius-sm);
   background: transparent;
   color: var(--tally-ink-2);
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
@@ -339,7 +343,24 @@
   color: var(--tally-ink);
 }
 
+.tally-button[data-outline] {
+  box-shadow: inset 0 0 0 1px var(--tally-line);
+  color: var(--tally-ink-2);
+}
+
+.tally-button[data-outline]:hover,
+.tally-button[data-outline][data-popup-open] {
+  background: var(--tally-canvas);
+  color: var(--tally-ink);
+}
+
 .tally-button[data-ai] {
+  background: var(--tally-ai-soft);
+  color: var(--tally-ai-ink);
+}
+
+.tally-button[data-ai]:hover {
+  background: color-mix(in oklch, var(--tally-ai) 14%, var(--tally-bg));
   color: var(--tally-ai-ink);
 }
 
@@ -430,8 +451,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
+  width: 36px;
+  height: 36px;
   padding: 0;
   border: 0;
   border-radius: var(--tally-radius-sm);
@@ -988,8 +1009,8 @@
   background: var(--tally-canvas);
   box-shadow: inset 0 -1px 0 var(--tally-line);
   font-size: 11.5px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
+  font-weight: 500;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
   color: var(--tally-ink-3);
 }
@@ -997,8 +1018,6 @@
 .tally-band-cell {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
   flex: none;
   padding: 0 var(--tally-cell-padding);
   white-space: nowrap;
@@ -1006,18 +1025,7 @@
 
 .tally-band-cell[data-group] {
   color: var(--tally-ink-2);
-  box-shadow:
-    inset 1px 0 0 var(--tally-line),
-    inset -1px 0 0 var(--tally-line);
-}
-
-.tally-band-cell[data-group]::before,
-.tally-band-cell[data-group]::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--tally-line-strong);
-  opacity: 0.6;
+  box-shadow: inset 1px 0 0 var(--tally-line);
 }
 
 .tally-cell,
@@ -1037,7 +1045,7 @@
 .tally-footer-cell[data-align='end'] {
   justify-content: flex-end;
   font-family: var(--tally-font-mono);
-  font-size: 12.5px;
+  font-size: 13px;
   font-variant-numeric: tabular-nums;
 }
 
@@ -1487,8 +1495,7 @@ textarea.tally-editor-input {
 }
 
 .tally-row[data-wrap] .tally-meter {
-  margin-top: 6.5px;
-  padding-bottom: 13px;
+  margin-top: 7px;
 }
 
 .tally-row[data-wrap] .tally-gutter {
@@ -1749,7 +1756,7 @@ textarea.tally-editor-input {
 
 .tally-meter {
   display: block;
-  width: 40px;
+  width: 44px;
   height: 4px;
   border-radius: 2px;
   flex: none;
@@ -1758,6 +1765,10 @@ textarea.tally-editor-input {
     var(--tally-meter-color, var(--tally-up)) 0 var(--tally-meter-value),
     var(--tally-line) var(--tally-meter-value) 100%
   );
+}
+
+.tally-date {
+  font-variant-numeric: tabular-nums;
 }
 
 .tally:dir(rtl) .tally-meter {
@@ -1818,7 +1829,7 @@ textarea.tally-editor-input {
 
 .tally-mono {
   font-family: var(--tally-font-mono);
-  font-size: 12.5px;
+  font-size: 13px;
   font-variant-numeric: tabular-nums;
 }
 

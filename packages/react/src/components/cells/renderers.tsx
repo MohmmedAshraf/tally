@@ -148,13 +148,13 @@ function Mono({ value, text, row, column }: CellProps): ReactNode {
 
 function DateCell({ value, text, column, format }: CellProps): ReactNode {
   if (column.relative !== true || typeof value !== 'string' || !isIsoDate(value)) {
-    return <span className="tally-text tally-mono">{text}</span>
+    return <span className="tally-text tally-date">{text}</span>
   }
   const now = today(format)
   const days = dayNumber(value) - dayNumber(now)
   return (
     <span className="tally-stack">
-      <span className="tally-text tally-mono">{text}</span>
+      <span className="tally-text tally-date">{text}</span>
       <span className="tally-sub" {...(days >= 0 && days <= 30 ? { 'data-soon': '' } : {})}>
         {formatRelativeDate(value, now, format)}
       </span>

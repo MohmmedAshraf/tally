@@ -34,6 +34,7 @@ export interface TallyProps {
   readonly onIntent?: IntentHandler | undefined
   readonly labels?: Partial<TallyLabels> | undefined
   readonly toolbar?: ReactNode
+  readonly toolbarStart?: ReactNode
   readonly ask?: AskHandler | undefined
   readonly layout?: 'auto' | 'grid' | 'cards' | undefined
   readonly cardsBelow?: number | undefined
@@ -198,6 +199,7 @@ export function Tally({
   onIntent,
   labels,
   toolbar = true,
+  toolbarStart,
   ask,
   layout = 'auto',
   cardsBelow = 620,
@@ -243,7 +245,7 @@ export function Tally({
             {...(narrow ? { 'data-narrow': '' } : {})}
           >
             {toolbar === true ? (
-              <Toolbar grid={grid} ask={ask}>
+              <Toolbar grid={grid} ask={ask} start={toolbarStart}>
                 {children}
               </Toolbar>
             ) : toolbar === false ? (

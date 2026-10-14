@@ -16,7 +16,7 @@ export function DisplayMenu({ grid }: { readonly grid: Grid }): ReactNode {
   const columns = useView(grid, (view) => view.columns)
   return (
     <Popover.Root>
-      <Popover.Trigger className="tally-button" aria-label={labels.display}>
+      <Popover.Trigger className="tally-button" data-outline="" aria-label={labels.display}>
         <SlidersHorizontal size={14} aria-hidden />
         {labels.display}
       </Popover.Trigger>
