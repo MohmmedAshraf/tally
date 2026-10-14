@@ -78,11 +78,12 @@ export function createArraySource(
       const page = offsetPage(request.page, pagination)
       const result = execute(rows, { ...request, page }, schema, options)
       const next = page === undefined ? undefined : page.offset + page.limit
+      const pageable = result.groups === undefined ? result.matched : result.groups.length
       return Promise.resolve({
         rows: result.rows,
         total: result.total,
         matched: result.matched,
-        ...(pagination === 'cursor' && next !== undefined && next < result.matched
+        ...(pagination === 'cursor' && next !== undefined && next < pageable
           ? { cursor: String(next) }
           : {}),
         ...(result.groups === undefined

@@ -28,7 +28,7 @@ describe('createArraySource', () => {
       facets: ['plan'],
       page: { offset: 0, limit: 1 },
     })
-    expect(response.rows.map((row) => row['id'])).toEqual([3])
+    expect(response.rows.map((row) => row['id'])).toEqual([3, 1])
     expect(response.total).toBe(3)
     expect(response.matched).toBe(2)
     expect(response.groups).toEqual([

@@ -65,6 +65,7 @@ export interface TallyLabels {
   readonly filterBy: (column: string) => string
   readonly rows: (count: number) => string
   readonly pageRange: (from: number, to: number, total: number) => string
+  readonly groupRange: (from: number, to: number, total: number) => string
   readonly selected: (count: number) => string
   readonly removeFilter: (text: string) => string
   readonly selectRow: (title: string) => string
@@ -153,6 +154,8 @@ export const defaultLabels: TallyLabels = {
   rows: (count) => `${count.toLocaleString()} rows`,
   pageRange: (from, to, total) =>
     `${from.toLocaleString()}–${to.toLocaleString()} of ${total.toLocaleString()}`,
+  groupRange: (from, to, total) =>
+    `${from.toLocaleString()}–${to.toLocaleString()} of ${total.toLocaleString()} groups`,
   selected: (count) => `${count.toLocaleString()} selected`,
   removeFilter: (text) => `Remove ${text}`,
   selectRow: (title) => `Select ${title}`,

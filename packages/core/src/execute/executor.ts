@@ -53,16 +53,17 @@ export function execute(
   const comparator = compileSort(sorts, schema, context)
   const sorted = comparator === undefined ? kept : kept.toSorted(comparator)
   const aggregates = request.aggregates ?? []
+  const page = request.page
+  const slice = <T>(list: readonly T[]): readonly T[] =>
+    page === undefined ? list : list.slice(page.offset, page.offset + page.limit)
   let groups: readonly RowGroup[] | undefined
-  let ordered = sorted
+  let rowsOut = slice(sorted)
   if (request.group !== undefined) {
     groups = groupRows(sorted, request.group, sorts, schema, context, aggregates)
-    ordered = groups.flatMap((group) => group.rows)
+    rowsOut = slice(groups).flatMap((group) => group.rows)
   }
-  const page = request.page
-  const paged = page === undefined ? ordered : ordered.slice(page.offset, page.offset + page.limit)
   return {
-    rows: paged,
+    rows: rowsOut,
     total: rows.length,
     matched: filtered.length,
     ...(groups === undefined ? {} : { groups }),

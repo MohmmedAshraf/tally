@@ -323,7 +323,18 @@ export function createKyselyAdapter(options: KyselyAdapterOptions): KyselyAdapte
     ])
     const slice = page(request)
     const paged =
-      slice === undefined ? rowsQuery : rowsQuery.limit(slice.limit).offset(slice.offset)
+      slice === undefined
+        ? rowsQuery
+        : bucket === undefined
+          ? rowsQuery.limit(slice.limit).offset(slice.offset)
+          : rowsQuery.where(
+              bucket.expression,
+              'in',
+              applyOrder(from(where).select(bucket.expression.as('g')), bucket.order)
+                .groupBy(bucket.expression)
+                .limit(slice.limit)
+                .offset(slice.offset),
+            )
     const aggregates = request.aggregates ?? []
     const [rows, all, matched, summaries, aggregateRow, facetMap] = await Promise.all([
       paged.execute(),
@@ -336,12 +347,13 @@ export function createKyselyAdapter(options: KyselyAdapterOptions): KyselyAdapte
       facets(request.facets, where),
     ])
     const matchedCount = matched ?? all
+    const pageable = summaries === undefined ? matchedCount : summaries.length
     const next = slice === undefined ? undefined : slice.offset + slice.limit
     return {
       rows: rows.map(hydrate),
       total: all,
       matched: matchedCount,
-      ...(pagination === 'cursor' && next !== undefined && next < matchedCount
+      ...(pagination === 'cursor' && next !== undefined && next < pageable
         ? { cursor: encodeCursor(next) }
         : {}),
       ...(summaries === undefined ? {} : { groups: summaries }),

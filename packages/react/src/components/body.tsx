@@ -169,7 +169,7 @@ export function Body({ grid, layout, initialSize, onIntent }: BodyProps): ReactN
   const page = useGridState(grid, (state) => state.page)
   const pageOffset = grid.capabilities.pagination === 'offset' ? page.index * page.size : 0
   const visible =
-    first !== undefined && last !== undefined
+    first !== undefined && last !== undefined && model.groups.length === 0
       ? { from: pageOffset + first.index + 1, to: pageOffset + last.index + 1 }
       : undefined
   const currentGroup = (() => {

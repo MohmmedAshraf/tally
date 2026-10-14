@@ -7,7 +7,7 @@ import { useLabels } from './labels.ts'
 export function Pager({ grid }: { readonly grid: Grid }): ReactNode {
   const labels = useLabels()
   const page = useGridState(grid, (state) => state.page)
-  const total = useGridState(grid, (state) => state.matched ?? state.total)
+  const total = useGridState(grid, (state) => state.groups?.length ?? state.matched ?? state.total)
   if (grid.capabilities.pagination !== 'offset' || total === undefined) return null
   const count = Math.max(1, Math.ceil(total / page.size))
   return (

@@ -283,6 +283,13 @@ describe('facets and paging', () => {
     expect(ids(result)).toEqual([2, 4])
     expect(result.matched).toBe(5)
   })
+
+  it('pages over groups when grouped', () => {
+    const result = run('group by plan sort by mrr', { page: { offset: 1, limit: 1 } })
+    expect(result.groups?.map((group) => group.key)).toEqual(['free', 'pro', 'team'])
+    expect(ids(result)).toEqual(result.groups?.[1]?.rows.map((row) => row['id']))
+    expect(result.matched).toBe(5)
+  })
 })
 
 describe('trees', () => {

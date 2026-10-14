@@ -17,8 +17,11 @@ export interface ToolbarProps {
 export function Toolbar({ grid, ask, start, children }: ToolbarProps): ReactNode {
   const labels = useLabels()
   const matched = useGridState(grid, (state) => state.matched ?? state.total)
+  const groups = useGridState(grid, (state) => state.groups?.length)
   const page = useGridState(grid, (state) => state.page)
   const paged = grid.capabilities.pagination === 'offset'
+  const range = (total: number, label: typeof labels.pageRange): string =>
+    label(page.index * page.size + 1, Math.min(total, (page.index + 1) * page.size), total)
   const selected = useSelection(grid).rows.size
   const rows = useRows(grid)
   const history = grid.rows.history()
@@ -34,13 +37,11 @@ export function Toolbar({ grid, ask, start, children }: ToolbarProps): ReactNode
           ? labels.selected(selected)
           : matched === undefined
             ? ''
-            : paged
-              ? labels.pageRange(
-                  page.index * page.size + 1,
-                  Math.min(matched, (page.index + 1) * page.size),
-                  matched,
-                )
-              : labels.rows(matched)}
+            : paged && groups !== undefined
+              ? range(groups, labels.groupRange)
+              : paged
+                ? range(matched, labels.pageRange)
+                : labels.rows(matched)}
       </span>
       {paged ? <Pager grid={grid} /> : null}
       <span className="tally-toolbar-separator" aria-hidden />
