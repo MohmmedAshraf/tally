@@ -69,7 +69,7 @@ function Group({
 
 export function AppSidebar(props: AppSidebarProps): ReactNode {
   return (
-    <Sidebar collapsible="icon" side={props.side}>
+    <Sidebar collapsible="icon" variant="inset" side={props.side}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>

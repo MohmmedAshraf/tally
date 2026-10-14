@@ -21,6 +21,7 @@ import { createRemoteAsk, useAskAvailable } from './ask.ts'
 import { AppHeader, type SimulateMode } from './header.tsx'
 import { Palette } from './palette.tsx'
 import type { Settings } from './settings.ts'
+import { ViewTabs } from './views.tsx'
 import { slug } from '@/datasets/shared'
 
 export interface WorkspaceProps {
@@ -225,23 +226,30 @@ function Screen({
       layout={settings.phone ? 'cards' : 'auto'}
       className="h-full"
       ask={askAvailable ? ask : undefined}
+      toolbarStart={
+        settings.phone ? undefined : (
+          <ViewTabs
+            views={views}
+            counts={counts}
+            active={active}
+            dirty={dirty}
+            locale={settings.locale}
+            onPickView={applyView}
+            onSaveView={() => saveView({ name: active.name, query: current })}
+            onSaveAs={(name) => {
+              saveView({ name, query: current })
+              onNavigate(dataset, { name, query: current })
+            }}
+            onRevert={() => applyView(active)}
+          />
+        )
+      }
     />
   )
   return (
     <>
       <AppHeader
         dataset={dataset}
-        views={views}
-        counts={counts}
-        active={active}
-        dirty={dirty}
-        onPickView={applyView}
-        onSaveView={() => saveView({ name: active.name, query: current })}
-        onSaveAs={(name) => {
-          saveView({ name, query: current })
-          onNavigate(dataset, { name, query: current })
-        }}
-        onRevert={() => applyView(active)}
         live={dataset.live === true && isArraySource(source) ? live : undefined}
         onToggleLive={onToggleLive}
         simulate={simulate}
@@ -249,7 +257,6 @@ function Screen({
         onSearch={() => setPaletteOpen(true)}
         theme={settings.theme}
         onToggleTheme={() => onSettings({ theme: settings.theme === 'dark' ? 'light' : 'dark' })}
-        locale={settings.locale}
         settings={settings}
         onSettings={onSettings}
         remote={dataset.remote}

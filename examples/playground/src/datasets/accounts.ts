@@ -111,7 +111,6 @@ const accountColumns: readonly Column[] = [
     width: 120,
     format: { currency: 'USD', fractionDigits: 0 },
     aggregate: 'sum',
-    group: 'Revenue',
     card: 'metric',
   },
   {
@@ -121,7 +120,6 @@ const accountColumns: readonly Column[] = [
     width: 150,
     format: { signed: true, fractionDigits: 1 },
     aggregate: 'avg',
-    group: 'Revenue',
     card: 'metric',
     sparkline: 'history',
   },
@@ -131,7 +129,6 @@ const accountColumns: readonly Column[] = [
     type: 'bar',
     width: 140,
     aggregate: 'avg',
-    group: 'Account health',
   },
   {
     id: 'renewal',
@@ -139,7 +136,6 @@ const accountColumns: readonly Column[] = [
     type: 'date',
     width: 130,
     aggregate: 'min',
-    group: 'Account health',
     card: 'meta',
     relative: true,
   },
@@ -156,7 +152,7 @@ const accountColumns: readonly Column[] = [
       { value: 'latam', label: 'LATAM' },
     ],
   },
-  { id: 'notes', label: 'Notes', type: 'text', width: 320, flex: 1, wrap: true },
+  { id: 'notes', label: 'Notes', type: 'text', width: 320, flex: 1 },
   { id: 'site', label: 'Website', type: 'url', width: 180 },
 ]
 

@@ -10,6 +10,10 @@ export const workspaceDatasets: readonly Dataset[] = [accounts, ledger, roadmap]
 export const dataDatasets: readonly Dataset[] = [deployments]
 export const datasets: readonly Dataset[] = [...workspaceDatasets, ...dataDatasets]
 
+export function sectionOf(dataset: Dataset): string {
+  return workspaceDatasets.includes(dataset) ? 'Workspace' : 'Data'
+}
+
 export function datasetById(id: string | undefined): Dataset {
   return datasets.find((dataset) => dataset.id === id) ?? accounts
 }
