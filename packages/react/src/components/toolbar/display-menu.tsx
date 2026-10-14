@@ -18,7 +18,7 @@ export function DisplayMenu({ grid }: { readonly grid: Grid }): ReactNode {
     <Popover.Root>
       <Popover.Trigger className="tally-button" data-outline="" aria-label={labels.display}>
         <SlidersHorizontal size={14} aria-hidden />
-        {labels.display}
+        <span>{labels.display}</span>
       </Popover.Trigger>
       <Popover.Portal container={root}>
         <Popover.Positioner

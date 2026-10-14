@@ -103,15 +103,40 @@
 
 .tally[data-narrow] .tally-toolbar {
   flex-wrap: wrap;
-  gap: 8px 10px;
+  gap: 8px 6px;
+  padding-inline: 12px;
 }
 
 .tally[data-narrow] .tally-filter-bar {
   flex-basis: 100%;
 }
 
+.tally[data-narrow] .tally-filter {
+  max-width: none;
+}
+
 .tally[data-narrow] .tally-count {
   margin-inline-end: auto;
+}
+
+.tally[data-narrow] .tally-toolbar-separator,
+.tally[data-narrow] .tally-button[data-outline] > span {
+  display: none;
+}
+
+.tally[data-narrow] .tally-button,
+.tally[data-narrow] .tally-icon-button {
+  height: 32px;
+}
+
+.tally[data-narrow] .tally-icon-button {
+  width: 32px;
+}
+
+.tally[data-narrow] .tally-button[data-outline] {
+  width: 32px;
+  padding: 0;
+  justify-content: center;
 }
 
 .tally-filter-bar {
