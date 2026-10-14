@@ -7,6 +7,7 @@ import {
   type LayoutColumn,
   type RowItem,
 } from 'tally-core'
+import { AiCell } from './cells/ai-cell.tsx'
 import { rendererFor, signOf } from './cells/renderers.tsx'
 import { useShell } from './context.ts'
 
@@ -41,7 +42,7 @@ export function CellView({
   handle,
   editor,
 }: CellViewProps): ReactNode {
-  const { renderers } = useShell()
+  const { renderers, entering } = useShell()
   const { column } = entry
   const type = grid.schema.typeOf(column)
   const value = grid.schema.valueOf(item.row, column)
@@ -78,6 +79,8 @@ export function CellView({
       {...(rule?.style.bold === true ? { 'data-bold': '' } : {})}
       {...(rule?.style.italic === true ? { 'data-italic': '' } : {})}
       {...(rule?.style.strike === true ? { 'data-strike': '' } : {})}
+      {...(column.ai === true ? { 'data-ai': '' } : {})}
+      {...(entering === column.id ? { 'data-entering': '' } : {})}
     >
       {treeColumn && item.hasChildren ? (
         <button
@@ -93,14 +96,27 @@ export function CellView({
         <span className="tally-expander" aria-hidden />
       ) : null}
       {editor ??
-        createElement(renderer, {
-          value,
-          text,
-          row: item.row,
-          column,
-          type,
-          format: grid.context.format,
-        })}
+        (column.ai === true ? (
+          <AiCell pending={value === undefined} text={text} index={item.index}>
+            {createElement(renderer, {
+              value,
+              text,
+              row: item.row,
+              column,
+              type,
+              format: grid.context.format,
+            })}
+          </AiCell>
+        ) : (
+          createElement(renderer, {
+            value,
+            text,
+            row: item.row,
+            column,
+            type,
+            format: grid.context.format,
+          })
+        ))}
       {handle ? <span className="tally-fill-handle" data-fill-handle aria-hidden /> : null}
     </div>
   )

@@ -2,6 +2,7 @@ import { CircleAlert, RefreshCw } from 'lucide-react'
 import { Suspense, use, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { ErrorBoundary, type FallbackProps } from 'react-error-boundary'
 import { connectHttpSource, type HttpConnection } from 'tally-adapters'
+import { createAskHandler, designColumn, withAiColumns, type ColumnDesign } from 'tally-ai'
 import {
   createArraySource,
   defaultView,
@@ -14,10 +15,10 @@ import {
   type Schema,
   type View,
 } from 'tally-core'
-import { Tally, defaultLabels, useGrid, useRows, useView } from 'tally-react'
+import { Tally, defaultLabels, useGrid, useRows, useView, type TallyAi } from 'tally-react'
 import { useIsMobile } from '@/hooks/use-mobile'
 import type { Dataset, SavedView } from '@/datasets'
-import { createRemoteAsk, useAskAvailable } from './ask.ts'
+import { models, useAiAvailable } from './ai.ts'
 import { AppHeader, type SimulateMode } from './header.tsx'
 import { Palette } from './palette.tsx'
 import type { Settings } from './settings.ts'
@@ -158,6 +159,63 @@ function isArraySource(source: DataSource): source is ArraySource {
   return 'patch' in source && 'rows' in source
 }
 
+interface AddedColumn extends ColumnDesign {
+  readonly after: string | undefined
+}
+
+interface AiState {
+  readonly schema: Schema
+  readonly source: DataSource
+  readonly ai: TallyAi
+}
+
+function useAi(dataset: Dataset, base: DataSource, baseSchema: Schema, enabled: boolean): AiState {
+  const [added, setAdded] = useState<readonly AddedColumn[]>([])
+  const [cache] = useState(() => new Map<string, unknown>())
+  const schema = useMemo(
+    () =>
+      added.reduce((current, entry) => {
+        const anchor = current.columns.findIndex((column) => column.id === entry.after)
+        return current.extend([entry.column], anchor + 1)
+      }, baseSchema),
+    [baseSchema, added],
+  )
+  const source = useMemo(
+    () =>
+      added.length === 0
+        ? base
+        : withAiColumns(
+            base,
+            schema,
+            added.map((entry) => ({
+              column: entry.column.id,
+              model: models.fill,
+              instruction: entry.instruction,
+              cache,
+            })),
+          ),
+    [base, schema, added, cache],
+  )
+  const ai = useMemo<TallyAi>(
+    () => ({
+      ask: createAskHandler({ model: models.ask, examples: dataset.examples }),
+      addColumn: async (prompt, grid) => {
+        const design = await designColumn(prompt, { model: models.design, schema: grid.schema })
+        const active = grid.selection.get().active
+        const after =
+          active === undefined
+            ? grid.schema.columns[0]?.id
+            : grid.layout().columns[active.column]?.column.id
+        setAdded((list) => [...list, { ...design, after }])
+        return design.column.id
+      },
+      suggestions: dataset.aiColumns ?? [],
+    }),
+    [dataset],
+  )
+  return { schema, source, ai: enabled ? ai : {} }
+}
+
 function numbers(value: unknown): readonly number[] {
   return Array.isArray(value) ? value.filter((entry) => typeof entry === 'number') : []
 }
@@ -193,8 +251,8 @@ function Screen({
   settings,
   onSettings,
   onNavigate,
-  source,
-  schema,
+  source: baseSource,
+  schema: baseSchema,
   live,
   onToggleLive,
   simulate,
@@ -202,6 +260,8 @@ function Screen({
 }: ScreenProps): ReactNode {
   const library = useSavedViews(dataset)
   const { views, upsert: saveView } = library
+  const aiAvailable = useAiAvailable()
+  const { schema, source, ai } = useAi(dataset, baseSource, baseSchema, aiAvailable)
   const active = views.find((view) => slug(view.name) === viewSlug) ?? views[0]!
   const format = useMemo<FormatContext>(
     () => ({ locale: settings.locale, timeZone: 'UTC', numberingSystem: 'latn' }),
@@ -212,9 +272,7 @@ function Screen({
   const counts = useViewCounts(grid, views)
   const [paletteOpen, setPaletteOpen] = useState(false)
   const mobile = useIsMobile()
-  const askAvailable = useAskAvailable()
-  const ask = useMemo(() => createRemoteAsk(dataset.id), [dataset.id])
-  useLive(source, live)
+  useLive(baseSource, live)
   const current = printQuery({ filter: view.filter, sort: view.sort, group: view.group }, schema)
   const dirty = current !== canonical(active.query, schema)
   const applyView = (saved: SavedView): void => {
@@ -238,7 +296,7 @@ function Screen({
       dir={settings.dir}
       layout={settings.phone ? 'cards' : 'auto'}
       className="h-full"
-      ask={askAvailable ? ask : undefined}
+      ai={ai}
       toolbarStart={
         settings.phone ? undefined : (
           <ViewTabs
@@ -272,7 +330,7 @@ function Screen({
     <>
       <AppHeader
         dataset={dataset}
-        live={dataset.live === true && isArraySource(source) ? live : undefined}
+        live={dataset.live === true && isArraySource(baseSource) ? live : undefined}
         onToggleLive={onToggleLive}
         simulate={simulate}
         onSimulate={onSimulate}

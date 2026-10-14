@@ -20,10 +20,11 @@ export function useGrid(options: GridOptions): Grid {
   }))
   let current = held
   const formatKey = formatKeyOf(options)
-  if (held.grid.schema !== options.schema || held.grid.source !== options.source) {
-    current = { grid: createGrid(options), formatKey }
-    setHeld(current)
-  } else if (held.formatKey !== formatKey) {
+  if (
+    held.grid.schema !== options.schema ||
+    held.grid.source !== options.source ||
+    held.formatKey !== formatKey
+  ) {
     current = { grid: createGrid({ ...options, view: held.grid.view.get() }), formatKey }
     setHeld(current)
   }

@@ -41,23 +41,23 @@ function Accounts({ rows }) {
 
 ## `<Tally>`
 
-| Prop                 | Type                                           | Notes                                                                       |
-| -------------------- | ---------------------------------------------- | --------------------------------------------------------------------------- |
-| `grid`               | `Grid`                                         | From `useGrid` or `createGrid`.                                             |
-| `label`              | `string`                                       | Accessible name of the grid.                                                |
-| `theme`              | `'light' \| 'dark'`                            | Omit to follow `prefers-color-scheme`.                                      |
-| `dir`                | `'ltr' \| 'rtl'`                               | Layout uses logical properties; numbers and dates stay left to right.       |
-| `layout`             | `'auto' \| 'grid' \| 'cards'`                  | `auto` switches to cards below `cardsBelow` pixels.                         |
-| `cardsBelow`         | `number`                                       | Default `620`.                                                              |
-| `toolbar`            | `ReactNode \| boolean`                         | `true` renders the default toolbar, `false` hides it, a node replaces it.   |
-| `toolbarStart`       | `ReactNode`                                    | Renders before the filter bar in the default toolbar, for tabs or titles.   |
-| `ask`                | `(question, grid) => Promise<AskResult>`       | Text that does not parse, or reads like a sentence, is asked instead.       |
-| `renderers`          | `CellRenderers`                                | Cell renderers by column type name or kind, merged over `defaultRenderers`. |
-| `editors`            | `CellEditors`                                  | Cell editors by column type name or kind, merged over `defaultEditors`.     |
-| `labels`             | `Partial<TallyLabels>`                         | Every string in the UI, merged over `defaultLabels`.                        |
-| `onIntent`           | `(intent: GridIntent) => boolean \| undefined` | Runs before the built-in handler. Return `true` to consume the intent.      |
-| `initialSize`        | `{ width, height }`                            | Viewport size before the first measurement, for server rendering and tests. |
-| `className`, `style` |                                                | Applied to the root element.                                                |
+| Prop                 | Type                                           | Notes                                                                                                                                   |
+| -------------------- | ---------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `grid`               | `Grid`                                         | From `useGrid` or `createGrid`.                                                                                                         |
+| `label`              | `string`                                       | Accessible name of the grid.                                                                                                            |
+| `theme`              | `'light' \| 'dark'`                            | Omit to follow `prefers-color-scheme`.                                                                                                  |
+| `dir`                | `'ltr' \| 'rtl'`                               | Layout uses logical properties; numbers and dates stay left to right.                                                                   |
+| `layout`             | `'auto' \| 'grid' \| 'cards'`                  | `auto` switches to cards below `cardsBelow` pixels.                                                                                     |
+| `cardsBelow`         | `number`                                       | Default `620`.                                                                                                                          |
+| `toolbar`            | `ReactNode \| boolean`                         | `true` renders the default toolbar, `false` hides it, a node replaces it.                                                               |
+| `toolbarStart`       | `ReactNode`                                    | Renders before the filter bar in the default toolbar, for tabs or titles.                                                               |
+| `ai`                 | `TallyAi`                                      | `ask` answers filter text that does not parse or reads like a sentence. `addColumn` enables the AI button, `suggestions` fill its list. |
+| `renderers`          | `CellRenderers`                                | Cell renderers by column type name or kind, merged over `defaultRenderers`.                                                             |
+| `editors`            | `CellEditors`                                  | Cell editors by column type name or kind, merged over `defaultEditors`.                                                                 |
+| `labels`             | `Partial<TallyLabels>`                         | Every string in the UI, merged over `defaultLabels`.                                                                                    |
+| `onIntent`           | `(intent: GridIntent) => boolean \| undefined` | Runs before the built-in handler. Return `true` to consume the intent.                                                                  |
+| `initialSize`        | `{ width, height }`                            | Viewport size before the first measurement, for server rendering and tests.                                                             |
+| `className`, `style` |                                                | Applied to the root element.                                                                                                            |
 
 Children render at the end of the default toolbar.
 

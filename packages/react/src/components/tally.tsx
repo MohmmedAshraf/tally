@@ -1,4 +1,5 @@
 import {
+  useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -18,8 +19,17 @@ import { defaultEditors, type CellEditors } from './editors/editors.tsx'
 import { ShellContext, useShell, type TallyShell } from './context.ts'
 import { LabelsContext, defaultLabels, useLabels, type TallyLabels } from './labels.ts'
 import { Toolbar } from './toolbar/toolbar.tsx'
+import type { AddColumnHandler } from './toolbar/ai-menu.tsx'
 import type { AskHandler } from './toolbar/filter-bar.tsx'
 import type { IntentHandler } from './interactions.ts'
+
+export interface TallyAi {
+  readonly ask?: AskHandler | undefined
+  readonly addColumn?: AddColumnHandler | undefined
+  readonly suggestions?: readonly string[] | undefined
+}
+
+const ENTER_MS = 900
 
 export interface TallyProps {
   readonly grid: Grid
@@ -35,7 +45,7 @@ export interface TallyProps {
   readonly labels?: Partial<TallyLabels> | undefined
   readonly toolbar?: ReactNode
   readonly toolbarStart?: ReactNode
-  readonly ask?: AskHandler | undefined
+  readonly ai?: TallyAi | undefined
   readonly layout?: 'auto' | 'grid' | 'cards' | undefined
   readonly cardsBelow?: number | undefined
   readonly children?: ReactNode
@@ -208,7 +218,7 @@ export function Tally({
   labels,
   toolbar = true,
   toolbarStart,
-  ask,
+  ai,
   layout = 'auto',
   cardsBelow = 620,
   children,
@@ -222,6 +232,12 @@ export function Tally({
   const filterInput = useRef<HTMLInputElement>(null)
   const filterListener = useRef<((text: string) => void) | null>(null)
   const density = useView(grid, (view) => view.density)
+  const [entering, setEntering] = useState<string | undefined>(undefined)
+  useEffect(() => {
+    if (entering === undefined) return
+    const timer = setTimeout(() => setEntering(undefined), ENTER_MS)
+    return () => clearTimeout(timer)
+  }, [entering])
   const shell = useMemo<TallyShell>(
     () => ({
       root,
@@ -234,10 +250,12 @@ export function Tally({
           filterListener.current = null
         }
       },
+      entering,
+      enterColumn: setEntering,
       renderers: { ...defaultRenderers, ...renderers },
       editors: { ...defaultEditors, ...editors },
     }),
-    [renderers, editors],
+    [entering, renderers, editors],
   )
   return (
     <GridProvider grid={grid}>
@@ -253,7 +271,7 @@ export function Tally({
             {...(narrow ? { 'data-narrow': '' } : {})}
           >
             {toolbar === true ? (
-              <Toolbar grid={grid} ask={ask} start={toolbarStart}>
+              <Toolbar grid={grid} ai={ai} start={toolbarStart}>
                 {children}
               </Toolbar>
             ) : toolbar === false ? (

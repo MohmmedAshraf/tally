@@ -55,6 +55,7 @@ export interface Column {
   readonly aggregate?: AggregateName | undefined
   readonly tree?: boolean | undefined
   readonly rollup?: boolean | undefined
+  readonly ai?: boolean | undefined
 }
 
 const identifier = z.string().min(1).max(200)
@@ -106,6 +107,7 @@ export const columnSchema: z.ZodType<Column> = z.strictObject({
   aggregate: z.enum(AGGREGATES).optional(),
   tree: z.boolean().optional(),
   rollup: z.boolean().optional(),
+  ai: z.boolean().optional(),
 })
 
 export type ColumnInput = Omit<Column, 'type'> & { readonly type?: string | undefined }

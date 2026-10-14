@@ -8,7 +8,7 @@ export {
   useSelection,
   useView,
 } from './hooks/use-store.ts'
-export { Tally, type TallyProps } from './components/tally.tsx'
+export { Tally, type TallyAi, type TallyProps } from './components/tally.tsx'
 export {
   defaultRenderers,
   type CellProps,
@@ -33,6 +33,7 @@ export {
   type FilterBarProps,
 } from './components/toolbar/filter-bar.tsx'
 export { DisplayMenu } from './components/toolbar/display-menu.tsx'
+export { AiMenu, type AddColumnHandler, type AiMenuProps } from './components/toolbar/ai-menu.tsx'
 export { HeaderMenu, type HeaderMenuProps } from './components/header-menu.tsx'
 export { Pager } from './components/pager.tsx'
 export {

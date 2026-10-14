@@ -55,7 +55,7 @@ describe('validation', () => {
       },
       schema,
     )
-    expect(view.columns.map((state) => state.id)).toEqual(['mrr', 'account', 'plan', 'renewal'])
+    expect(view.columns.map((state) => state.id)).toEqual(['account', 'plan', 'mrr', 'renewal'])
     expect(view.sort).toEqual([])
     expect(view.group).toBeUndefined()
     expect(view.footer).toEqual({ mrr: 'avg' })

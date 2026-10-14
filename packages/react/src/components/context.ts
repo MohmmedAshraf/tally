@@ -8,6 +8,8 @@ export interface TallyShell {
   readonly filterInput: RefObject<HTMLInputElement | null>
   readonly prefillFilter: (text: string) => void
   readonly onPrefillFilter: (listener: (text: string) => void) => () => void
+  readonly entering: string | undefined
+  readonly enterColumn: (id: string) => void
   readonly renderers: CellRenderers
   readonly editors: CellEditors
 }

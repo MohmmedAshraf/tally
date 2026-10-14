@@ -25,6 +25,18 @@ describe('createSchema', () => {
     ])
   })
 
+  it('extends the schema with columns at a position', () => {
+    const extended = schema.extend([{ id: 'risk', type: 'enum', ai: true }], 1)
+    expect(extended.columns.map((column) => column.id)).toEqual([
+      'account',
+      'risk',
+      ...schema.columns.slice(1).map((column) => column.id),
+    ])
+    expect(extended.column('risk')?.ai).toBe(true)
+    expect(extended.keyField).toBe(schema.keyField)
+    expect(schema.column('risk')).toBeUndefined()
+  })
+
   it('reads keys, parents and values', () => {
     const row = { id: 7, parentId: 'root', mrr: 1200 }
     expect(schema.keyOf(row)).toBe(7)

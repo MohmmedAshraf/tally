@@ -4,6 +4,7 @@ import { createArraySource, createSchema, type Grid } from 'tally-core'
 import { describe, expect, it, vi } from 'vitest'
 import { useGrid } from '../../hooks/use-grid.ts'
 import { Tally, type TallyProps } from '../tally.tsx'
+import type { AskHandler } from './filter-bar.tsx'
 
 const schema = createSchema({
   columns: [
@@ -36,7 +37,7 @@ function Remember({ grid }: { readonly grid: Grid }): ReactNode {
   return null
 }
 
-function Harness(props: Pick<TallyProps, 'ask' | 'labels'>): ReactNode {
+function Harness(props: Pick<TallyProps, 'ai' | 'labels'>): ReactNode {
   const [source] = useState(() => createArraySource(rows, schema))
   const grid = useGrid({ schema, source })
   return (
@@ -104,10 +105,10 @@ describe('FilterBar', () => {
   })
 
   it('asks when the text reads like a sentence and applies the answer', async () => {
-    const ask = vi.fn<TallyProps['ask'] & object>().mockResolvedValue({
+    const ask = vi.fn<AskHandler>().mockResolvedValue({
       query: { filter: { type: 'condition', column: 'mrr', op: 'gte', value: 20 }, sort: [] },
     })
-    render(<Harness ask={ask} />)
+    render(<Harness ai={{ ask }} />)
     await screen.findByText('One')
     const input = screen.getByRole('combobox', { name: 'Filter' })
     fireEvent.change(input, { target: { value: 'north' } })
@@ -128,8 +129,8 @@ describe('FilterBar', () => {
   })
 
   it('shows the ask error in the filter bar', async () => {
-    const ask = vi.fn<TallyProps['ask'] & object>().mockRejectedValue(new Error('No model'))
-    render(<Harness ask={ask} />)
+    const ask = vi.fn<AskHandler>().mockRejectedValue(new Error('No model'))
+    render(<Harness ai={{ ask }} />)
     await screen.findByText('One')
     const input = screen.getByRole('combobox', { name: 'Filter' })
     fireEvent.change(input, { target: { value: 'plan is nothing at all' } })

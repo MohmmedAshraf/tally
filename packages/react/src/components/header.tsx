@@ -1,3 +1,4 @@
+import { Sparkles } from 'lucide-react'
 import { useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from 'react'
 import {
   columnLabel,
@@ -11,6 +12,7 @@ import {
 } from 'tally-core'
 import { useView } from '../hooks/use-store.ts'
 import { useColumnDrag, useColumnDropMonitor } from './column-drag.ts'
+import { useShell } from './context.ts'
 import { groupSpans, hasColumnGroups, isPinEdge, type PinOffsets } from './geometry.ts'
 import { HeaderMenu } from './header-menu.tsx'
 import { ResizeHandle } from './resize-handle.tsx'
@@ -48,6 +50,7 @@ interface HeaderCellProps {
 
 function HeaderCell({ grid, entry, layout, offsets, sorts, filtered }: HeaderCellProps): ReactNode {
   const { column } = entry
+  const { entering } = useShell()
   const element = useRef<HTMLDivElement>(null)
   const { dragging, edge } = useColumnDrag(element, column.id, true)
   const type = grid.schema.typeOf(column)
@@ -86,7 +89,10 @@ function HeaderCell({ grid, entry, layout, offsets, sorts, filtered }: HeaderCel
       {...(sort === undefined ? {} : { 'data-sorted': sort.direction })}
       {...(dragging ? { 'data-dragging': '' } : {})}
       {...(edge === undefined ? {} : { 'data-drop-edge': edge })}
+      {...(column.ai === true ? { 'data-ai': '' } : {})}
+      {...(entering === column.id ? { 'data-entering': '' } : {})}
     >
+      {column.ai === true ? <Sparkles size={13} className="tally-header-ai" aria-hidden /> : null}
       {sortable ? (
         <button type="button" className="tally-header-label" onClick={onSort}>
           <svg

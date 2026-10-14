@@ -22,6 +22,7 @@ export interface Schema {
   typeOf(column: Column): ColumnType
   resolve(name: string): Column | undefined
   names(): readonly ColumnName[]
+  extend(columns: readonly ColumnInput[], index?: number): Schema
   keyOf(row: RowData): RowKey
   parentOf(row: RowData): RowKey | null
   valueOf(row: RowData, column: Column): unknown
@@ -94,6 +95,8 @@ export function createSchema(options: SchemaOptions): Schema {
     typeOf: (column) => registry.get(column.type),
     resolve: (name) => byName.get(name.trim().toLowerCase()),
     names: () => names,
+    extend: (extra, index = columns.length) =>
+      createSchema({ ...options, columns: options.columns.toSpliced(index, 0, ...extra) }),
     keyOf,
     keyField: typeof options.key === 'function' ? undefined : (options.key ?? 'id'),
     parentOf,

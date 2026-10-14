@@ -57,17 +57,17 @@ When the model cannot produce a parseable query, `ask` throws an `AskError` carr
 
 ### With tally-react
 
-`createAskHandler` returns a handler for the `ask` prop of `Tally`. The schema comes from the grid.
+`createAskHandler` returns the `ask` handler for the `ai` prop of `Tally`. The schema comes from the grid. Text typed into the filter bar that does not parse as a query, or reads like a sentence, goes to the handler and the answer lands as filter chips.
 
 ```tsx
 import { createAskHandler } from 'tally-ai'
 
-const askHandler = createAskHandler({ model: anthropic('claude-sonnet-5-5') })
+const ai = { ask: createAskHandler({ model: anthropic('claude-sonnet-5-5') }) }
 
-<Tally grid={grid} ask={askHandler} />
+<Tally grid={grid} ai={ai} />
 ```
 
-Model calls need an API key, so in a browser app put `ask` behind your own endpoint and parse the returned query text with `parseQuery` on the client. The playground does this in `examples/playground/server/ask.ts`.
+Model calls need an API key. In a browser app point the provider at a same-origin proxy that adds the key, as the playground does in `examples/playground/server/anthropic.ts`, so `ask`, `designColumn` and `withAiColumns` all run on the client.
 
 ## AI columns
 
@@ -102,7 +102,24 @@ const source = withAiColumns(createArraySource(rows, schema), schema, [
 ])
 ```
 
-AI columns are computed on the client, so they must be declared with `filterable`, `sortable` and `groupable` set to `false`. The returned source exposes `pending(column?)` with the keys still being computed and `idle()`, a promise that resolves when every batch has finished.
+AI columns are computed on the client, so they must be declared with `filterable`, `sortable` and `groupable` set to `false`. Mark them `ai: true` and `tally-react` renders the header with a sparkle, shows a shimmer while a value is pending and reveals it when it arrives. The returned source exposes `pending(column?)` with the keys still being computed and `idle()`, a promise that resolves when every batch has finished.
+
+### Designing a column from a prompt
+
+`designColumn(prompt, { model, schema })` asks the model for a column definition and the instruction to fill it, ready for `withAiColumns`. The column comes back as `ai: true`, non filterable, non sortable and non groupable, with a unique id and, for enums, tinted options.
+
+```ts
+import { designColumn, withAiColumns } from 'tally-ai'
+
+const { column, instruction } = await designColumn('Churn risk, low, medium or high', {
+  model: anthropic('claude-sonnet-5-5'),
+  schema,
+})
+const extended = schema.extend([column], 1)
+const source = withAiColumns(base, extended, [{ column: column.id, model, instruction }])
+```
+
+`tally-react` wires this up through the `addColumn` handler of the `ai` prop: the AI button opens a prompt, the handler returns the new column id, and the grid animates the column in. The playground keeps the added columns in state and rebuilds the schema and source, which `useGrid` picks up while keeping the current view.
 
 | Option        | Default             | Purpose                                        |
 | ------------- | ------------------- | ---------------------------------------------- |

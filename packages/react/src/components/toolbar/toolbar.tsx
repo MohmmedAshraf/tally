@@ -4,18 +4,20 @@ import type { Grid } from 'tally-core'
 import { useGridState, useRows, useSelection } from '../../hooks/use-store.ts'
 import { useLabels } from '../labels.ts'
 import { useDecoded } from '../motion.ts'
+import type { TallyAi } from '../tally.tsx'
+import { AiMenu } from './ai-menu.tsx'
 import { DisplayMenu } from './display-menu.tsx'
-import { FilterBar, type AskHandler } from './filter-bar.tsx'
+import { FilterBar } from './filter-bar.tsx'
 import { Pager } from '../pager.tsx'
 
 export interface ToolbarProps {
   readonly grid: Grid
-  readonly ask?: AskHandler | undefined
+  readonly ai?: TallyAi | undefined
   readonly start?: ReactNode
   readonly children?: ReactNode
 }
 
-export function Toolbar({ grid, ask, start, children }: ToolbarProps): ReactNode {
+export function Toolbar({ grid, ai, start, children }: ToolbarProps): ReactNode {
   const labels = useLabels()
   const matched = useGridState(grid, (state) => state.matched ?? state.total)
   const groups = useGridState(grid, (state) => state.groups?.length)
@@ -43,7 +45,7 @@ export function Toolbar({ grid, ask, start, children }: ToolbarProps): ReactNode
   return (
     <div className="tally-toolbar" data-version={rows.version}>
       {start}
-      <FilterBar grid={grid} ask={ask} />
+      <FilterBar grid={grid} ask={ai?.ask} />
       <span className="tally-count" aria-live="polite">
         {count}
       </span>
@@ -73,6 +75,9 @@ export function Toolbar({ grid, ask, start, children }: ToolbarProps): ReactNode
           </button>
         </span>
       ) : null}
+      {ai?.addColumn === undefined ? null : (
+        <AiMenu grid={grid} addColumn={ai.addColumn} suggestions={ai.suggestions ?? []} />
+      )}
       <DisplayMenu grid={grid} />
       {children}
     </div>

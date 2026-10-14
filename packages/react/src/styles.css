@@ -1304,6 +1304,178 @@
   color: var(--tally-accent);
 }
 
+.tally-header-ai {
+  flex: none;
+  color: var(--tally-ai);
+}
+
+.tally-header-cell[data-ai] .tally-text {
+  color: var(--tally-ai-ink);
+  font-weight: 600;
+}
+
+.tally-header-cell[data-entering],
+.tally-cell[data-entering] {
+  overflow: hidden;
+  animation: tally-column-in 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes tally-column-in {
+  from {
+    width: 0;
+    padding-inline: 0;
+    opacity: 0;
+  }
+}
+
+.tally-skeleton {
+  display: block;
+  width: 60%;
+  max-width: 96px;
+  height: 10px;
+  border-radius: 5px;
+  background: linear-gradient(
+    90deg,
+    var(--tally-soft) 0%,
+    var(--tally-line) 50%,
+    var(--tally-soft) 100%
+  );
+  background-size: 200% 100%;
+  animation: tally-shimmer 1.4s linear infinite;
+}
+
+.tally-skeleton[data-ai] {
+  background: linear-gradient(
+    90deg,
+    color-mix(in oklch, var(--tally-ai) 10%, var(--tally-bg)) 0%,
+    color-mix(in oklch, var(--tally-ai) 30%, var(--tally-bg)) 50%,
+    color-mix(in oklch, var(--tally-ai) 10%, var(--tally-bg)) 100%
+  );
+  background-size: 200% 100%;
+}
+
+@keyframes tally-shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+
+.tally-decode[data-ai] {
+  font-family: var(--tally-font-mono);
+  font-size: 13px;
+  color: var(--tally-ai-ink);
+}
+
+.tally-cell[data-ai] > :not(.tally-skeleton, .tally-decode) {
+  animation: tally-pop 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.tally-ai-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 440px;
+  max-width: calc(100vw - 32px);
+  padding: 14px 14px 8px;
+}
+
+.tally-ai-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--tally-ink);
+}
+
+.tally-ai-title > svg {
+  color: var(--tally-ai);
+}
+
+.tally-ai-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 6px 0 12px;
+  border-radius: var(--tally-radius-sm);
+  background: var(--tally-canvas);
+  box-shadow: inset 0 0 0 1px var(--tally-line);
+}
+
+.tally-ai-form:focus-within {
+  background: var(--tally-bg);
+  box-shadow:
+    inset 0 0 0 1px var(--tally-ai),
+    0 0 0 3px color-mix(in oklch, var(--tally-ai) 18%, transparent);
+}
+
+.tally-ai-input {
+  flex: 1;
+  min-width: 0;
+  height: 32px;
+  border: 0;
+  outline: none;
+  background: none;
+  color: var(--tally-ink);
+  font: inherit;
+  font-size: 14px;
+}
+
+.tally-ai-input::placeholder {
+  color: var(--tally-ink-3);
+}
+
+.tally-ai-form .tally-button {
+  height: 32px;
+  padding: 0 14px;
+}
+
+.tally-button[data-busy] {
+  animation: tally-thinking 1.1s ease-in-out infinite;
+}
+
+.tally-ai-error {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12.5px;
+  color: var(--tally-down);
+}
+
+.tally-ai-suggestions {
+  display: flex;
+  flex-direction: column;
+  transition: opacity 0.2s ease;
+}
+
+.tally-ai-suggestions[data-dim] {
+  opacity: 0.5;
+}
+
+.tally-ai-suggestion {
+  display: flex;
+  align-items: center;
+  height: 36px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--tally-ink-2);
+  font: inherit;
+  font-size: 13.5px;
+  text-align: start;
+  cursor: pointer;
+}
+
+.tally-ai-suggestion:hover {
+  background: var(--tally-soft);
+  color: var(--tally-ink);
+}
+
 .tally-header-filtered {
   width: 5px;
   height: 5px;
@@ -2209,7 +2381,11 @@ textarea.tally-editor-input {
   }
 
   .tally-chip,
-  .tally[data-reveal] .tally-row {
+  .tally[data-reveal] .tally-row,
+  .tally-header-cell[data-entering],
+  .tally-cell[data-entering],
+  .tally-skeleton,
+  .tally-cell[data-ai] > :not(.tally-skeleton, .tally-decode) {
     animation: none;
   }
 }

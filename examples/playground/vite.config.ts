@@ -3,7 +3,7 @@ import { getRequestListener } from '@hono/node-server'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { defineConfig, type Plugin } from 'vite'
-import { createAskRoute } from './server/ask.ts'
+import { createAnthropicProxy } from './server/anthropic.ts'
 import { createPlaygroundHandler } from './server/tally.ts'
 
 const source = (path: string): string => fileURLToPath(new URL(path, import.meta.url))
@@ -19,12 +19,12 @@ function tallyServer(): Plugin {
         return new Response(null, { status: 500 })
       }
       const tally = getRequestListener(await createPlaygroundHandler(), { errorHandler })
-      const ask = getRequestListener(createAskRoute(), { errorHandler })
+      const anthropic = getRequestListener(createAnthropicProxy(), { errorHandler })
       server.middlewares.use('/api/tally', (request, response) => {
         void tally(request, response)
       })
-      server.middlewares.use('/api/ask', (request, response) => {
-        void ask(request, response)
+      server.middlewares.use('/api/anthropic', (request, response) => {
+        void anthropic(request, response)
       })
     },
   }

@@ -139,7 +139,14 @@ export function reconcileView(view: View, schema: Schema): View {
     seen.add(state.id)
     return true
   })
-  const missing = defaultView(schema).columns.filter((state) => !seen.has(state.id))
+  const merged = [...columns]
+  for (const [index, state] of defaultView(schema).columns.entries()) {
+    if (seen.has(state.id)) continue
+    const before = schema.columns.slice(0, index).findLast((column) => seen.has(column.id))
+    const at = before === undefined ? 0 : merged.findIndex((entry) => entry.id === before.id) + 1
+    merged.splice(at, 0, state)
+    seen.add(state.id)
+  }
   const footer: Record<string, AggregateName> = {}
   for (const [id, fn] of Object.entries(view.footer)) {
     const column = schema.column(id)
@@ -147,7 +154,7 @@ export function reconcileView(view: View, schema: Schema): View {
   }
   return {
     ...view,
-    columns: [...columns, ...missing],
+    columns: merged,
     sort: view.sort.filter((sort) => known.has(sort.column)),
     ...(view.group !== undefined && !known.has(view.group.column) ? { group: undefined } : {}),
     rules: view.rules.filter((rule) => known.has(rule.column)),

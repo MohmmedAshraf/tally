@@ -5,6 +5,10 @@ export interface TallyLabels {
   readonly filterPlaceholder: string
   readonly askPlaceholder: string
   readonly asking: string
+  readonly ai: string
+  readonly addAiColumn: string
+  readonly aiColumnPlaceholder: string
+  readonly add: string
   readonly editAsText: string
   readonly undo: string
   readonly redo: string
@@ -91,6 +95,10 @@ export const defaultLabels: TallyLabels = {
   filterPlaceholder: 'Filter…',
   askPlaceholder: 'Filter or ask anything…',
   asking: 'Asking',
+  ai: 'AI',
+  addAiColumn: 'Add an AI column',
+  aiColumnPlaceholder: 'What should it work out per row?',
+  add: 'Add',
   editAsText: 'Edit as text',
   undo: 'Undo',
   redo: 'Redo',

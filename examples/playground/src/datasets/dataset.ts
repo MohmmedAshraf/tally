@@ -15,6 +15,7 @@ export interface Dataset {
   readonly rows: readonly RowData[]
   readonly views: readonly SavedView[]
   readonly examples: readonly string[]
+  readonly aiColumns?: readonly string[] | undefined
   readonly density?: Density | undefined
   readonly remote: boolean
   readonly live?: boolean | undefined

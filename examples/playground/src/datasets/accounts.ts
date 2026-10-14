@@ -254,6 +254,11 @@ export const accounts: Dataset = {
     'sort by health asc',
     'group by plan',
   ],
+  aiColumns: [
+    'Churn risk, low, medium or high',
+    'One-line next step for the owner',
+    'Industry, from the company name',
+  ],
   remote: true,
   live: true,
 }
