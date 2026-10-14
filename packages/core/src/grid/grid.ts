@@ -92,7 +92,7 @@ export interface Grid {
   loadMore(): Promise<void>
   setPage(index: number): void
   commit(mutation: Mutation): Promise<MutationResult>
-  setCells(edits: readonly CellEdit[]): Promise<MutationResult>
+  setCells(edits: readonly CellEdit[], verb?: string): Promise<MutationResult>
   newRow(): RowData
   insertRows(rows: readonly RowData[], index?: number): Promise<MutationResult>
   deleteRows(keys: readonly RowKey[]): Promise<MutationResult>
@@ -349,7 +349,7 @@ export function createGrid(options: GridOptions): Grid {
       void load()
     },
     commit,
-    setCells: (edits) => {
+    setCells: (edits, verb = 'Edit') => {
       const changes: CellChange[] = []
       for (const edit of edits) {
         const column = schema.column(edit.column)
@@ -369,8 +369,8 @@ export function createGrid(options: GridOptions): Grid {
       const target = schema.column(first.column)
       const label =
         changes.length === 1 && target !== undefined
-          ? `Edit ${columnLabel(target)}`
-          : `Edit ${changes.length} cells`
+          ? `${verb} ${columnLabel(target)}`
+          : `${verb} ${changes.length} cells`
       return commit(createMutation({ label, changes }))
     },
     newRow: () => {

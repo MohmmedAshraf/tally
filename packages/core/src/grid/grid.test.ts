@@ -157,6 +157,14 @@ describe('createGrid', () => {
     const noop = await grid.setCells([{ key: 1, column: 'mrr', value: 15 }])
     expect(noop.accepted).toBe(true)
     expect(mutate).toHaveBeenCalledTimes(3)
+    await grid.setCells(
+      [
+        { key: 1, column: 'mrr', value: 1 },
+        { key: 2, column: 'mrr', value: 2 },
+      ],
+      'Paste',
+    )
+    expect(grid.rows.history().at(-1)?.label).toBe('Paste 2 cells')
     grid.dispose()
   })
 

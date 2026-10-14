@@ -102,7 +102,7 @@ function clearSelectedCells(grid: Grid, layout: ColumnLayout, model: RowModel): 
       edits.push({ key: item.key, column: entry.column.id, value: null })
     }
   }
-  void grid.setCells(edits)
+  void grid.setCells(edits, 'Clear')
 }
 
 function parseClipboard(text: string): string[][] {
@@ -129,7 +129,7 @@ function pasteAt(
       edits.push({ key: item.key, column: entry.column.id, value: text })
     })
   })
-  void grid.setCells(edits)
+  void grid.setCells(edits, 'Paste')
   if (table.length === 0) return
   grid.selection.dispatch({ type: 'focus', cell: origin })
   grid.selection.dispatch({

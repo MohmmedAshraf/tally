@@ -169,7 +169,7 @@ function applyFill(grid: Grid, layout: ColumnLayout, model: RowModel, state: Fil
       if (item !== undefined) edits.push({ key: item.key, column: entry.column.id, value })
     })
   }
-  void grid.setCells(edits)
+  void grid.setCells(edits, 'Fill')
   const box = normalizeRange({
     anchor: { row: Math.min(source.top, target.top), column: source.left },
     focus: { row: Math.max(source.bottom, target.bottom), column: source.right },
