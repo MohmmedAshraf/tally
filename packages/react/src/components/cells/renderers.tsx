@@ -93,6 +93,7 @@ function Spark({
       width={SPARK_WIDTH}
       height={SPARK_HEIGHT}
       viewBox={`0 0 ${SPARK_WIDTH} ${SPARK_HEIGHT}`}
+      preserveAspectRatio="none"
       aria-hidden
       {...(sign === undefined ? {} : { 'data-sign': sign })}
     >
@@ -103,6 +104,7 @@ function Spark({
         strokeWidth={1.5}
         strokeLinejoin="round"
         strokeLinecap="round"
+        vectorEffect="non-scaling-stroke"
       />
     </svg>
   )

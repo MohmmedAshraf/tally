@@ -23,6 +23,7 @@ export {
   type EditorMove,
 } from './components/editors/editors.tsx'
 export type { IntentHandler } from './components/interactions.ts'
+export type { DetailProps, DetailRenderer } from './components/card-detail.tsx'
 export { defaultLabels, type TallyLabels } from './components/labels.ts'
 export { Toolbar, type ToolbarProps } from './components/toolbar/toolbar.tsx'
 export {

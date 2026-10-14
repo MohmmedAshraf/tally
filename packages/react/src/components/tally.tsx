@@ -12,6 +12,7 @@ import { printFilter, type Grid } from 'tally-core'
 import { GridProvider } from '../hooks/context.tsx'
 import { useColumnLayout, useGridState, useRowModel, useView } from '../hooks/use-store.ts'
 import { Body } from './body.tsx'
+import type { DetailRenderer } from './card-detail.tsx'
 import { Cards } from './cards.tsx'
 import { GUTTER_WIDTH } from './geometry.ts'
 import { defaultRenderers, type CellRenderers } from './cells/renderers.tsx'
@@ -48,6 +49,7 @@ export interface TallyProps {
   readonly ai?: TallyAi | undefined
   readonly layout?: 'auto' | 'grid' | 'cards' | undefined
   readonly cardsBelow?: number | undefined
+  readonly detail?: DetailRenderer | boolean | undefined
   readonly children?: ReactNode
 }
 
@@ -221,6 +223,7 @@ export function Tally({
   ai,
   layout = 'auto',
   cardsBelow = 620,
+  detail = true,
   children,
 }: TallyProps): ReactNode {
   const mergedLabels = useMemo<TallyLabels>(() => ({ ...defaultLabels, ...labels }), [labels])
@@ -254,8 +257,9 @@ export function Tally({
       enterColumn: setEntering,
       renderers: { ...defaultRenderers, ...renderers },
       editors: { ...defaultEditors, ...editors },
+      detail,
     }),
-    [entering, renderers, editors],
+    [entering, renderers, editors, detail],
   )
   return (
     <GridProvider grid={grid}>

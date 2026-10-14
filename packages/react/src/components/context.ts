@@ -1,4 +1,5 @@
 import { createContext, useContext, type Context, type RefObject } from 'react'
+import type { DetailRenderer } from './card-detail.tsx'
 import type { CellRenderers } from './cells/renderers.tsx'
 import type { CellEditors } from './editors/editors.tsx'
 
@@ -12,6 +13,7 @@ export interface TallyShell {
   readonly enterColumn: (id: string) => void
   readonly renderers: CellRenderers
   readonly editors: CellEditors
+  readonly detail: DetailRenderer | boolean
 }
 
 export const ShellContext: Context<TallyShell | undefined> = createContext<TallyShell | undefined>(

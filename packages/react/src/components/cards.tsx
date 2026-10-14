@@ -1,5 +1,5 @@
 import { useVirtualizer } from '@tanstack/react-virtual'
-import { createElement, useMemo, useRef, type ReactNode } from 'react'
+import { createElement, useMemo, useRef, useState, type ReactNode } from 'react'
 import {
   columnLabel,
   isEmptyValue,
@@ -11,6 +11,7 @@ import {
   type RowItem,
 } from 'tally-core'
 import { useColumnLayout, useRowModel, useSelection } from '../hooks/use-store.ts'
+import { CardDetail } from './card-detail.tsx'
 import { Tile, rendererFor, signOf, subtitleOf } from './cells/renderers.tsx'
 import { useShell } from './context.ts'
 import { GroupRow } from './group-row.tsx'
@@ -80,10 +81,12 @@ function Card({
   grid,
   item,
   layout,
+  onOpen,
 }: {
   readonly grid: Grid
   readonly item: RowItem
   readonly layout: CardLayout
+  readonly onOpen: ((item: RowItem) => void) | undefined
 }): ReactNode {
   const labels = useLabels()
   const selection = useSelection(grid)
@@ -98,10 +101,22 @@ function Card({
     >
       <header className="tally-card-head">
         {layout.title?.avatar === true && title !== '' ? <Tile text={title} /> : null}
-        <span className="tally-card-title">
-          <span className="tally-text">{title}</span>
-          {subtitle === undefined ? null : <span className="tally-sub">{subtitle}</span>}
-        </span>
+        {onOpen === undefined ? (
+          <span className="tally-card-title">
+            <span className="tally-text">{title}</span>
+            {subtitle === undefined ? null : <span className="tally-sub">{subtitle}</span>}
+          </span>
+        ) : (
+          <button
+            type="button"
+            className="tally-card-title tally-card-open"
+            aria-label={labels.openRow(title)}
+            onClick={() => onOpen(item)}
+          >
+            <span className="tally-text">{title}</span>
+            {subtitle === undefined ? null : <span className="tally-sub">{subtitle}</span>}
+          </button>
+        )}
         <input
           type="checkbox"
           className="tally-check"
@@ -153,12 +168,19 @@ function Card({
 }
 
 export function Cards({ grid }: { readonly grid: Grid }): ReactNode {
-  const { viewport } = useShell()
+  const { viewport, detail } = useShell()
   const model = useRowModel(grid)
   const columns = useColumnLayout(grid)
   const layout = useMemo(() => cardLayout(grid, columns), [grid, columns])
   const items = model.items
   const list = useRef<HTMLDivElement>(null)
+  const [openKey, setOpenKey] = useState<RowItem['key'] | undefined>(undefined)
+  const open = openKey === undefined ? undefined : model.rows.find((row) => row.key === openKey)
+  const onOpen = detail === false ? undefined : (item: RowItem) => setOpenKey(item.key)
+  const hero = layout.metrics[0]
+  const fields = columns.columns
+    .map((entry) => entry.column)
+    .filter((column) => column !== layout.title && column !== hero)
   const virtualizer = useVirtualizer({
     count: items.length,
     getScrollElement: () => viewport.current,
@@ -185,11 +207,22 @@ export function Cards({ grid }: { readonly grid: Grid }): ReactNode {
             {item.kind === 'group' ? (
               <GroupRow grid={grid} item={item} />
             ) : (
-              <Card grid={grid} item={item} layout={layout} />
+              <Card grid={grid} item={item} layout={layout} onOpen={onOpen} />
             )}
           </div>
         )
       })}
+      <CardDetail
+        grid={grid}
+        item={open}
+        title={layout.title}
+        hero={hero}
+        fields={fields}
+        onClose={() => setOpenKey(undefined)}
+        textOf={(item, column) => textOf(grid, item.row, column)}
+        signOf={(item, column) => signAttr(grid, item.row, column)}
+        value={(item, column) => <CardValue grid={grid} item={item} column={column} />}
+      />
     </div>
   )
 }

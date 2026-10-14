@@ -137,6 +137,19 @@ describe('Tally', () => {
     expect(card).toHaveAttribute('data-selected')
   })
 
+  it('opens a detail sheet when a card is tapped', async () => {
+    render(<Harness layout="cards" />)
+    const card = await screen.findByRole('article', { name: 'Kite Supply' })
+    act(() => within(card).getByRole('button', { name: 'Open Kite Supply' }).click())
+    const sheet = await screen.findByRole('dialog', { name: 'Kite Supply' })
+    expect(within(sheet).getByText('48.8%').closest('.tally-detail-field')).toHaveAttribute(
+      'data-sign',
+      'up',
+    )
+    act(() => within(sheet).getByRole('button', { name: 'Close' }).click())
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+  })
+
   it('sorts from the header and exposes aria-sort', async () => {
     render(<Harness />)
     const grid = screen.getByRole('grid')

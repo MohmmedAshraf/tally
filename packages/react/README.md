@@ -49,6 +49,7 @@ function Accounts({ rows }) {
 | `dir`                | `'ltr' \| 'rtl'`                               | Layout uses logical properties; numbers and dates stay left to right.                                                                   |
 | `layout`             | `'auto' \| 'grid' \| 'cards'`                  | `auto` switches to cards below `cardsBelow` pixels.                                                                                     |
 | `cardsBelow`         | `number`                                       | Default `620`.                                                                                                                          |
+| `detail`             | `DetailRenderer \| boolean`                    | Tapping a card opens a sheet with every visible field. `false` disables it, a function renders the sheet body.                          |
 | `toolbar`            | `ReactNode \| boolean`                         | `true` renders the default toolbar, `false` hides it, a node replaces it.                                                               |
 | `toolbarStart`       | `ReactNode`                                    | Renders before the filter bar in the default toolbar, for tabs or titles.                                                               |
 | `ai`                 | `TallyAi`                                      | `ask` answers filter text that does not parse or reads like a sentence. `addColumn` enables the AI button, `suggestions` fill its list. |
