@@ -87,9 +87,15 @@ function readSavedViews(key: string): readonly SavedView[] {
   }
 }
 
-function useSavedViews(
-  dataset: Dataset,
-): readonly [readonly SavedView[], (view: SavedView) => void] {
+interface SavedViews {
+  readonly views: readonly SavedView[]
+  readonly custom: ReadonlySet<string>
+  readonly overridden: ReadonlySet<string>
+  readonly upsert: (view: SavedView) => void
+  readonly remove: (name: string) => void
+}
+
+function useSavedViews(dataset: Dataset): SavedViews {
   const key = `tally-playground-views:${dataset.id}`
   const [extra, setExtra] = useState<readonly SavedView[]>(() => readSavedViews(key))
   const persist = (next: readonly SavedView[]): void => {
@@ -100,15 +106,21 @@ function useSavedViews(
       return
     }
   }
-  const views = useMemo(() => {
+  const library = useMemo(() => {
     const overrides = new Map(extra.map((view) => [view.name, view]))
-    const builtIn = dataset.views.map((view) => overrides.get(view.name) ?? view)
     const names = new Set(dataset.views.map((view) => view.name))
-    return [...builtIn, ...extra.filter((view) => !names.has(view.name))]
+    const custom = extra.filter((view) => !names.has(view.name))
+    return {
+      views: [...dataset.views.map((view) => overrides.get(view.name) ?? view), ...custom],
+      custom: new Set(custom.map((view) => view.name)),
+      overridden: new Set(extra.filter((view) => names.has(view.name)).map((view) => view.name)),
+    }
   }, [dataset, extra])
-  const upsert = (view: SavedView): void =>
-    persist([...extra.filter((entry) => entry.name !== view.name), view])
-  return [views, upsert]
+  return {
+    ...library,
+    upsert: (view) => persist([...extra.filter((entry) => entry.name !== view.name), view]),
+    remove: (name) => persist(extra.filter((entry) => entry.name !== name)),
+  }
 }
 
 function useViewCounts(grid: Grid, views: readonly SavedView[]): readonly (number | undefined)[] {
@@ -188,7 +200,8 @@ function Screen({
   simulate,
   onSimulate,
 }: ScreenProps): ReactNode {
-  const [views, saveView] = useSavedViews(dataset)
+  const library = useSavedViews(dataset)
+  const { views, upsert: saveView } = library
   const active = views.find((view) => slug(view.name) === viewSlug) ?? views[0]!
   const format = useMemo<FormatContext>(
     () => ({ locale: settings.locale, timeZone: 'UTC', numberingSystem: 'latn' }),
@@ -241,6 +254,15 @@ function Screen({
               onNavigate(dataset, { name, query: current })
             }}
             onRevert={() => applyView(active)}
+            custom={library.custom}
+            overridden={library.overridden}
+            onDeleteView={(name) => {
+              library.remove(name)
+              if (name === active.name) {
+                const fallback = dataset.views[0] ?? views.find((entry) => entry.name !== name)
+                if (fallback !== undefined) applyView(fallback)
+              }
+            }}
           />
         )
       }

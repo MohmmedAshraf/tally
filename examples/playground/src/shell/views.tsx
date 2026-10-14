@@ -1,6 +1,12 @@
-import { Plus } from 'lucide-react'
+import { Plus, RotateCcw, Trash2 } from 'lucide-react'
 import { useState, type KeyboardEvent, type ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from '@/components/ui/context-menu'
 import { Input } from '@/components/ui/input'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import type { SavedView } from '@/datasets'
@@ -15,6 +21,9 @@ export interface ViewTabsProps {
   readonly onSaveView: () => void
   readonly onSaveAs: (name: string) => void
   readonly onRevert: () => void
+  readonly custom: ReadonlySet<string>
+  readonly overridden: ReadonlySet<string>
+  readonly onDeleteView: (name: string) => void
 }
 
 function SaveAs({ onSave }: { readonly onSave: (name: string) => void }): ReactNode {
@@ -63,6 +72,9 @@ export function ViewTabs({
   onSaveView,
   onSaveAs,
   onRevert,
+  custom,
+  overridden,
+  onDeleteView,
 }: ViewTabsProps): ReactNode {
   return (
     <div className="flex shrink-0 items-center gap-1">
@@ -76,7 +88,7 @@ export function ViewTabs({
       >
         {views.map((view, index) => {
           const count = counts[index]
-          return (
+          const tab = (
             <ToggleGroupItem key={view.name} value={view.name} className="px-3">
               {view.name}
               {count === undefined ? null : (
@@ -88,6 +100,26 @@ export function ViewTabs({
                 <span title="Unsaved changes" className="size-1.5 rounded-full bg-primary" />
               ) : null}
             </ToggleGroupItem>
+          )
+          const action = custom.has(view.name)
+            ? { label: 'Delete view', icon: Trash2 }
+            : overridden.has(view.name)
+              ? { label: 'Reset view', icon: RotateCcw }
+              : undefined
+          if (action === undefined) return tab
+          return (
+            <ContextMenu key={view.name}>
+              <ContextMenuTrigger render={tab} />
+              <ContextMenuContent>
+                <ContextMenuItem
+                  variant={custom.has(view.name) ? 'destructive' : 'default'}
+                  onClick={() => onDeleteView(view.name)}
+                >
+                  <action.icon />
+                  {action.label}
+                </ContextMenuItem>
+              </ContextMenuContent>
+            </ContextMenu>
           )
         })}
       </ToggleGroup>
