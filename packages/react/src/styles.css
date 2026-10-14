@@ -888,6 +888,14 @@
   color: var(--tally-ink);
 }
 
+.tally-sheet {
+  display: flex;
+  flex-direction: column;
+  min-width: 100%;
+  min-height: 100%;
+  width: var(--tally-total-width);
+}
+
 .tally-sheet-menu {
   display: contents;
 }
@@ -2111,6 +2119,7 @@ textarea.tally-editor-input {
   position: sticky;
   bottom: 0;
   z-index: 4;
+  margin-top: auto;
   min-width: 100%;
   width: var(--tally-total-width);
 }
@@ -2224,11 +2233,15 @@ textarea.tally-editor-input {
 }
 
 .tally-empty {
+  position: sticky;
+  inset-inline-start: 0;
   display: flex;
+  flex: 1;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 6px;
+  width: var(--tally-viewport-width, 100%);
   min-height: 260px;
   padding: 28px 24px;
   text-align: center;

@@ -37,9 +37,9 @@ export function Toolbar({ grid, ask, start, children }: ToolbarProps): ReactNode
           ? labels.selected(selected)
           : matched === undefined
             ? ''
-            : paged && groups !== undefined
+            : paged && groups !== undefined && groups > 0
               ? range(groups, labels.groupRange)
-              : paged
+              : paged && matched > 0
                 ? range(matched, labels.pageRange)
                 : labels.rows(matched)}
       </span>

@@ -27,6 +27,7 @@ export interface BodyProps {
   readonly layout: ColumnLayout
   readonly initialSize: { readonly width: number; readonly height: number } | undefined
   readonly onIntent: IntentHandler | undefined
+  readonly empty: ReactNode
 }
 
 function useOffsetTop(element: HTMLElement | null): number {
@@ -51,7 +52,7 @@ function bodyItems(model: RowModel): RowModel['items'] {
   return model.items.filter((item) => item.kind === 'group' || !item.pinned)
 }
 
-export function Body({ grid, layout, initialSize, onIntent }: BodyProps): ReactNode {
+export function Body({ grid, layout, initialSize, onIntent, empty }: BodyProps): ReactNode {
   const id = useId()
   const cellId = useCallback(
     (row: number, column: number): string => `${id}r${row}c${column}`,
@@ -270,6 +271,7 @@ export function Body({ grid, layout, initialSize, onIntent }: BodyProps): ReactN
             )
           })}
         </div>
+        {empty}
         {grid.capabilities.mutate ? (
           <NewRow
             grid={grid}

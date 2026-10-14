@@ -137,10 +137,10 @@ function Viewport({
   const status = useGridState(grid, (state) => state.status)
   const error = useGridState(grid, (state) => state.error)
   const matched = useGridState(grid, (state) => state.matched ?? state.total)
-  const rowCount = useRowModel(grid).rows.length
+  const itemCount = useRowModel(grid).items.length
   const bare = layout.columns.length === 0
   const empty =
-    status === 'ready' && (rowCount === 0 || bare) ? (
+    status === 'ready' && (itemCount === 0 || bare) ? (
       <EmptyState grid={grid} columns={layout.columns.length} />
     ) : null
   const message = error instanceof Error ? error.message : String(error)
@@ -175,11 +175,19 @@ function Viewport({
           aria-rowcount={matched === undefined ? -1 : matched + 1}
           aria-colcount={layout.columns.length + 1}
           aria-multiselectable
+          style={{ '--tally-viewport-width': `${viewportWidth}px` }}
         >
-          {bare ? null : (
-            <Body grid={grid} layout={layout} initialSize={initialSize} onIntent={onIntent} />
+          {bare ? (
+            empty
+          ) : (
+            <Body
+              grid={grid}
+              layout={layout}
+              initialSize={initialSize}
+              onIntent={onIntent}
+              empty={empty}
+            />
           )}
-          {empty}
         </div>
       )}
     </>
