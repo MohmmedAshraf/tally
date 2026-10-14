@@ -1,6 +1,5 @@
-import type { CSSProperties, ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import {
-  aggregateKey,
   optionLabel,
   type Column,
   type ColumnLayout,
@@ -10,7 +9,6 @@ import {
   type LayoutColumn,
 } from 'tally-core'
 import { useGridState, useView } from '../hooks/use-store.ts'
-import { aggregateLabel, dateRange, formatAggregate, isDateRangeFooter } from './format.ts'
 
 interface Segment {
   readonly value: string
@@ -60,8 +58,9 @@ function Distribution({
     </span>
   )
 }
-import { isPinEdge, type PinOffsets } from './geometry.ts'
+import { cellStyle, isPinEdge, type PinOffsets } from './geometry.ts'
 import type { ColumnWindow } from './row.tsx'
+import { Summary } from './summary.tsx'
 
 export interface FooterProps {
   readonly grid: Grid
@@ -80,14 +79,6 @@ export function Footer({ grid, layout, offsets, window, visible }: FooterProps):
     const { column } = entry
     const type = grid.schema.typeOf(column)
     const fn = footer[column.id]
-    const pinOffset =
-      entry.pin === 'left'
-        ? offsets.left.get(column.id)
-        : entry.pin === 'right'
-          ? offsets.right.get(column.id)
-          : undefined
-    const style: CSSProperties = { width: entry.width }
-    if (pinOffset !== undefined) style['--tally-pin-offset'] = `${pinOffset}px`
     let content: ReactNode = null
     const segments =
       fn === 'count' && (type.kind === 'enum' || type.kind === 'boolean')
@@ -96,27 +87,10 @@ export function Footer({ grid, layout, offsets, window, visible }: FooterProps):
     if (segments.length > 0) {
       content = <Distribution segments={segments} locale={locale} />
     } else if (fn !== undefined) {
-      const range = isDateRangeFooter(grid, column, fn)
-        ? dateRange(grid, column, state.aggregates)
-        : undefined
-      const value = state.aggregates?.[aggregateKey({ column: column.id, fn })]
-      if (range !== undefined) {
-        content = (
-          <span className="tally-footer-value" title={range.title}>
-            {range.text}
-          </span>
-        )
-      } else if (value !== undefined) {
-        content = (
-          <>
-            <span className="tally-footer-label">{aggregateLabel(fn)}</span>
-            <span className="tally-footer-value">{formatAggregate(grid, column, fn, value)}</span>
-          </>
-        )
-      }
+      content = <Summary grid={grid} column={column} fn={fn} aggregates={state.aggregates} />
     } else if (first && total !== undefined) {
       content = (
-        <span className="tally-footer-value">
+        <span className="tally-summary-value">
           {visible === undefined
             ? total.toLocaleString(locale)
             : `${visible.from.toLocaleString(locale)}–${visible.to.toLocaleString(locale)} / ${total.toLocaleString(locale)}`}
@@ -129,7 +103,7 @@ export function Footer({ grid, layout, offsets, window, visible }: FooterProps):
         className="tally-footer-cell"
         data-column={column.id}
         data-align={column.align ?? type.align}
-        style={style}
+        style={cellStyle(entry, offsets)}
         {...(entry.pin === undefined ? {} : { 'data-pin': entry.pin })}
         {...(isPinEdge(entry, layout) ? { 'data-pin-edge': '' } : {})}
       >

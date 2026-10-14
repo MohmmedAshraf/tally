@@ -1,35 +1,119 @@
 import { ChevronRight } from 'lucide-react'
 import type { CSSProperties, ReactNode } from 'react'
-import { aggregateKey, isEmptyValue, type Grid, type GroupItem } from 'tally-core'
-import { aggregateLabel, dateRange, formatAggregate, isDateRangeFooter } from './format.ts'
+import {
+  isEmptyValue,
+  type ColumnLayout,
+  type Grid,
+  type GroupItem,
+  type LayoutColumn,
+} from 'tally-core'
+import { useView } from '../hooks/use-store.ts'
+import { rendererFor } from './cells/renderers.tsx'
+import { useShell } from './context.ts'
+import { cellStyle, isPinEdge, type PinOffsets } from './geometry.ts'
+import { useLabels } from './labels.ts'
+import type { ColumnWindow } from './row.tsx'
+import { Summary } from './summary.tsx'
+
+interface GroupColumns {
+  readonly layout: ColumnLayout
+  readonly offsets: PinOffsets
+  readonly window: ColumnWindow
+}
 
 export interface GroupRowProps {
   readonly grid: Grid
   readonly item: GroupItem
+  readonly columns?: GroupColumns | undefined
   readonly style?: CSSProperties | undefined
 }
 
-export function GroupRow({ grid, item, style }: GroupRowProps): ReactNode {
-  const { column } = item
+function GroupLabel({ grid, item }: Pick<GroupRowProps, 'grid' | 'item'>): ReactNode {
+  const labels = useLabels()
+  const { renderers } = useShell()
+  const { column, value } = item
   const type = grid.schema.typeOf(column)
-  const label =
-    isEmptyValue(item.value) || !type.is(item.value)
-      ? 'Empty'
-      : type.format(item.value, column, grid.context.format)
-  const footer = grid.view.get().footer
-  const summaries = Object.entries(footer)
-    .map(([id, fn]) => {
-      const target = grid.schema.column(id)
-      if (target === undefined) return undefined
-      const range = isDateRangeFooter(grid, target, fn)
-        ? dateRange(grid, target, item.aggregates)
-        : undefined
-      if (range !== undefined) return { id, text: range.text }
-      const value = item.aggregates[aggregateKey({ column: id, fn })]
-      if (value === undefined) return undefined
-      return { id, text: `${aggregateLabel(fn)} ${formatAggregate(grid, target, fn, value)}` }
-    })
-    .filter((entry) => entry !== undefined)
+  if (isEmptyValue(value) || !type.is(value)) {
+    return <span className="tally-text">{labels.emptyGroup}</span>
+  }
+  return rendererFor(
+    renderers,
+    type,
+  )({
+    value,
+    text: type.format(value, column, grid.context.format),
+    row: { [column.id]: value },
+    column,
+    type,
+    format: grid.context.format,
+  })
+}
+
+export function GroupRow({ grid, item, columns, style }: GroupRowProps): ReactNode {
+  const labels = useLabels()
+  const footer = useView(grid, (view) => view.footer)
+  const toggle = (
+    <button
+      type="button"
+      className="tally-group-toggle"
+      aria-label={labels.toggleGroup}
+      aria-expanded={!item.collapsed}
+      onClick={() => grid.view.toggleGroupCollapsed(item.key)}
+      style={item.collapsed ? undefined : { rotate: '90deg' }}
+    >
+      <ChevronRight size={14} aria-hidden />
+    </button>
+  )
+  const count = (
+    <span className="tally-group-count">
+      {item.count.toLocaleString(grid.context.format.locale)}
+    </span>
+  )
+  const label = (
+    <span className="tally-group-label">
+      <GroupLabel grid={grid} item={item} />
+      {count}
+    </span>
+  )
+  if (columns === undefined) {
+    return (
+      <div
+        role="row"
+        className="tally-group"
+        data-plain=""
+        aria-expanded={!item.collapsed}
+        data-group={item.key}
+        style={style}
+      >
+        {toggle}
+        {label}
+      </div>
+    )
+  }
+  const { layout, offsets, window } = columns
+  const firstId = layout.columns[0]?.column.id
+  const cell = (entry: LayoutColumn): ReactNode => {
+    const { column } = entry
+    const fn = footer[column.id]
+    const summarised = fn !== undefined && fn !== 'count' && column.id !== item.column.id
+    return (
+      <div
+        key={column.id}
+        className="tally-group-cell"
+        data-column={column.id}
+        data-align={column.align ?? grid.schema.typeOf(column).align}
+        style={cellStyle(entry, offsets)}
+        {...(entry.pin === undefined ? {} : { 'data-pin': entry.pin })}
+        {...(isPinEdge(entry, layout) ? { 'data-pin-edge': '' } : {})}
+      >
+        {column.id === firstId ? (
+          label
+        ) : summarised ? (
+          <Summary grid={grid} column={column} fn={fn} aggregates={item.aggregates} />
+        ) : null}
+      </div>
+    )
+  }
   return (
     <div
       role="row"
@@ -38,27 +122,14 @@ export function GroupRow({ grid, item, style }: GroupRowProps): ReactNode {
       data-group={item.key}
       style={style}
     >
-      <button
-        type="button"
-        className="tally-group-toggle"
-        aria-label={label}
-        aria-expanded={!item.collapsed}
-        onClick={() => grid.view.toggleGroupCollapsed(item.key)}
-        style={item.collapsed ? undefined : { rotate: '90deg' }}
-      >
-        <ChevronRight size={14} aria-hidden />
-      </button>
-      <span className="tally-text">{label}</span>
-      <span className="tally-group-count">
-        {item.count.toLocaleString(grid.context.format.locale)}
-      </span>
-      {summaries.length > 0 ? (
-        <span className="tally-group-aggregates">
-          {summaries.map((entry) => (
-            <span key={entry.id}>{entry.text}</span>
-          ))}
-        </span>
-      ) : null}
+      <div className="tally-gutter" {...(layout.left.length === 0 ? { 'data-pin-edge': '' } : {})}>
+        {toggle}
+      </div>
+      {layout.left.map(cell)}
+      {window.before > 0 ? <div className="tally-spacer" style={{ width: window.before }} /> : null}
+      {window.columns.map(cell)}
+      {window.after > 0 ? <div className="tally-spacer" style={{ width: window.after }} /> : null}
+      {layout.right.map(cell)}
     </div>
   )
 }

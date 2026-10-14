@@ -1030,7 +1030,8 @@
 
 .tally-cell,
 .tally-header-cell,
-.tally-footer-cell {
+.tally-footer-cell,
+.tally-group-cell {
   position: relative;
   display: flex;
   align-items: center;
@@ -1061,6 +1062,7 @@
 .tally-cell[data-pin],
 .tally-header-cell[data-pin],
 .tally-footer-cell[data-pin],
+.tally-group-cell[data-pin],
 .tally-gutter {
   position: sticky;
   z-index: 2;
@@ -1074,13 +1076,15 @@
 
 .tally-cell[data-pin='left'],
 .tally-header-cell[data-pin='left'],
-.tally-footer-cell[data-pin='left'] {
+.tally-footer-cell[data-pin='left'],
+.tally-group-cell[data-pin='left'] {
   inset-inline-start: var(--tally-pin-offset);
 }
 
 .tally-cell[data-pin='right'],
 .tally-header-cell[data-pin='right'],
-.tally-footer-cell[data-pin='right'] {
+.tally-footer-cell[data-pin='right'],
+.tally-group-cell[data-pin='right'] {
   inset-inline-end: var(--tally-pin-offset);
 }
 
@@ -1544,13 +1548,40 @@ textarea.tally-editor-input {
 .tally-group {
   height: var(--tally-group-height);
   align-items: center;
-  gap: 10px;
-  padding-inline: 14px;
   background: var(--tally-canvas);
   box-shadow: inset 0 -1px 0 var(--tally-line);
   font-weight: 600;
+}
+
+.tally-group[data-plain] {
+  gap: 10px;
+  padding-inline: 14px;
   position: sticky;
   inset-inline-start: 0;
+}
+
+.tally-group .tally-gutter,
+.tally-group .tally-group-cell[data-pin] {
+  background: var(--tally-canvas);
+}
+
+.tally-group-cell {
+  gap: 6px;
+  overflow: hidden;
+  white-space: nowrap;
+  font-weight: 400;
+}
+
+.tally-group-cell[data-align='end'] {
+  justify-content: flex-end;
+}
+
+.tally-group-label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  font-weight: 600;
 }
 
 .tally-body .tally-group {
@@ -1600,16 +1631,6 @@ textarea.tally-editor-input {
   border-radius: 6px;
   padding: 1px 6px;
   box-shadow: 0 0 0 1px var(--tally-line);
-}
-
-.tally-group-aggregates {
-  margin-inline-start: auto;
-  display: flex;
-  gap: 22px;
-  font-family: var(--tally-font-mono);
-  font-weight: 500;
-  font-size: 12px;
-  color: var(--tally-ink-2);
 }
 
 .tally-text {
@@ -2082,7 +2103,7 @@ textarea.tally-editor-input {
   white-space: nowrap;
 }
 
-.tally-footer-label {
+.tally-summary-label {
   color: var(--tally-ink-3);
   font-size: 11.5px;
   font-family: var(--tally-font);
@@ -2103,7 +2124,7 @@ textarea.tally-editor-input {
   border-radius: 2px;
 }
 
-.tally-footer-value {
+.tally-summary-value {
   overflow: hidden;
   text-overflow: ellipsis;
   unicode-bidi: plaintext;
@@ -2113,7 +2134,8 @@ textarea.tally-editor-input {
   color: var(--tally-ink);
 }
 
-.tally-footer-cell[data-align='end'] .tally-footer-value {
+.tally-footer-cell[data-align='end'] .tally-summary-value,
+.tally-group-cell[data-align='end'] .tally-summary-value {
   direction: ltr;
   unicode-bidi: isolate;
 }

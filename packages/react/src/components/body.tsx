@@ -222,7 +222,7 @@ export function Body({ grid, layout, initialSize, onIntent }: BodyProps): ReactN
         ) : null}
         {currentGroup === undefined ? null : (
           <div className="tally-group-sticky" aria-hidden>
-            <GroupRow grid={grid} item={currentGroup} />
+            <GroupRow grid={grid} item={currentGroup} columns={{ layout, offsets, window }} />
           </div>
         )}
         <div
@@ -238,7 +238,15 @@ export function Body({ grid, layout, initialSize, onIntent }: BodyProps): ReactN
               transform: `translateY(${virtual.start - rows.options.scrollMargin}px)`,
             }
             if (item.kind === 'group') {
-              return <GroupRow key={virtual.key} grid={grid} item={item} style={style} />
+              return (
+                <GroupRow
+                  key={virtual.key}
+                  grid={grid}
+                  item={item}
+                  columns={{ layout, offsets, window }}
+                  style={style}
+                />
+              )
             }
             return (
               <RowView

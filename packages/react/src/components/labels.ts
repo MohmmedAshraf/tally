@@ -49,6 +49,8 @@ export interface TallyLabels {
   readonly deleteRowsTitle: (count: number) => string
   readonly cancel: string
   readonly empty: string
+  readonly emptyGroup: string
+  readonly toggleGroup: string
   readonly noMatches: string
   readonly noMatchesDetail: (query: string) => string
   readonly clearFilter: string
@@ -134,6 +136,8 @@ export const defaultLabels: TallyLabels = {
   deleteRowsTitle: (count) => (count > 1 ? `Delete ${count} rows?` : 'Delete this row?'),
   cancel: 'Cancel',
   empty: 'No rows',
+  emptyGroup: 'Empty',
+  toggleGroup: 'Toggle group',
   noMatches: 'No rows match',
   noMatchesDetail: (query) => `Nothing fits “${query}”. Loosen a condition or clear the filter.`,
   clearFilter: 'Clear filter',

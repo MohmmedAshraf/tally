@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 import type { ColumnLayout, Density, LayoutColumn } from 'tally-core'
 
 export const GUTTER_WIDTH = 44
@@ -37,6 +38,18 @@ export function pinOffsets(layout: ColumnLayout): PinOffsets {
     rightWidth: trailing,
     centerWidth: layout.center.reduce((sum, entry) => sum + entry.width, 0),
   }
+}
+
+export function cellStyle(entry: LayoutColumn, offsets: PinOffsets): CSSProperties {
+  const offset =
+    entry.pin === 'left'
+      ? offsets.left.get(entry.column.id)
+      : entry.pin === 'right'
+        ? offsets.right.get(entry.column.id)
+        : undefined
+  return offset === undefined
+    ? { width: entry.width }
+    : { width: entry.width, '--tally-pin-offset': `${offset}px` }
 }
 
 export function isPinEdge(entry: LayoutColumn, layout: ColumnLayout): boolean {
