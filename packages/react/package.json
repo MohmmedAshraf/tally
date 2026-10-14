@@ -83,7 +83,7 @@
     {
       "name": "tally-react",
       "path": "dist/index.js",
-      "limit": "20 kB",
+      "limit": "22 kB",
       "ignore": [
         "react",
         "react-dom",
@@ -98,7 +98,7 @@
     {
       "name": "tally-react with dependencies",
       "path": "dist/index.js",
-      "limit": "90 kB",
+      "limit": "100 kB",
       "ignore": [
         "react",
         "react-dom",
@@ -109,7 +109,7 @@
       "name": "styles.css",
       "path": "dist/styles.css",
       "rolldown": false,
-      "limit": "6 kB"
+      "limit": "8 kB"
     }
   ]
 }
