@@ -209,6 +209,22 @@ describe('createGrid', () => {
     grid.dispose()
   })
 
+  it('re-ranks live rows by the view sort', async () => {
+    const source = createArraySource(rows, schema)
+    const grid = createGrid({ schema, source })
+    grid.view.setSort([{ column: 'mrr', direction: 'desc' }])
+    await grid.load()
+    expect(grid.model().rows.map((item) => item.key)).toEqual([3, 2, 1])
+    source.patch({ upserts: [{ id: 1, name: 'One', plan: 'a', mrr: 50 }] })
+    expect(grid.model().rows.map((item) => item.key)).toEqual([1, 3, 2])
+    grid.view.setGroup('plan')
+    await vi.waitFor(() => expect(grid.get().groups).toHaveLength(2))
+    const before = grid.rows.rows().map((row) => row['id'])
+    source.patch({ upserts: [{ id: 2, name: 'Two', plan: 'b', mrr: 99 }] })
+    expect(grid.rows.rows().map((row) => row['id'])).toEqual(before)
+    grid.dispose()
+  })
+
   it('can be disposed and loaded again', async () => {
     const source = createArraySource(rows, schema)
     const grid = createGrid({ schema, source })

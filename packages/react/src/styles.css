@@ -1698,6 +1698,7 @@ textarea.tally-editor-input {
   position: absolute;
   top: 0;
   inset-inline-start: 0;
+  transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
 .tally-row[data-wrap] {
@@ -2378,6 +2379,10 @@ textarea.tally-editor-input {
   .tally-progress {
     animation: none;
     background: var(--tally-accent);
+  }
+
+  .tally-body .tally-row {
+    transition: none;
   }
 
   .tally-chip,

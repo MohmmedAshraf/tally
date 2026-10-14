@@ -175,12 +175,15 @@ function numbers(value: unknown): readonly number[] {
   return Array.isArray(value) ? value.filter((entry) => typeof entry === 'number') : []
 }
 
-function useLive(source: DataSource, enabled: boolean): void {
+function useLive(grid: Grid, source: DataSource, enabled: boolean): void {
   useEffect(() => {
     if (!enabled || !isArraySource(source)) return
     const tick = (): void => {
-      const rows = source.rows()
-      const row = rows[Math.floor(Math.random() * Math.min(rows.length, 120))]
+      const loaded = grid.rows.rows()
+      const picked = loaded[Math.floor(Math.random() * Math.min(loaded.length, 40))]
+      if (picked === undefined) return
+      const key = grid.schema.keyOf(picked)
+      const row = source.rows().find((candidate) => grid.schema.keyOf(candidate) === key)
       if (row === undefined || typeof row['mrr'] !== 'number') return
       const mrr = Math.max(0, row['mrr'] + Math.round((Math.random() - 0.45) * 400))
       const history = numbers(row['history']).slice(1)
@@ -188,7 +191,7 @@ function useLive(source: DataSource, enabled: boolean): void {
     }
     const timer = setInterval(tick, 1200)
     return () => clearInterval(timer)
-  }, [source, enabled])
+  }, [grid, source, enabled])
 }
 
 interface ScreenProps extends WorkspaceProps {
@@ -228,7 +231,7 @@ function Screen({
   const view = useView(grid)
   const counts = useViewCounts(grid, views)
   const mobile = useIsMobile()
-  useLive(baseSource, live)
+  useLive(grid, baseSource, live)
   const current = printQuery({ filter: view.filter, sort: view.sort, group: view.group }, schema)
   const dirty = current !== canonical(active.query, schema)
   const applyView = (saved: SavedView): void => {

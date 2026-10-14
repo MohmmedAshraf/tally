@@ -1,4 +1,5 @@
 import { Store } from '@tanstack/store'
+import type { Comparator } from '../execute/sort.ts'
 import type { Schema } from '../schema/schema.ts'
 import { applyMutation, isEmptyMutation, type Mutation } from './mutation.ts'
 import type { RowData, RowKey } from './row.ts'
@@ -24,7 +25,7 @@ export interface RowStore {
   subscribe(listener: (state: RowState) => void): () => void
   replace(rows: readonly RowData[]): void
   reload(rows: readonly RowData[]): void
-  patch(patch: RowPatch): void
+  patch(patch: RowPatch, order?: Comparator): void
   commit(mutation: Mutation): boolean
   undo(): Mutation | undefined
   redo(): Mutation | undefined
@@ -117,7 +118,7 @@ export function createRowStore(schema: Schema, initial: readonly RowData[] = [])
       basePointer = pointer
       publish(rows)
     },
-    patch: (patch) => {
+    patch: (patch, order) => {
       const deletes = new Set(patch.deletes ?? [])
       const upserts = new Map((patch.upserts ?? []).map((row) => [schema.keyOf(row), row] as const))
       const previous = new Map(base.map((row) => [schema.keyOf(row), row] as const))
@@ -126,7 +127,8 @@ export function createRowStore(schema: Schema, initial: readonly RowData[] = [])
         .map((row) => upserts.get(schema.keyOf(row)) ?? row)
       const known = new Set(kept.map((row) => schema.keyOf(row)))
       const added = [...upserts.values()].filter((row) => !known.has(schema.keyOf(row)))
-      base = [...kept, ...added]
+      const merged = [...kept, ...added]
+      base = order === undefined ? merged : merged.toSorted(order)
       const changed = markChanged(store.state.changed, schema, previous, base)
       publish(rebuild(), changed)
     },

@@ -8,6 +8,7 @@ import {
 } from '../execute/context.ts'
 import { execute, type ExecuteRequest, type ExecutorOptions } from '../execute/executor.ts'
 import type { Facets } from '../execute/facets.ts'
+import { compileSort, type Comparator } from '../execute/sort.ts'
 import { createMutation, invertMutation, type CellChange, type Mutation } from '../rows/mutation.ts'
 import type { RowData, RowKey } from '../rows/row.ts'
 import { createRowStore, type RowStore } from '../rows/store.ts'
@@ -239,13 +240,18 @@ export function createGrid(options: GridOptions): Grid {
     }
   }
 
+  const liveOrder = (): Comparator | undefined => {
+    const current = view.get()
+    return current.group === undefined ? compileSort(current.sort, schema, context) : undefined
+  }
+
   const run = async (
     page: OffsetPage | CursorPage | undefined,
     apply: (response: QueryResponse) => void,
   ): Promise<void> => {
     if (!started) {
       started = true
-      stopLive = source.subscribe?.((incoming) => rows.patch(incoming))
+      stopLive = source.subscribe?.((incoming) => rows.patch(incoming, liveOrder()))
       stopView = view.select(queryKey, () => {
         store.setState((state) => ({ ...state, page: { ...state.page, index: 0 } }))
         void load()
