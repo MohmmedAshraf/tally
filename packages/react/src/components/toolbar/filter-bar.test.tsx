@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, within } from '@testing-library/react'
+import { act, fireEvent, render, screen } from '@testing-library/react'
 import { useEffect, useState, type ReactNode } from 'react'
 import { createArraySource, createSchema, type Grid } from 'tally-core'
 import { describe, expect, it, vi } from 'vitest'
@@ -103,26 +103,40 @@ describe('FilterBar', () => {
     expect(option).toBeInTheDocument()
   })
 
-  it('runs ask mode through the handler and applies on confirm', async () => {
+  it('asks when the text reads like a sentence and applies the answer', async () => {
     const ask = vi.fn<TallyProps['ask'] & object>().mockResolvedValue({
       query: { filter: { type: 'condition', column: 'mrr', op: 'gte', value: 20 }, sort: [] },
-      explanation: 'Accounts at or above twenty',
     })
     render(<Harness ask={ask} />)
     await screen.findByText('One')
     const input = screen.getByRole('combobox', { name: 'Filter' })
-    fireEvent.click(screen.getByRole('button', { name: 'Ask' }))
-    fireEvent.change(input, { target: { value: 'big accounts' } })
+    fireEvent.change(input, { target: { value: 'north' } })
     fireEvent.keyDown(input, { key: 'Enter' })
     await settle()
-    expect(ask).toHaveBeenCalledWith('big accounts', current)
-    const panel = await screen.findByRole('dialog', { name: 'Ask' })
-    expect(panel).toHaveTextContent('Accounts at or above twenty')
-    expect(within(panel).getByTitle('mrr >= 20')).toBeInTheDocument()
-    fireEvent.click(within(panel).getByRole('button', { name: 'Apply' }))
+    expect(ask).not.toHaveBeenCalled()
+    expect(current?.view.get().filter).toMatchObject({ type: 'search', text: 'north' })
+    fireEvent.change(input, { target: { value: 'which accounts pay the most' } })
+    fireEvent.keyDown(input, { key: 'Enter' })
+    expect(screen.getByRole('status', { name: 'Asking' })).toHaveTextContent(
+      'which accounts pay the most',
+    )
     await settle()
+    expect(ask).toHaveBeenCalledWith('which accounts pay the most', current)
+    await screen.findByTitle('mrr >= 20')
     expect(current?.view.get().filter).toMatchObject({ column: 'mrr', op: 'gte', value: 20 })
-    expect(screen.queryByRole('dialog')).toBeNull()
+    expect(screen.getByRole('combobox', { name: 'Filter' })).toHaveValue('')
+  })
+
+  it('shows the ask error in the filter bar', async () => {
+    const ask = vi.fn<TallyProps['ask'] & object>().mockRejectedValue(new Error('No model'))
+    render(<Harness ask={ask} />)
+    await screen.findByText('One')
+    const input = screen.getByRole('combobox', { name: 'Filter' })
+    fireEvent.change(input, { target: { value: 'plan is nothing at all' } })
+    fireEvent.keyDown(input, { key: 'Enter' })
+    await settle()
+    expect(await screen.findByRole('alert')).toHaveTextContent('No model')
+    expect(screen.getByRole('combobox', { name: 'Filter' })).toHaveValue('plan is nothing at all')
   })
 
   it('uses custom labels', async () => {

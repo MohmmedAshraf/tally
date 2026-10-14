@@ -4,9 +4,7 @@ export interface TallyLabels {
   readonly filter: string
   readonly filterPlaceholder: string
   readonly askPlaceholder: string
-  readonly ask: string
-  readonly apply: string
-  readonly discard: string
+  readonly asking: string
   readonly editAsText: string
   readonly undo: string
   readonly redo: string
@@ -91,10 +89,8 @@ const TYPE_NAMES: Readonly<Record<string, string>> = {
 export const defaultLabels: TallyLabels = {
   filter: 'Filter',
   filterPlaceholder: 'Filter…',
-  askPlaceholder: 'Ask…',
-  ask: 'Ask',
-  apply: 'Apply',
-  discard: 'Discard',
+  askPlaceholder: 'Filter or ask anything…',
+  asking: 'Asking',
   editAsText: 'Edit as text',
   undo: 'Undo',
   redo: 'Redo',

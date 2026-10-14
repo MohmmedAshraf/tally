@@ -197,6 +197,42 @@
   box-shadow: inset 0 0 0 1px var(--tally-down);
 }
 
+.tally-filter[data-ask] {
+  background: var(--tally-ai-soft);
+  box-shadow: inset 0 0 0 1.5px color-mix(in oklch, var(--tally-ai) 45%, transparent);
+}
+
+.tally-filter[data-ask] > svg {
+  color: var(--tally-ai);
+}
+
+.tally-decode {
+  flex: 1;
+  min-width: 0;
+  height: 26px;
+  line-height: 26px;
+  overflow: hidden;
+  color: var(--tally-ink);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.tally-filter[data-ask]:not([data-decoding]) .tally-decode {
+  animation: tally-thinking 1.1s ease-in-out infinite;
+}
+
+.tally-filter[data-decoding] .tally-decode {
+  font-family: var(--tally-font-mono);
+  font-size: 13px;
+  color: var(--tally-ai-ink);
+}
+
+@keyframes tally-thinking {
+  50% {
+    opacity: 0.45;
+  }
+}
+
 .tally-filter-input {
   flex: 1;
   min-width: 160px;
@@ -244,6 +280,32 @@
   font-size: 12.5px;
   white-space: nowrap;
   max-width: 100%;
+  animation: tally-pop 0.26s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes tally-pop {
+  from {
+    opacity: 0;
+    scale: 0.86;
+  }
+}
+
+.tally[data-reveal] .tally-body {
+  perspective: 900px;
+}
+
+.tally[data-reveal] .tally-row {
+  transform-origin: 50% 0;
+  animation: tally-flip 0.46s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation-delay: calc(var(--tally-i, 0) * 28ms);
+}
+
+@keyframes tally-flip {
+  from {
+    opacity: 0;
+    rotate: x -70deg;
+    background: color-mix(in oklch, var(--tally-ai) 9%, var(--tally-bg));
+  }
 }
 
 .tally-chip-label {
@@ -298,27 +360,6 @@
 .tally-chip-remove:hover {
   background: var(--tally-bg);
   color: var(--tally-ink);
-}
-
-.tally-mode {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: 24px;
-  padding: 0 8px;
-  border-radius: 7px;
-  background: var(--tally-ai-soft);
-  color: var(--tally-ai-ink);
-  font-size: 12px;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.tally-mode i {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--tally-ai);
 }
 
 .tally-count {
@@ -495,39 +536,6 @@
   color: var(--tally-ink-3);
   opacity: 0.5;
   cursor: default;
-}
-
-.tally-ask-panel {
-  position: absolute;
-  top: calc(100% + 6px);
-  inset-inline: 0;
-  z-index: 20;
-  padding: 12px 14px;
-  border: 1px solid var(--tally-line);
-  border-radius: var(--tally-radius);
-  background: var(--tally-bg);
-}
-
-.tally-ask-explanation {
-  margin: 0 0 10px;
-  font-size: 13px;
-  color: var(--tally-ink-2);
-}
-
-.tally-ask-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  padding: 10px;
-  border-radius: 9px;
-  background: var(--tally-canvas);
-}
-
-.tally-ask-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 6px;
-  margin-top: 10px;
 }
 
 .tally-menu {
@@ -2198,6 +2206,11 @@ textarea.tally-editor-input {
   .tally-progress {
     animation: none;
     background: var(--tally-accent);
+  }
+
+  .tally-chip,
+  .tally[data-reveal] .tally-row {
+    animation: none;
   }
 }
 

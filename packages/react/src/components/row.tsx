@@ -102,7 +102,7 @@ export function RowView({
       aria-selected={selected}
       data-key={String(item.key)}
       data-index={index}
-      style={style}
+      style={index === undefined ? style : { ...style, '--tally-i': Math.min(index, 24) }}
       {...(wrap ? { 'data-wrap': '' } : {})}
       {...(selected ? { 'data-selected': '' } : {})}
       {...(item.pinned ? { 'data-pinned': '' } : {})}

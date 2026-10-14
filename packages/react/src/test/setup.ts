@@ -20,6 +20,10 @@ function stubSize(property: 'offsetWidth' | 'offsetHeight', size: number): void 
 
 beforeAll(() => {
   Object.defineProperty(globalThis, 'ResizeObserver', { value: undefined, configurable: true })
+  Object.defineProperty(window, 'matchMedia', {
+    configurable: true,
+    value: (query: string) => ({ matches: query.includes('reduced-motion'), media: query }),
+  })
   stubSize('offsetWidth', VIEWPORT.width)
   stubSize('offsetHeight', VIEWPORT.height)
 })

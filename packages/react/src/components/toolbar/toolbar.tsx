@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import type { Grid } from 'tally-core'
 import { useGridState, useRows, useSelection } from '../../hooks/use-store.ts'
 import { useLabels } from '../labels.ts'
+import { useDecoded } from '../motion.ts'
 import { DisplayMenu } from './display-menu.tsx'
 import { FilterBar, type AskHandler } from './filter-bar.tsx'
 import { Pager } from '../pager.tsx'
@@ -28,20 +29,23 @@ export function Toolbar({ grid, ask, start, children }: ToolbarProps): ReactNode
   const position = grid.rows.position()
   const undoEntry = position > 0 ? history[position - 1] : undefined
   const redoEntry = history[position]
+  const count = useDecoded(
+    selected > 0
+      ? labels.selected(selected)
+      : matched === undefined
+        ? ''
+        : paged && groups !== undefined && groups > 0
+          ? range(groups, labels.groupRange)
+          : paged && matched > 0
+            ? range(matched, labels.pageRange)
+            : labels.rows(matched),
+  )
   return (
     <div className="tally-toolbar" data-version={rows.version}>
       {start}
       <FilterBar grid={grid} ask={ask} />
       <span className="tally-count" aria-live="polite">
-        {selected > 0
-          ? labels.selected(selected)
-          : matched === undefined
-            ? ''
-            : paged && groups !== undefined && groups > 0
-              ? range(groups, labels.groupRange)
-              : paged && matched > 0
-                ? range(matched, labels.pageRange)
-                : labels.rows(matched)}
+        {count}
       </span>
       {paged ? <Pager grid={grid} /> : null}
       <span className="tally-toolbar-separator" aria-hidden />

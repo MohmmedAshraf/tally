@@ -1,9 +1,12 @@
 import { Autocomplete } from '@base-ui/react/autocomplete'
 import { CircleAlert, Search, Sparkles, X } from 'lucide-react'
 import {
+  useEffect,
+  useEffectEvent,
   useId,
   useLayoutEffect,
   useMemo,
+  useRef,
   useState,
   type KeyboardEvent,
   type ReactNode,
@@ -23,11 +26,11 @@ import {
 import { useGridState, useView } from '../../hooks/use-store.ts'
 import { useShell } from '../context.ts'
 import { useLabels } from '../labels.ts'
+import { animateDecode, flash } from '../motion.ts'
 import { ClausePopover } from './clause-popover.tsx'
 
 export interface AskResult {
   readonly query: Query
-  readonly explanation?: string | undefined
 }
 
 export type AskHandler = (question: string, grid: Grid) => Promise<AskResult>
@@ -35,6 +38,39 @@ export type AskHandler = (question: string, grid: Grid) => Promise<AskResult>
 interface Completion {
   readonly suggestion: Suggestion
   readonly text: string
+}
+
+interface Decoding {
+  readonly from: string
+  readonly query: Query
+}
+
+const SENTENCE_WORDS = 3
+const REVEAL_MS = 900
+
+function isSentence(query: Query): boolean {
+  const { filter } = query
+  return (
+    query.sort.length === 0 &&
+    query.group === undefined &&
+    filter?.type === 'search' &&
+    filter.text.trim().split(/\s+/).length >= SENTENCE_WORDS
+  )
+}
+
+function Decode({
+  from,
+  to,
+  onDone,
+}: {
+  readonly from: string
+  readonly to: string
+  readonly onDone: () => void
+}): ReactNode {
+  const [text, setText] = useState(from)
+  const done = useEffectEvent(onDone)
+  useEffect(() => animateDecode(from, to, setText, done), [from, to])
+  return <span className="tally-decode">{text}</span>
 }
 
 function applySuggestion(text: string, suggestion: Suggestion): string {
@@ -123,9 +159,10 @@ export function FilterBar({ grid, ask }: FilterBarProps): ReactNode {
   const facets = useGridState(grid, (state) => state.facets)
   const [draft, setDraft] = useState('')
   const [textMode, setTextMode] = useState(false)
-  const [asking, setAsking] = useState(false)
-  const [pending, setPending] = useState<AskResult | undefined>(undefined)
+  const [asking, setAsking] = useState<string | undefined>(undefined)
+  const [decoding, setDecoding] = useState<Decoding | undefined>(undefined)
   const [error, setError] = useState<string | undefined>(undefined)
+  const request = useRef(0)
   const errorId = useId()
   useLayoutEffect(
     () =>
@@ -136,26 +173,19 @@ export function FilterBar({ grid, ask }: FilterBarProps): ReactNode {
       }),
     [onPrefillFilter, filterInput],
   )
+  useEffect(() => {
+    if (asking === undefined) filterInput.current?.focus()
+  }, [asking, filterInput])
   const clauses = topLevelClauses(filter)
   const keys = clauseKeys(clauses, grid)
-  const pendingChips = (
-    result: AskResult,
-  ): readonly { readonly clause: Filter; readonly key: string; readonly index: number }[] => {
-    const list = topLevelClauses(result.query.filter)
-    const listKeys = clauseKeys(list, grid)
-    return list.map((clause, index) => ({ clause, key: listKeys[index] ?? String(index), index }))
-  }
-  const askMode = ask !== undefined && (asking || draft.startsWith('?'))
-  const asker = askMode ? ask : undefined
-  const question = draft.replace(/^\?\s*/, '')
 
   const completions = useMemo((): Completion[] => {
-    if (askMode || draft === '') return []
+    if (draft === '') return []
     return suggest(draft, draft.length, grid.schema, { facets, limit: 8 }).map((suggestion) => ({
       suggestion,
       text: applySuggestion(draft, suggestion),
     }))
-  }, [askMode, draft, facets, grid.schema])
+  }, [draft, facets, grid.schema])
 
   const apply = (query: Query, merge: boolean): void => {
     grid.view.update((view) => ({
@@ -166,26 +196,49 @@ export function FilterBar({ grid, ask }: FilterBarProps): ReactNode {
     }))
   }
 
+  const reset = (): void => {
+    setDraft('')
+    setError(undefined)
+    setTextMode(false)
+    setAsking(undefined)
+    setDecoding(undefined)
+  }
+
+  const runAsk = async (asker: AskHandler, question: string): Promise<void> => {
+    request.current += 1
+    const id = request.current
+    setAsking(question)
+    setError(undefined)
+    try {
+      const result = await asker(question, grid)
+      if (id === request.current) setDecoding({ from: question, query: result.query })
+    } catch (cause: unknown) {
+      if (id !== request.current) return
+      setError(cause instanceof Error ? cause.message : String(cause))
+      setAsking(undefined)
+    }
+  }
+
+  const finishAsk = (query: Query): void => {
+    apply(query, false)
+    flash(root.current, 'data-reveal', REVEAL_MS)
+    reset()
+  }
+
   const submit = (): void => {
     if (draft.trim() === '') return
-    if (asker !== undefined) {
-      setPending(undefined)
-      setError(undefined)
-      void asker(question, grid)
-        .then((result) => setPending(result))
-        .catch((cause: unknown) => setError(cause instanceof Error ? cause.message : String(cause)))
-      return
-    }
     const parsed = parseQuery(draft, grid.schema)
     const first = parsed.errors[0]
+    if (ask !== undefined && (first !== undefined || isSentence(parsed.query))) {
+      void runAsk(ask, draft.trim())
+      return
+    }
     if (first !== undefined) {
       setError(first.message)
       return
     }
     apply(parsed.query, !textMode)
-    setDraft('')
-    setError(undefined)
-    setTextMode(false)
+    reset()
   }
 
   const onKeyDown = (event: KeyboardEvent<HTMLInputElement>): void => {
@@ -198,16 +251,9 @@ export function FilterBar({ grid, ask }: FilterBarProps): ReactNode {
       return
     }
     if (event.key === 'Escape') {
-      if (pending !== undefined) {
-        setPending(undefined)
-        return
-      }
-      if (draft !== '' || asking || textMode) {
+      if (draft !== '' || textMode) {
         event.preventDefault()
-        setDraft('')
-        setAsking(false)
-        setTextMode(false)
-        setError(undefined)
+        reset()
         return
       }
       filterInput.current?.blur()
@@ -226,16 +272,19 @@ export function FilterBar({ grid, ask }: FilterBarProps): ReactNode {
   }
 
   return (
-    <div className="tally-filter-bar" data-ask={askMode ? '' : undefined}>
-      <div className="tally-filter" data-invalid={error === undefined ? undefined : ''}>
-        <Search size={14} aria-hidden />
-        {askMode ? (
-          <span className="tally-mode">
-            <i />
-            {labels.ask}
-          </span>
-        ) : null}
-        {textMode
+    <div className="tally-filter-bar">
+      <div
+        className="tally-filter"
+        data-invalid={error === undefined ? undefined : ''}
+        {...(asking === undefined ? {} : { 'data-ask': '' })}
+        {...(decoding === undefined ? {} : { 'data-decoding': '' })}
+      >
+        {asking === undefined ? (
+          <Search size={14} aria-hidden />
+        ) : (
+          <Sparkles size={14} aria-hidden />
+        )}
+        {textMode || asking !== undefined
           ? null
           : clauses.map((clause, index) => (
               <Chip
@@ -246,54 +295,66 @@ export function FilterBar({ grid, ask }: FilterBarProps): ReactNode {
                 onChange={(next) => grid.view.setFilter(withClause(filter, index, next))}
               />
             ))}
-        <Autocomplete.Root<Completion>
-          items={completions}
-          mode="none"
-          value={draft}
-          onValueChange={(value) => {
-            setDraft(value)
-            setError(undefined)
-          }}
-          itemToStringValue={(item) => item.text}
-          open={completions.length > 0 && error === undefined}
-          onOpenChange={() => undefined}
-        >
-          <Autocomplete.Input
-            ref={filterInput}
-            className="tally-filter-input"
-            placeholder={askMode ? labels.askPlaceholder : labels.filterPlaceholder}
-            aria-label={labels.filter}
-            aria-invalid={error !== undefined}
-            aria-describedby={error === undefined ? undefined : errorId}
-            onKeyDown={onKeyDown}
+        {asking === undefined ? (
+          <Autocomplete.Root<Completion>
+            items={completions}
+            mode="none"
+            value={draft}
+            onValueChange={(value) => {
+              setDraft(value)
+              setError(undefined)
+            }}
+            itemToStringValue={(item) => item.text}
+            open={completions.length > 0 && error === undefined}
+            onOpenChange={() => undefined}
+          >
+            <Autocomplete.Input
+              ref={filterInput}
+              className="tally-filter-input"
+              placeholder={ask === undefined ? labels.filterPlaceholder : labels.askPlaceholder}
+              aria-label={labels.filter}
+              aria-invalid={error !== undefined}
+              aria-describedby={error === undefined ? undefined : errorId}
+              onKeyDown={onKeyDown}
+            />
+            <Autocomplete.Portal container={root}>
+              <Autocomplete.Positioner
+                className="tally-popup-positioner"
+                positionMethod="fixed"
+                sideOffset={6}
+                align="start"
+              >
+                <Autocomplete.Popup className="tally-popup">
+                  <Autocomplete.List className="tally-popup-list">
+                    {(item: Completion) => (
+                      <Autocomplete.Item
+                        key={`${item.suggestion.kind}:${item.suggestion.insert}`}
+                        value={item}
+                        className="tally-popup-item"
+                      >
+                        <span className="tally-text">{item.suggestion.label}</span>
+                        {item.suggestion.detail === undefined ? null : (
+                          <span className="tally-popup-detail">{item.suggestion.detail}</span>
+                        )}
+                      </Autocomplete.Item>
+                    )}
+                  </Autocomplete.List>
+                </Autocomplete.Popup>
+              </Autocomplete.Positioner>
+            </Autocomplete.Portal>
+          </Autocomplete.Root>
+        ) : decoding === undefined ? (
+          <span className="tally-decode" role="status" aria-label={labels.asking}>
+            {asking}
+          </span>
+        ) : (
+          <Decode
+            from={decoding.from}
+            to={printQuery(decoding.query, grid.schema)}
+            onDone={() => finishAsk(decoding.query)}
           />
-          <Autocomplete.Portal container={root}>
-            <Autocomplete.Positioner
-              className="tally-popup-positioner"
-              positionMethod="fixed"
-              sideOffset={6}
-              align="start"
-            >
-              <Autocomplete.Popup className="tally-popup">
-                <Autocomplete.List className="tally-popup-list">
-                  {(item: Completion) => (
-                    <Autocomplete.Item
-                      key={`${item.suggestion.kind}:${item.suggestion.insert}`}
-                      value={item}
-                      className="tally-popup-item"
-                    >
-                      <span className="tally-text">{item.suggestion.label}</span>
-                      {item.suggestion.detail === undefined ? null : (
-                        <span className="tally-popup-detail">{item.suggestion.detail}</span>
-                      )}
-                    </Autocomplete.Item>
-                  )}
-                </Autocomplete.List>
-              </Autocomplete.Popup>
-            </Autocomplete.Positioner>
-          </Autocomplete.Portal>
-        </Autocomplete.Root>
-        {clauses.length > 0 && !textMode ? (
+        )}
+        {clauses.length > 0 && !textMode && asking === undefined ? (
           <button type="button" className="tally-filter-text-toggle" onClick={enterTextMode}>
             {labels.editAsText}
           </button>
@@ -303,64 +364,6 @@ export function FilterBar({ grid, ask }: FilterBarProps): ReactNode {
         <div id={errorId} className="tally-filter-error" role="alert">
           <CircleAlert size={14} aria-hidden />
           {error}
-        </div>
-      )}
-      {ask === undefined ? null : (
-        <button
-          type="button"
-          className="tally-button"
-          data-ai=""
-          aria-pressed={askMode}
-          onClick={() => {
-            setAsking((value) => !value)
-            filterInput.current?.focus()
-          }}
-        >
-          <Sparkles size={14} aria-hidden />
-          {labels.ask}
-        </button>
-      )}
-      {pending === undefined ? null : (
-        <div className="tally-ask-panel" role="dialog" aria-label={labels.ask}>
-          {pending.explanation === undefined ? null : (
-            <p className="tally-ask-explanation">{pending.explanation}</p>
-          )}
-          <div className="tally-ask-chips">
-            {pendingChips(pending).map(({ clause, key, index }) => (
-              <Chip
-                key={key}
-                grid={grid}
-                clause={clause}
-                onRemove={() =>
-                  setPending({
-                    ...pending,
-                    query: {
-                      ...pending.query,
-                      filter: withoutClause(pending.query.filter, index),
-                    },
-                  })
-                }
-              />
-            ))}
-          </div>
-          <div className="tally-ask-actions">
-            <button type="button" className="tally-button" onClick={() => setPending(undefined)}>
-              {labels.discard}
-            </button>
-            <button
-              type="button"
-              className="tally-button"
-              data-primary=""
-              onClick={() => {
-                apply(pending.query, false)
-                setPending(undefined)
-                setDraft('')
-                setAsking(false)
-              }}
-            >
-              {labels.apply}
-            </button>
-          </div>
         </div>
       )}
     </div>

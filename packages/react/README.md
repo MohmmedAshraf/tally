@@ -51,7 +51,7 @@ function Accounts({ rows }) {
 | `cardsBelow`         | `number`                                       | Default `620`.                                                              |
 | `toolbar`            | `ReactNode \| boolean`                         | `true` renders the default toolbar, `false` hides it, a node replaces it.   |
 | `toolbarStart`       | `ReactNode`                                    | Renders before the filter bar in the default toolbar, for tabs or titles.   |
-| `ask`                | `(question, grid) => Promise<AskResult>`       | Enables ask mode in the filter bar. `tally-ai` provides a handler.          |
+| `ask`                | `(question, grid) => Promise<AskResult>`       | Text that does not parse, or reads like a sentence, is asked instead.       |
 | `renderers`          | `CellRenderers`                                | Cell renderers by column type name or kind, merged over `defaultRenderers`. |
 | `editors`            | `CellEditors`                                  | Cell editors by column type name or kind, merged over `defaultEditors`.     |
 | `labels`             | `Partial<TallyLabels>`                         | Every string in the UI, merged over `defaultLabels`.                        |
