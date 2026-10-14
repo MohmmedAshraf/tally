@@ -17,6 +17,7 @@ import {
 import { Tally, defaultLabels, useGrid, useRows, useView } from 'tally-react'
 import { useIsMobile } from '@/hooks/use-mobile'
 import type { Dataset, SavedView } from '@/datasets'
+import { createRemoteAsk, useAskAvailable } from './ask.ts'
 import { AppHeader, type SimulateMode } from './header.tsx'
 import { Palette } from './palette.tsx'
 import type { Settings } from './settings.ts'
@@ -197,6 +198,8 @@ function Screen({
   const counts = useViewCounts(grid, views)
   const [paletteOpen, setPaletteOpen] = useState(false)
   const mobile = useIsMobile()
+  const askAvailable = useAskAvailable()
+  const ask = useMemo(() => createRemoteAsk(dataset.id), [dataset.id])
   useLive(source, live)
   const current = printQuery({ filter: view.filter, sort: view.sort, group: view.group }, schema)
   const dirty = current !== canonical(active.query, schema)
@@ -221,6 +224,7 @@ function Screen({
       dir={settings.dir}
       layout={settings.phone ? 'cards' : 'auto'}
       className="h-full"
+      ask={askAvailable ? ask : undefined}
     />
   )
   return (

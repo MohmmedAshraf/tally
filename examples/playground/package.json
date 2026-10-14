@@ -8,6 +8,7 @@
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "catalog:",
     "@base-ui/react": "catalog:",
     "@fontsource-variable/geist": "catalog:",
     "@fontsource-variable/jetbrains-mono": "catalog:",
@@ -21,6 +22,7 @@
     "react-error-boundary": "catalog:",
     "shadcn": "catalog:",
     "tally-adapters": "workspace:*",
+    "tally-ai": "workspace:*",
     "tally-core": "workspace:*",
     "tally-react": "workspace:*",
     "tw-animate-css": "catalog:"

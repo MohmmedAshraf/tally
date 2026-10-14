@@ -39,7 +39,13 @@
     "attw": "attw --pack . --profile esm-only",
     "size": "size-limit"
   },
+  "dependencies": {
+    "ai": "catalog:",
+    "tally-core": "workspace:*",
+    "zod": "catalog:"
+  },
   "devDependencies": {
+    "@ai-sdk/provider": "catalog:",
     "@arethetypeswrong/cli": "catalog:",
     "@size-limit/preset-small-lib": "catalog:",
     "publint": "catalog:",
@@ -50,8 +56,14 @@
   },
   "size-limit": [
     {
+      "name": "tally-ai",
       "path": "dist/index.js",
-      "limit": "1 kB"
+      "limit": "6 kB",
+      "ignore": [
+        "ai",
+        "tally-core",
+        "zod"
+      ]
     }
   ]
 }
