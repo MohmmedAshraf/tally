@@ -1,15 +1,39 @@
 export const TODAY = '2026-10-13'
 
-export const TEAM = [
-  'Ada Okafor',
-  'Bruno Silva',
-  'Chen Tanaka',
-  'Dara Novak',
-  'Elif Haddad',
-  'Jonas Fischer',
-  'Priya Reyes',
-  'Sven Lindqvist',
+const PERSON_IDS = [
+  'amara',
+  'mateo',
+  'kenji',
+  'lena',
+  'zeynep',
+  'tobias',
+  'ananya',
+  'omar',
+  'mei',
+  'noah',
 ] as const
+
+export type PersonId = (typeof PERSON_IDS)[number]
+
+export const PEOPLE: Readonly<Record<PersonId, string>> = {
+  amara: 'Amara Owusu',
+  mateo: 'Mateo Ruiz',
+  kenji: 'Kenji Sato',
+  lena: 'Lena Huber',
+  zeynep: 'Zeynep Aydın',
+  tobias: 'Tobias Holm',
+  ananya: 'Ananya Rao',
+  omar: 'Omar Farouk',
+  mei: 'Mei Lin',
+  noah: 'Noah Brooks',
+}
+
+export const TEAM: readonly string[] = PERSON_IDS.map((id) => PEOPLE[id])
+
+export function photoOf(name: string): string | undefined {
+  const id = PERSON_IDS.find((candidate) => PEOPLE[candidate] === name)
+  return id === undefined ? undefined : `/people/${id}.webp`
+}
 
 export type Random = () => number
 

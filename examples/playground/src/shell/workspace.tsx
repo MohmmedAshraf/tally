@@ -18,12 +18,14 @@ import {
 import { Tally, defaultLabels, useGrid, useRows, useView, type TallyAi } from 'tally-react'
 import { useIsMobile } from '@/hooks/use-mobile'
 import type { Dataset, SavedView } from '@/datasets'
+import { slug } from '@/datasets/shared'
 import { models, useAiAvailable } from './ai.ts'
 import { AppHeader, type SimulateMode } from './header.tsx'
 import { Palette } from './palette.tsx'
+import { PhotoPerson } from './person.tsx'
 import type { Settings } from './settings.ts'
-import { ViewTabs } from './views.tsx'
-import { slug } from '@/datasets/shared'
+import { ViewTabs } from './view-tabs.tsx'
+import type { SavedViews } from './views.ts'
 
 export interface WorkspaceProps {
   readonly dataset: Dataset
@@ -31,6 +33,9 @@ export interface WorkspaceProps {
   readonly settings: Settings
   readonly onSettings: (patch: Partial<Settings>) => void
   readonly onNavigate: (dataset: Dataset, view?: SavedView) => void
+  readonly library: SavedViews
+  readonly paletteOpen: boolean
+  readonly onPaletteOpenChange: (open: boolean) => void
 }
 
 const connections = new Map<string, Promise<HttpConnection>>()
@@ -56,6 +61,8 @@ function simulated(source: DataSource, mode: SimulateMode): DataSource {
   }
 }
 
+const PHOTO_RENDERERS = { person: PhotoPerson }
+
 function canonical(query: string, schema: Schema): string {
   return printQuery(parseQuery(query, schema).query, schema)
 }
@@ -69,58 +76,6 @@ function viewFor(dataset: Dataset, saved: SavedView): View {
     filter: parsed.filter,
     sort: parsed.sort,
     group: parsed.group,
-  }
-}
-
-function isSavedView(entry: unknown): entry is SavedView {
-  if (typeof entry !== 'object' || entry === null) return false
-  const record: Record<string, unknown> = { ...entry }
-  return typeof record['name'] === 'string' && typeof record['query'] === 'string'
-}
-
-function readSavedViews(key: string): readonly SavedView[] {
-  try {
-    const raw = localStorage.getItem(key)
-    const parsed: unknown = raw === null ? [] : JSON.parse(raw)
-    return Array.isArray(parsed) ? parsed.filter(isSavedView) : []
-  } catch {
-    return []
-  }
-}
-
-interface SavedViews {
-  readonly views: readonly SavedView[]
-  readonly custom: ReadonlySet<string>
-  readonly overridden: ReadonlySet<string>
-  readonly upsert: (view: SavedView) => void
-  readonly remove: (name: string) => void
-}
-
-function useSavedViews(dataset: Dataset): SavedViews {
-  const key = `tally-playground-views:${dataset.id}`
-  const [extra, setExtra] = useState<readonly SavedView[]>(() => readSavedViews(key))
-  const persist = (next: readonly SavedView[]): void => {
-    setExtra(next)
-    try {
-      localStorage.setItem(key, JSON.stringify(next))
-    } catch {
-      return
-    }
-  }
-  const library = useMemo(() => {
-    const overrides = new Map(extra.map((view) => [view.name, view]))
-    const names = new Set(dataset.views.map((view) => view.name))
-    const custom = extra.filter((view) => !names.has(view.name))
-    return {
-      views: [...dataset.views.map((view) => overrides.get(view.name) ?? view), ...custom],
-      custom: new Set(custom.map((view) => view.name)),
-      overridden: new Set(extra.filter((view) => names.has(view.name)).map((view) => view.name)),
-    }
-  }, [dataset, extra])
-  return {
-    ...library,
-    upsert: (view) => persist([...extra.filter((entry) => entry.name !== view.name), view]),
-    remove: (name) => persist(extra.filter((entry) => entry.name !== name)),
   }
 }
 
@@ -251,6 +206,9 @@ function Screen({
   settings,
   onSettings,
   onNavigate,
+  library,
+  paletteOpen,
+  onPaletteOpenChange,
   source: baseSource,
   schema: baseSchema,
   live,
@@ -258,7 +216,6 @@ function Screen({
   simulate,
   onSimulate,
 }: ScreenProps): ReactNode {
-  const library = useSavedViews(dataset)
   const { views, upsert: saveView } = library
   const aiAvailable = useAiAvailable()
   const { schema, source, ai } = useAi(dataset, baseSource, baseSchema, aiAvailable)
@@ -270,7 +227,6 @@ function Screen({
   const grid = useGrid({ schema, source, format, view: viewFor(dataset, active) })
   const view = useView(grid)
   const counts = useViewCounts(grid, views)
-  const [paletteOpen, setPaletteOpen] = useState(false)
   const mobile = useIsMobile()
   useLive(baseSource, live)
   const current = printQuery({ filter: view.filter, sort: view.sort, group: view.group }, schema)
@@ -297,6 +253,8 @@ function Screen({
       layout={settings.phone ? 'cards' : 'auto'}
       className="h-full"
       ai={ai}
+      renderers={PHOTO_RENDERERS}
+      labels={{ rows: (count) => `${count.toLocaleString(settings.locale)} ${dataset.unit}` }}
       toolbarStart={
         settings.phone ? undefined : (
           <ViewTabs
@@ -334,12 +292,8 @@ function Screen({
         onToggleLive={onToggleLive}
         simulate={simulate}
         onSimulate={onSimulate}
-        onSearch={() => setPaletteOpen(true)}
         theme={settings.theme}
         onToggleTheme={() => onSettings({ theme: settings.theme === 'dark' ? 'light' : 'dark' })}
-        settings={settings}
-        onSettings={onSettings}
-        remote={dataset.remote}
       />
       <main className="flex min-h-0 flex-1 flex-col">
         {settings.phone && !mobile ? (
@@ -354,7 +308,7 @@ function Screen({
       </main>
       <Palette
         open={paletteOpen}
-        onOpenChange={setPaletteOpen}
+        onOpenChange={onPaletteOpenChange}
         dataset={dataset}
         views={views}
         onPickDataset={(next) => onNavigate(next)}

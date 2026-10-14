@@ -6,8 +6,8 @@ import type { Dataset } from './dataset.ts'
 
 export type { Dataset, SavedView } from './dataset.ts'
 
-export const workspaceDatasets: readonly Dataset[] = [accounts, ledger, roadmap]
-export const dataDatasets: readonly Dataset[] = [deployments]
+const workspaceDatasets: readonly Dataset[] = [accounts, ledger, roadmap]
+const dataDatasets: readonly Dataset[] = [deployments]
 export const datasets: readonly Dataset[] = [...workspaceDatasets, ...dataDatasets]
 
 export function sectionOf(dataset: Dataset): string {

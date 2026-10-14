@@ -1,5 +1,5 @@
-import { Moon, Search, Settings2, Sun } from 'lucide-react'
-import type { ReactNode } from 'react'
+import { Check, Link2, Moon, Sun } from 'lucide-react'
+import { useEffect, useState, type ReactNode } from 'react'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -8,32 +8,61 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 import { Button } from '@/components/ui/button'
-import { Kbd } from '@/components/ui/kbd'
 import { Separator } from '@/components/ui/separator'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { sectionOf, type Dataset } from '@/datasets'
-import { SettingsMenu, type SettingsMenuProps } from './settings-menu.tsx'
+import type { PersonId } from '@/datasets/shared'
+import { Photo } from './person.tsx'
 import type { Theme } from './settings.ts'
 
 export type SimulateMode = 'ready' | 'loading' | 'empty' | 'error'
 
 const SIMULATE_MODES: readonly SimulateMode[] = ['ready', 'loading', 'empty', 'error']
+const COLLABORATORS: readonly PersonId[] = ['mateo', 'kenji', 'zeynep']
 
-export interface HeaderProps extends SettingsMenuProps {
+export interface HeaderProps {
   readonly dataset: Dataset
   readonly live: boolean | undefined
   readonly onToggleLive: () => void
   readonly simulate: SimulateMode | undefined
   readonly onSimulate: (mode: SimulateMode) => void
-  readonly onSearch: () => void
   readonly theme: Theme
   readonly onToggleTheme: () => void
 }
 
-export function AppHeader(props: HeaderProps): ReactNode {
-  const { dataset, live, onToggleLive, simulate, onSimulate, onSearch, theme, onToggleTheme } =
-    props
+function ShareButton(): ReactNode {
+  const [copied, setCopied] = useState(false)
+  useEffect(() => {
+    if (!copied) return
+    const timer = setTimeout(() => setCopied(false), 1500)
+    return () => clearTimeout(timer)
+  }, [copied])
+  const share = async (): Promise<void> => {
+    try {
+      await navigator.clipboard.writeText(location.href)
+      setCopied(true)
+    } catch {
+      setCopied(false)
+    }
+  }
+  return (
+    <Button variant="outline" size="sm" onClick={() => void share()}>
+      {copied ? <Check /> : <Link2 />}
+      {copied ? 'Copied' : 'Share'}
+    </Button>
+  )
+}
+
+export function AppHeader({
+  dataset,
+  live,
+  onToggleLive,
+  simulate,
+  onSimulate,
+  theme,
+  onToggleTheme,
+}: HeaderProps): ReactNode {
   return (
     <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
       <SidebarTrigger className="-ml-1" />
@@ -86,16 +115,18 @@ export function AppHeader(props: HeaderProps): ReactNode {
           {live ? 'Live' : 'Go live'}
         </Button>
       )}
-      <Button
-        variant="outline"
-        size="sm"
-        className="hidden w-56 justify-start text-muted-foreground lg:flex"
-        onClick={onSearch}
-      >
-        <Search />
-        <span className="flex-1 text-left">Search or jump to…</span>
-        <Kbd>⌘K</Kbd>
-      </Button>
+      <div className="hidden items-center md:flex" aria-hidden>
+        {COLLABORATORS.map((id, index) => (
+          <Photo
+            key={id}
+            id={id}
+            className={
+              index === 0 ? 'size-7 ring-2 ring-background' : '-ml-2 size-7 ring-2 ring-background'
+            }
+          />
+        ))}
+      </div>
+      <ShareButton />
       <Button
         variant="ghost"
         size="icon-sm"
@@ -105,16 +136,6 @@ export function AppHeader(props: HeaderProps): ReactNode {
       >
         {theme === 'dark' ? <Sun /> : <Moon />}
       </Button>
-      <SettingsMenu {...props}>
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          aria-label="Playground settings"
-          title="Playground settings"
-        >
-          <Settings2 />
-        </Button>
-      </SettingsMenu>
     </header>
   )
 }

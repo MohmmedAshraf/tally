@@ -1,6 +1,12 @@
-import { ChevronsUpDown } from 'lucide-react'
+import { ChevronsUpDown, RotateCcw, Search, Settings2, Trash2 } from 'lucide-react'
 import type { ReactNode } from 'react'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from '@/components/ui/context-menu'
+import { Kbd } from '@/components/ui/kbd'
 import {
   Sidebar,
   SidebarContent,
@@ -14,11 +20,19 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
-import { dataDatasets, workspaceDatasets, type Dataset } from '@/datasets'
+import { datasets, type Dataset, type SavedView } from '@/datasets'
+import { PEOPLE } from '@/datasets/shared'
+import { Photo } from './person.tsx'
+import { SettingsMenu, type SettingsMenuProps } from './settings-menu.tsx'
+import { viewColor, type SavedViews } from './views.ts'
 
-interface AppSidebarProps {
+interface AppSidebarProps extends SettingsMenuProps {
   readonly current: Dataset
+  readonly library: SavedViews
+  readonly activeView: SavedView | undefined
   readonly onPick: (dataset: Dataset) => void
+  readonly onPickView: (view: SavedView) => void
+  readonly onSearch: () => void
   readonly locale: string
   readonly side: 'left' | 'right'
 }
@@ -29,77 +43,150 @@ function compact(count: number, locale: string): string {
     : count.toLocaleString(locale)
 }
 
-function Group({
-  label,
-  items,
-  current,
-  onPick,
-  locale,
-  counts,
-}: AppSidebarProps & {
-  readonly label: string
-  readonly items: readonly Dataset[]
-  readonly counts: boolean
-}): ReactNode {
+function Mark(): ReactNode {
   return (
-    <SidebarGroup>
-      <SidebarGroupLabel>{label}</SidebarGroupLabel>
-      <SidebarGroupContent>
-        <SidebarMenu>
-          {items.map((dataset) => (
-            <SidebarMenuItem key={dataset.id}>
-              <SidebarMenuButton
-                isActive={dataset.id === current.id}
-                tooltip={dataset.title}
-                onClick={() => onPick(dataset)}
-              >
-                <dataset.icon />
-                <span>{dataset.title}</span>
-              </SidebarMenuButton>
-              {counts ? (
-                <SidebarMenuBadge>{compact(dataset.rows.length, locale)}</SidebarMenuBadge>
-              ) : null}
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
-      </SidebarGroupContent>
-    </SidebarGroup>
+    <span className="flex size-8 shrink-0 items-end justify-center gap-[2px] rounded-[10px] bg-linear-135 from-indigo-500 to-indigo-700 p-[7px]">
+      {[0.45, 0.8, 0.6].map((height) => (
+        <span
+          key={height}
+          className="w-[3px] rounded-[1px] bg-white/90"
+          style={{ height: `${height * 100}%` }}
+        />
+      ))}
+    </span>
+  )
+}
+
+function ViewItem({
+  view,
+  index,
+  active,
+  library,
+  onPickView,
+}: Pick<AppSidebarProps, 'library' | 'onPickView'> & {
+  readonly view: SavedView
+  readonly index: number
+  readonly active: boolean
+}): ReactNode {
+  const button = (
+    <SidebarMenuButton isActive={active} tooltip={view.name} onClick={() => onPickView(view)}>
+      <span
+        className="size-2 shrink-0 rounded-[3px]"
+        style={{ background: viewColor(index) }}
+        aria-hidden
+      />
+      <span>{view.name}</span>
+    </SidebarMenuButton>
+  )
+  const action = library.custom.has(view.name)
+    ? { label: 'Delete view', icon: Trash2, variant: 'destructive' as const }
+    : library.overridden.has(view.name)
+      ? { label: 'Reset view', icon: RotateCcw, variant: 'default' as const }
+      : undefined
+  return (
+    <SidebarMenuItem>
+      {action === undefined ? (
+        button
+      ) : (
+        <ContextMenu>
+          <ContextMenuTrigger render={button} />
+          <ContextMenuContent>
+            <ContextMenuItem variant={action.variant} onClick={() => library.remove(view.name)}>
+              <action.icon />
+              {action.label}
+            </ContextMenuItem>
+          </ContextMenuContent>
+        </ContextMenu>
+      )}
+    </SidebarMenuItem>
   )
 }
 
 export function AppSidebar(props: AppSidebarProps): ReactNode {
+  const { current, library, activeView, onPick, onPickView, onSearch, locale, side } = props
   return (
-    <Sidebar collapsible="icon" variant="inset" side={props.side}>
+    <Sidebar collapsible="icon" variant="inset" side={side}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg">
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                <span className="text-sm font-semibold">A</span>
-              </div>
+              <Mark />
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">Acme Inc.</span>
-                <span className="truncate text-xs">Pro workspace</span>
+                <span className="truncate font-semibold">Meridian</span>
+                <span className="truncate text-xs text-muted-foreground">Revenue workspace</span>
               </div>
               <ChevronsUpDown className="ml-auto" />
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              tooltip="Search"
+              className="bg-background shadow-[0_0_0_1px_var(--border)] hover:bg-background"
+              onClick={onSearch}
+            >
+              <Search />
+              <span>Search</span>
+              <Kbd className="ml-auto">⌘K</Kbd>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <Group label="Workspace" items={workspaceDatasets} counts {...props} />
-        <Group label="Data" items={dataDatasets} counts={false} {...props} />
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {datasets.map((dataset) => (
+                <SidebarMenuItem key={dataset.id}>
+                  <SidebarMenuButton
+                    isActive={dataset.id === current.id}
+                    tooltip={dataset.title}
+                    onClick={() => onPick(dataset)}
+                  >
+                    <dataset.icon />
+                    <span>{dataset.title}</span>
+                  </SidebarMenuButton>
+                  <SidebarMenuBadge className="font-mono">
+                    {compact(dataset.rows.length, locale)}
+                  </SidebarMenuBadge>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel>Views</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {library.views.map((view, index) => (
+                <ViewItem
+                  key={view.name}
+                  view={view}
+                  index={index}
+                  active={view.name === activeView?.name}
+                  library={library}
+                  onPickView={onPickView}
+                />
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg">
-              <Avatar className="size-8 rounded-lg">
-                <AvatarFallback className="rounded-lg">AO</AvatarFallback>
-              </Avatar>
+            <SettingsMenu {...props}>
+              <SidebarMenuButton tooltip="Settings">
+                <Settings2 />
+                <span>Settings</span>
+              </SidebarMenuButton>
+            </SettingsMenu>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton size="lg" className="border-t border-sidebar-border pt-3">
+              <Photo id="amara" />
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">Ada Okafor</span>
-                <span className="truncate text-xs">ada@acme.co</span>
+                <span className="truncate font-medium">{PEOPLE.amara}</span>
+                <span className="truncate text-xs text-muted-foreground">Head of Revenue</span>
               </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
