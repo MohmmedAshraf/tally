@@ -1,0 +1,81 @@
+{
+  "name": "tally-mcp",
+  "version": "0.0.0",
+  "description": "MCP server that teaches coding agents Tally: guides, extension points, query parsing, request validation and schema inference.",
+  "license": "MIT",
+  "author": "Mohamed Ashraf <cupo.ashraf@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MohmmedAshraf/tally.git",
+    "directory": "packages/mcp"
+  },
+  "homepage": "https://github.com/MohmmedAshraf/tally",
+  "bugs": "https://github.com/MohmmedAshraf/tally/issues",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "tally",
+    "data-grid",
+    "agent"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "tally-mcp": "./dist/bin.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run --passWithNoTests --coverage.enabled=false",
+    "publint": "publint",
+    "attw": "attw --pack . --profile esm-only",
+    "size": "size-limit"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server": "catalog:",
+    "tally-core": "workspace:*",
+    "tally-protocol": "workspace:*",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "catalog:",
+    "@modelcontextprotocol/client": "catalog:",
+    "@size-limit/preset-small-lib": "catalog:",
+    "publint": "catalog:",
+    "size-limit": "catalog:",
+    "tsdown": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "size-limit": [
+    {
+      "name": "tally-mcp",
+      "path": "dist/index.js",
+      "limit": "12 kB",
+      "ignore": [
+        "@modelcontextprotocol/server",
+        "tally-core",
+        "tally-protocol",
+        "zod"
+      ]
+    }
+  ]
+}

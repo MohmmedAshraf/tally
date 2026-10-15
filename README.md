@@ -14,6 +14,7 @@ Tally is under active development and is not published yet.
 | `tally-server`   | Node adapter compiling protocol requests to SQL                                      |
 | `tally-adapters` | Client data sources: array, TanStack Query, TanStack DB, Supabase                    |
 | `tally-ai`       | Natural language to query, AI columns                                                |
+| `tally-mcp`      | MCP server that teaches coding agents Tally: guides, extension points, query tools   |
 | `tally-tools`    | Schema and adapter generation from a database or API                                 |
 
 ## Development
