@@ -6,8 +6,8 @@ const ENDPOINT = '/api/anthropic'
 const anthropic = createAnthropic({ baseURL: `${ENDPOINT}/v1`, apiKey: 'proxied' })
 
 export const models = {
-  ask: anthropic('claude-sonnet-5-5'),
-  design: anthropic('claude-sonnet-5-5'),
+  ask: anthropic('claude-haiku-5-5'),
+  design: anthropic('claude-haiku-5-5'),
   fill: anthropic('claude-haiku-5-5'),
 }
 
