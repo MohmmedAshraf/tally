@@ -1,6 +1,6 @@
 {
   "name": "tally-adapters",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Client data sources for Tally: HTTP, TanStack Query, TanStack DB and Supabase.",
   "license": "MIT",
   "author": "Mohamed Ashraf <cupo.ashraf@gmail.com>",

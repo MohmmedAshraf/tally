@@ -1,6 +1,6 @@
 {
   "name": "tally-mcp-server",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "MCP server that teaches coding agents Tally: guides, extension points, query parsing, request validation and schema inference.",
   "license": "MIT",
   "author": "Mohamed Ashraf <cupo.ashraf@gmail.com>",
