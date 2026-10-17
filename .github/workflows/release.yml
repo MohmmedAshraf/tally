@@ -27,10 +27,11 @@ jobs:
       - if: steps.mode.outputs.mode == 'version'
         uses: changesets/action/version@v2
         with:
-          script: pnpm version
+          script: pnpm version-packages
           pr-title: 'chore(release): version packages'
           commit-message: 'chore(release): version packages'
       - if: steps.mode.outputs.mode == 'publish'
         uses: changesets/action/publish@v2
         with:
           script: pnpm release
+          create-github-releases: true

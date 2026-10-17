@@ -19,8 +19,8 @@
     "format:check": "prettier --check .",
     "knip": "knip",
     "changeset": "changeset",
-    "version": "changeset version && pnpm install --lockfile-only",
-    "release": "pnpm build && changeset publish"
+    "release": "pnpm build && changeset publish",
+    "version-packages": "changeset version && pnpm install --lockfile-only"
   },
   "devDependencies": {
     "@changesets/changelog-github": "catalog:",
