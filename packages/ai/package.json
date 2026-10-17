@@ -1,6 +1,6 @@
 {
   "name": "tally-ai",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Natural language to query and AI columns for Tally.",
   "license": "MIT",
   "author": "Mohamed Ashraf <cupo.ashraf@gmail.com>",
