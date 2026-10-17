@@ -82,7 +82,10 @@ function applySuggestion(text: string, suggestion: Suggestion): string {
 function clauseKeys(clauses: readonly Filter[], grid: Grid): readonly string[] {
   const seen = new Map<string, number>()
   return clauses.map((clause) => {
-    const text = describeFilter(clause, grid.schema, grid.context.format).text
+    const text =
+      clause.type === 'condition'
+        ? `column:${clause.column}`
+        : describeFilter(clause, grid.schema, grid.context.format).text
     const count = seen.get(text) ?? 0
     seen.set(text, count + 1)
     return count === 0 ? text : `${text} #${count}`
