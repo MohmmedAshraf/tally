@@ -1,6 +1,7 @@
 import { DatabaseSync } from 'node:sqlite'
 import { PGlite } from '@electric-sql/pglite'
-import { Kysely, SqliteDialect, sql } from 'kysely'
+import { Kysely, MysqlDialect, SqliteDialect, sql } from 'kysely'
+import { createPool } from 'mysql2'
 import { createArraySource, createMutation, createSchema, type QueryRequest } from 'tally-core'
 import {
   CONFORMANCE_TODAY,
@@ -9,7 +10,7 @@ import {
   runConformance,
 } from 'tally-protocol'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { postgresDialect, sqliteDialect, type SqlDialect } from './dialect.ts'
+import { mysqlDialect, postgresDialect, sqliteDialect, type SqlDialect } from './dialect.ts'
 import { createKyselyAdapter, type SqlDatabase } from './kysely/adapter.ts'
 import { nodeSqlite } from './node-sqlite.ts'
 import { pgliteDialect } from './test/pglite.ts'
@@ -47,6 +48,13 @@ const POSTGRES_DDL = `create table ${TABLE} (
   score double precision, growth double precision, health integer, renewal date, active boolean,
   email text, website text, tenure integer)`
 
+const MYSQL_DDL = `create table ${TABLE} (
+  id varchar(64) primary key, account text, owner text, plan text, mrr double, seats integer,
+  score double, growth double, health integer, renewal date, active boolean, email text,
+  website text, tenure integer)`
+
+const MYSQL_URL = process.env['TALLY_MYSQL_URL']
+
 interface Target {
   readonly name: string
   readonly dialect: SqlDialect
@@ -75,6 +83,22 @@ const targets: readonly Target[] = [
       return db
     },
   },
+  ...(MYSQL_URL === undefined
+    ? []
+    : [
+        {
+          name: 'mysql',
+          dialect: mysqlDialect,
+          open: async () => {
+            const db = new Kysely<SqlDatabase>({
+              dialect: new MysqlDialect({ pool: createPool({ uri: MYSQL_URL }) }),
+            })
+            await sql.raw(`drop table if exists ${TABLE}, owners`).execute(db)
+            await sql.raw(MYSQL_DDL).execute(db)
+            return db
+          },
+        },
+      ]),
 ]
 
 async function seed(db: Kysely<SqlDatabase>, dialect: SqlDialect): Promise<void> {
@@ -232,7 +256,7 @@ describe.each(targets)('createKyselyAdapter on $name', ({ dialect, open }) => {
     ])
     expect(failed).toEqual({ accepted: false, errors: [{ message: 'Mutation failed' }] })
     expect(errors).toHaveLength(1)
-    expect(String(errors[0])).toMatch(/unique/i)
+    expect(String(errors[0])).toMatch(/unique|duplicate/i)
   })
 
   it('pages groups with the empty group last, like the in-memory engine', async () => {

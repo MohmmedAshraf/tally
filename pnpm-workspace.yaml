@@ -54,6 +54,7 @@ catalog:
   knip: 6.41.0
   kysely: 0.29.6
   lucide-react: 1.55.0
+  mysql2: 3.24.6
   next: 16.4.2
   oxlint-tsgolint: 7.0.2004
   oxlint: 1.87.0

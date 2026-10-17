@@ -12,6 +12,21 @@ concurrency:
 jobs:
   check:
     runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: tally
+          MYSQL_DATABASE: tally
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "mysqladmin ping -h 127.0.0.1 -ptally"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      TALLY_MYSQL_URL: mysql://root:tally@127.0.0.1:3306/tally
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6

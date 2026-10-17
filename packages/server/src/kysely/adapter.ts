@@ -1,4 +1,4 @@
-import { sql, type Kysely, type RawBuilder, type SqlBool } from 'kysely'
+import { sql, type AliasedRawBuilder, type Kysely, type RawBuilder, type SqlBool } from 'kysely'
 import {
   TallyError,
   dateFromDayNumber,
@@ -19,7 +19,14 @@ import {
 } from 'tally-core'
 import { mutationIssues, validateQueryRequest } from 'tally-protocol'
 import { sqliteDialect, type SqlDialect } from '../dialect.ts'
-import { createCompiler, type Compiler, type OrderPart, type Target } from './compile.ts'
+import {
+  BUCKET_ALIAS,
+  createCompiler,
+  type Bucket,
+  type Compiler,
+  type OrderPart,
+  type Target,
+} from './compile.ts'
 
 export type SqlDatabase = Record<string, Record<string, unknown>>
 
@@ -90,10 +97,6 @@ function uniqueAggregates(requests: readonly AggregateRequest[]): readonly Aggre
   ]
 }
 
-function groupMatch(bucket: RawBuilder<unknown>): RawBuilder<string> {
-  return sql<string>`coalesce(cast(${bucket} as text), '')`
-}
-
 async function sequence<T>(items: readonly T[], run: (item: T) => Promise<unknown>): Promise<void> {
   await items.reduce<Promise<unknown>>(async (previous, item) => {
     await previous
@@ -152,6 +155,20 @@ export function createKyselyAdapter(options: KyselyAdapterOptions): KyselyAdapte
     return where === undefined ? query : query.where(where)
   }
 
+  const groupMatch = (bucket: RawBuilder<unknown>): RawBuilder<string> =>
+    sql<string>`coalesce(${dialect.text(bucket)}, '')`
+
+  const bucketed = (
+    bucket: Bucket,
+    columns: readonly AliasedRawBuilder<unknown, string>[],
+    where: RawBuilder<SqlBool> | undefined,
+  ) => {
+    const grouped = from(where)
+      .select([bucket.expression.as(BUCKET_ALIAS), ...columns])
+      .groupBy(bucket.expression)
+    return applyOrder(db.selectFrom(grouped.as('tally_groups')).selectAll(), bucket.groupOrder)
+  }
+
   const total = async (where: RawBuilder<SqlBool> | undefined): Promise<number> => {
     const row = await from(where)
       .select(sql`count(*)`.as('n'))
@@ -203,15 +220,18 @@ export function createKyselyAdapter(options: KyselyAdapterOptions): KyselyAdapte
     if (request.group === undefined) return undefined
     const bucket = compiler.bucket(request.group, request.sort)
     const aggregates = uniqueAggregates(request.aggregates ?? [])
-    const query = from(where)
-      .select([bucket.expression.as('g'), sql`count(*)`.as('n'), ...aggregateSelection(aggregates)])
-      .groupBy(bucket.expression)
-    const rows = await applyOrder(query, bucket.order).limit(maxGroups).execute()
+    const rows = await bucketed(
+      bucket,
+      [sql`count(*)`.as('n'), ...aggregateSelection(aggregates)],
+      where,
+    )
+      .limit(maxGroups)
+      .execute()
     return rows.map((row) => {
       const value =
         bucket.target.type.kind === 'date'
-          ? (row['g'] ?? null)
-          : dialect.decode(bucket.target.type.kind, row['g'])
+          ? (row[BUCKET_ALIAS] ?? null)
+          : dialect.decode(bucket.target.type.kind, row[BUCKET_ALIAS])
       return {
         key: groupKeyOf(value),
         value,
@@ -343,10 +363,14 @@ export function createKyselyAdapter(options: KyselyAdapterOptions): KyselyAdapte
           : rowsQuery.where(
               groupMatch(bucket.expression),
               'in',
-              applyOrder(from(where).select(groupMatch(bucket.expression).as('g')), bucket.order)
-                .groupBy(bucket.expression)
-                .limit(Math.max(0, Math.min(slice.limit, maxGroups - slice.offset)))
-                .offset(slice.offset),
+              db
+                .selectFrom(
+                  bucketed(bucket, [], where)
+                    .limit(Math.max(0, Math.min(slice.limit, maxGroups - slice.offset)))
+                    .offset(slice.offset)
+                    .as('tally_page'),
+                )
+                .select(groupMatch(sql.ref(BUCKET_ALIAS)).as(BUCKET_ALIAS)),
             )
     const aggregates = uniqueAggregates(request.aggregates ?? [])
     const [rows, all, matched, summaries, aggregateRow, facetMap] = await Promise.all([

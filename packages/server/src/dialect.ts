@@ -3,6 +3,7 @@ import type { GroupGranularity, ValueKind } from 'tally-core'
 
 export interface SqlDialect {
   readonly name: string
+  text(expression: RawBuilder<unknown>): RawBuilder<string>
   lower(expression: RawBuilder<unknown>): RawBuilder<string>
   float(expression: RawBuilder<unknown>): RawBuilder<number>
   floor(expression: RawBuilder<unknown>): RawBuilder<number>
@@ -37,6 +38,7 @@ function decode(kind: ValueKind, value: unknown): unknown {
 
 export const sqliteDialect: SqlDialect = {
   name: 'sqlite',
+  text: (expression) => sql<string>`cast(${expression} as text)`,
   lower: (expression) => sql<string>`lower(${expression})`,
   float: (expression) => sql<number>`cast(${expression} as real)`,
   floor: (expression) => sql<number>`floor(${expression})`,
@@ -63,6 +65,7 @@ export const sqliteDialect: SqlDialect = {
 
 export const postgresDialect: SqlDialect = {
   name: 'postgres',
+  text: (expression) => sql<string>`cast(${expression} as text)`,
   lower: (expression) => sql<string>`lower(${expression})`,
   float: (expression) => sql<number>`cast(${expression} as double precision)`,
   floor: (expression) => sql<number>`floor(${expression})`,
@@ -83,5 +86,31 @@ export const postgresDialect: SqlDialect = {
     }
   },
   encode: (_kind, value) => value,
+  decode,
+}
+
+export const mysqlDialect: SqlDialect = {
+  name: 'mysql',
+  text: (expression) => sql<string>`cast(${expression} as char)`,
+  lower: (expression) => sql<string>`lower(${expression})`,
+  float: (expression) => sql<number>`cast(${expression} as double)`,
+  floor: (expression) => sql<number>`floor(${expression})`,
+  dayNumber: (expression) => sql<number>`datediff(${expression}, '1970-01-01')`,
+  dateBucket: (expression, granularity) => {
+    switch (granularity) {
+      case 'day':
+        return sql<string>`date_format(${expression}, '%Y-%m-%d')`
+      case 'week':
+        return sql<string>`date_format(date_sub(${expression}, interval weekday(${expression}) day), '%Y-%m-%d')`
+      case 'month':
+        return sql<string>`date_format(${expression}, '%Y-%m')`
+      case 'quarter':
+        return sql<string>`concat(date_format(${expression}, '%Y'), '-Q', quarter(${expression}))`
+      case 'year':
+        return sql<string>`date_format(${expression}, '%Y')`
+    }
+  },
+  encode: (kind, value) =>
+    kind === 'boolean' && typeof value === 'boolean' ? Number(value) : value,
   decode,
 }

@@ -20,7 +20,8 @@
     },
     "test": {
       "dependsOn": ["build"],
-      "outputs": []
+      "outputs": [],
+      "passThroughEnv": ["TALLY_MYSQL_URL"]
     },
     "publint": {
       "dependsOn": ["build"]

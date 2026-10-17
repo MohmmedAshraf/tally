@@ -10,7 +10,7 @@ Not published yet.
 npm install tally-server tally-core tally-protocol kysely
 ```
 
-Kysely is a peer dependency. Bring the driver for your database: `pg`, `better-sqlite3`, `mysql2`, or `node:sqlite` through the included bridge.
+Kysely is a peer dependency. Bring the driver for your database: `pg`, `mysql2`, `better-sqlite3`, or `node:sqlite` through the included bridge.
 
 ## Adapter
 
@@ -34,7 +34,7 @@ const accounts = createKyselyAdapter({ db, table: 'accounts', schema, dialect: s
 | `db`         |          | A `Kysely` instance.                                                                        |
 | `table`      |          | Table or view name.                                                                         |
 | `schema`     |          | From `createSchema`. The key must be a field name, not a function. It need not be a column. |
-| `dialect`    | `sqlite` | `sqliteDialect`, `postgresDialect` or your own `SqlDialect`.                                |
+| `dialect`    | `sqlite` | `sqliteDialect`, `postgresDialect`, `mysqlDialect` or your own `SqlDialect`.                |
 | `columns`    |          | Column id to SQL column name, for `{ fullName: 'full_name' }`.                              |
 | `flags`      |          | Named `sql` expressions that `flag` filters compile to.                                     |
 | `pagination` | `offset` | `offset` or `cursor`. Cursors are opaque and encode the offset.                             |
@@ -50,7 +50,7 @@ Every request is validated with `tally-protocol` before any SQL runs. Mutations 
 
 ### Semantics
 
-The adapter passes the `tally-protocol` conformance suite on SQLite and Postgres, so filters, sorts, groups, aggregates, facets and pages match the in-memory engine:
+The adapter passes the `tally-protocol` conformance suite on SQLite, Postgres and MySQL, so filters, sorts, groups, aggregates, facets and pages match the in-memory engine:
 
 - Empty means `NULL`, and for text columns also `''`. Empty values sort last in both directions and never match comparisons, except `neq`, `notContains` and `notIn`, which keep them.
 - Text comparisons are case insensitive through `lower()`. SQLite folds ASCII only.
@@ -62,9 +62,21 @@ The adapter passes the `tally-protocol` conformance suite on SQLite and Postgres
 
 ### Dialects
 
-A `SqlDialect` supplies the few functions SQL engines disagree on: `lower`, `float`, `floor`, `dayNumber`, `dateBucket`, plus `encode` and `decode` for values crossing the driver. Implement it for MySQL or SQL Server and pass it as `dialect`.
+A `SqlDialect` supplies the few functions SQL engines disagree on: `text`, `lower`, `float`, `floor`, `dayNumber`, `dateBucket`, plus `encode` and `decode` for values crossing the driver. `sqliteDialect`, `postgresDialect` and `mysqlDialect` ship with the package. Implement it for SQL Server or another engine and pass it as `dialect`.
 
-With `pg`, `date` columns come back as local `Date` objects and are converted to ISO dates. Numeric aggregates arrive as strings and are converted to numbers.
+With `pg` and `mysql2`, `date` columns come back as local `Date` objects and are converted to ISO dates. Numeric aggregates arrive as strings and are converted to numbers. On MySQL, booleans are stored as `tinyint` and decoded back to `true` and `false`. Group queries are valid under the default `ONLY_FULL_GROUP_BY` mode.
+
+```ts
+import { Kysely, MysqlDialect } from 'kysely'
+import { createPool } from 'mysql2'
+import { createKyselyAdapter, mysqlDialect } from 'tally-server'
+
+const db = new Kysely({
+  dialect: new MysqlDialect({ pool: createPool({ uri: process.env.DATABASE_URL }) }),
+})
+
+const accounts = createKyselyAdapter({ db, table: 'accounts', schema, dialect: mysqlDialect })
+```
 
 ## Handler
 

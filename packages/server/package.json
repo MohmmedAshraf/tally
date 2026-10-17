@@ -44,6 +44,7 @@
     "@electric-sql/pglite": "catalog:",
     "@size-limit/preset-small-lib": "catalog:",
     "kysely": "catalog:",
+    "mysql2": "catalog:",
     "publint": "catalog:",
     "size-limit": "catalog:",
     "tsdown": "catalog:",

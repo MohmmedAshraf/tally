@@ -209,7 +209,7 @@ const schema = createSchema({ columns, registry })`,
     title: 'Serve the grid from a SQL database',
     package: 'tally-server',
     api: 'createKyselyAdapter({ db, table, schema, dialect, columns, flags }) and createTallyHandler({ source, schema, basePath })',
-    how: 'The adapter compiles validated protocol requests to SQL and passes the conformance suite on SQLite and Postgres. Mount the Fetch handler on any framework. For MySQL or SQL Server implement SqlDialect. For Laravel use tally/laravel.',
+    how: 'The adapter compiles validated protocol requests to SQL and passes the conformance suite on SQLite, Postgres and MySQL. Mount the Fetch handler on any framework. For SQL Server or another engine implement SqlDialect. For Laravel use tally/laravel.',
     example: `const accounts = createKyselyAdapter({ db, table: 'accounts', schema, dialect: postgresDialect })
 const handler = createTallyHandler({ source: accounts, schema, basePath: '/api/accounts' })
 app.all('/api/accounts/*', (c) => handler(c.req.raw))`,

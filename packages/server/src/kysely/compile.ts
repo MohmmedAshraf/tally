@@ -24,11 +24,14 @@ export interface OrderPart {
   readonly direction: SortDirection
 }
 
-interface Bucket {
+export interface Bucket {
   readonly target: Target
   readonly expression: RawBuilder<unknown>
   readonly order: readonly OrderPart[]
+  readonly groupOrder: readonly OrderPart[]
 }
+
+export const BUCKET_ALIAS = 'g'
 
 export interface Compiler {
   target(id: string): Target | undefined
@@ -57,7 +60,7 @@ function stringKind(type: ColumnType): boolean {
 }
 
 function escapeLike(text: string): string {
-  return text.replaceAll(/[\\%_]/g, (match) => `\\${match}`)
+  return text.replaceAll(/[!%_]/g, (match) => `!${match}`)
 }
 
 function lowerText(value: unknown): string {
@@ -115,7 +118,7 @@ export function createCompiler(options: CompilerOptions): Compiler {
       : sql<SqlBool>`${target.ref} = ${encode(target, value)}`
 
   const like = (target: Target, pattern: string): RawBuilder<SqlBool> =>
-    sql<SqlBool>`${dialect.lower(target.ref)} like ${pattern} escape '\\'`
+    sql<SqlBool>`${dialect.lower(target.ref)} like ${pattern} escape '!'`
 
   const member = (target: Target, values: readonly unknown[]): RawBuilder<SqlBool> => {
     if (values.length === 0) return FALSE
@@ -187,7 +190,7 @@ export function createCompiler(options: CompilerOptions): Compiler {
         .filter((target) => target.column.searchable ?? target.type.searchable)
         .map(
           (target) =>
-            sql<SqlBool>`${dialect.lower(sql`cast(${target.ref} as text)`)} like ${pattern} escape '\\'`,
+            sql<SqlBool>`${dialect.lower(dialect.text(target.ref))} like ${pattern} escape '!'`,
         ),
     )
   }
@@ -251,14 +254,15 @@ export function createCompiler(options: CompilerOptions): Compiler {
     const sorted = sorts.find((sort) => sort.column === target.column.id)
     const direction: SortDirection =
       sorted?.direction ?? (target.type.kind === 'date' ? 'desc' : 'asc')
-    const bucketTarget: Target = { ...target, ref: expression }
+    const bucketOrder = (ref: RawBuilder<unknown>): readonly OrderPart[] => [
+      { expression: isEmpty({ ...target, ref }), direction: 'asc' },
+      { expression: rank({ ...target, ref }), direction },
+    ]
     return {
       target,
       expression,
-      order: [
-        { expression: isEmpty(bucketTarget), direction: 'asc' },
-        { expression: rank(bucketTarget), direction },
-      ],
+      order: bucketOrder(expression),
+      groupOrder: bucketOrder(sql.ref(BUCKET_ALIAS)),
     }
   }
 

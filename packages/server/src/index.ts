@@ -1,4 +1,4 @@
-export { postgresDialect, sqliteDialect, type SqlDialect } from './dialect.ts'
+export { mysqlDialect, postgresDialect, sqliteDialect, type SqlDialect } from './dialect.ts'
 export { createTallyHandler, type TallyHandler, type TallyHandlerOptions } from './handler.ts'
 export {
   createKyselyAdapter,
