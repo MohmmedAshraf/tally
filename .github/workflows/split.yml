@@ -1,0 +1,26 @@
+name: Split
+
+on:
+  push:
+    branches: [main]
+    paths: ['packages/php/**']
+    tags: ['tally-laravel@*']
+
+concurrency: split
+
+jobs:
+  laravel:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.TALLY_LARAVEL_DEPLOY_KEY }}
+      - run: git config user.name github-actions && git config user.email github-actions@github.com
+      - run: git subtree split --prefix=packages/php -b split
+      - if: github.ref_type == 'branch'
+        run: git push git@github.com:MohmmedAshraf/tally-laravel.git split:refs/heads/main
+      - if: github.ref_type == 'tag'
+        run: git push git@github.com:MohmmedAshraf/tally-laravel.git split:refs/tags/${GITHUB_REF_NAME#tally-laravel@}
