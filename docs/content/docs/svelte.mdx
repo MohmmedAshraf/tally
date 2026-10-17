@@ -1,0 +1,59 @@
+---
+title: "tally-svelte"
+description: "Svelte 5 bindings for Tally. The engine lives in tally-core; this package binds a Grid to a component's lifecycle and exposes its stores as runes and stores. It renders nothing."
+install: "npm install tally-svelte tally-core svelte"
+---
+
+## Install
+
+```sh
+npm install tally-svelte tally-core svelte
+```
+
+Svelte 5.7 or newer. The package ships rune modules, so it is compiled by your Svelte toolchain.
+
+## Usage
+
+```svelte
+<script lang="ts">
+  import { createArraySource, createSchema } from 'tally-core'
+  import { gridState, gridView, useGrid } from 'tally-svelte'
+
+  let { rows } = $props()
+
+  const schema = createSchema({
+    key: 'id',
+    columns: [
+      { id: 'account', label: 'Account' },
+      { id: 'mrr', label: 'MRR', type: 'currency', aggregate: 'sum' },
+    ],
+  })
+  const source = createArraySource(rows, schema)
+
+  const grid = useGrid(() => ({ schema, source }))
+  const state = gridState(grid)
+  const view = gridView(grid)
+</script>
+
+<p>{state.current.status}, sorted by {view.current.sort[0]?.column ?? 'nothing'}</p>
+<button onclick={() => grid.current.view.toggleSort('mrr')}>Sort by MRR</button>
+```
+
+`useGrid` takes a getter so it can follow props. It creates a `Grid` from `tally-core`, loads it in an effect and disposes it when the component is destroyed. It recreates the grid when `schema` or `source` change identity, and when the format context changes, carrying the current view over.
+
+Snapshots subscribe only while an effect reads them and read the engine directly otherwise.
+
+## API
+
+| Function               | Returns                                                       |
+| ---------------------- | ------------------------------------------------------------- |
+| `useGrid(options)`     | A `ReactiveGrid` whose `current` follows recreation.          |
+| `gridState(grid)`      | `{ current }` with status, totals, aggregates and page.       |
+| `gridView(grid)`       | `{ current }` with the current `View`.                        |
+| `gridRows(grid)`       | `{ current }` with loaded rows and changed cells.             |
+| `gridSelection(grid)`  | `{ current }` with the active cell, ranges and selected rows. |
+| `gridStores(grid)`     | `state`, `view`, `rows` and `selection` as readable stores.   |
+| `setGridContext(grid)` | Shares a grid with descendants.                               |
+| `getGridContext()`     | The shared grid as a `ReactiveGrid`. Throws without one.      |
+
+Every function that takes `grid` accepts a `Grid` or a `ReactiveGrid`. Derive narrower values with `$derived`.

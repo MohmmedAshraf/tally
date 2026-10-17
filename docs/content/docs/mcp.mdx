@@ -28,6 +28,9 @@ Any MCP client works. The server speaks stdio:
 | `tally://guide/extend`   | Where each change goes: package, API and a snippet per extension point                                                   |
 | `tally://guide/core`     | Schema, column types, query language, views, executor, mutations                                                         |
 | `tally://guide/react`    | The component, hooks, renderers, editors, labels, intents, styling                                                       |
+| `tally://guide/vue`      | tally-vue composables, provide and inject                                                                                |
+| `tally://guide/svelte`   | tally-svelte runes, context and readable stores                                                                          |
+| `tally://guide/solid`    | tally-solid signals and context                                                                                          |
 | `tally://guide/protocol` | Wire schemas, validation, JSON Schema, conformance suite                                                                 |
 | `tally://guide/server`   | Kysely SQL adapter, dialects, Fetch handler, SSE                                                                         |
 | `tally://guide/php`      | tally/laravel: grid classes, `Route::tally()`, Eloquent query compiler, dialects                                         |
