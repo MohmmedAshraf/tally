@@ -3,6 +3,7 @@
   "workspaces": {
     ".": {},
     "packages/*": {},
+    "docs": {},
     "examples/playground": {
       "ignore": ["src/components/ui/**"]
     }

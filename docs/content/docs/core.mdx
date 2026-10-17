@@ -1,0 +1,76 @@
+---
+title: "tally-core"
+description: "Framework-free engine for Tally. Everything the grid does that is not DOM lives here: column types, the schema, the query language, the view state, the client executor, mutations with undo, selection and keyboard reducers, CSV import and export, and the data source contract."
+install: "npm install tally-core"
+---
+
+## Install
+
+```sh
+npm install tally-core
+```
+
+## Usage
+
+```ts
+import { createArraySource, createSchema, execute, parseQuery, printQuery } from 'tally-core'
+
+const schema = createSchema({
+  columns: [
+    { id: 'account', label: 'Account' },
+    { id: 'plan', type: 'enum', options: [{ value: 'free' }, { value: 'pro' }, { value: 'team' }] },
+    { id: 'mrr', label: 'MRR', type: 'currency', aggregate: 'sum' },
+    { id: 'renewal', type: 'date' },
+  ],
+})
+
+const { query, errors } = parseQuery(
+  'plan is pro or team and renewal next 30 days sort by mrr',
+  schema,
+)
+
+const result = execute(rows, query, schema)
+
+printQuery(query, schema)
+```
+
+CSV import is a separate entry point so the parser only loads where it is used:
+
+```ts
+import { importCsv } from 'tally-core/import'
+```
+
+## Modules
+
+| Module    | Exports                                                                                |
+| --------- | -------------------------------------------------------------------------------------- |
+| types     | `createTypeRegistry`, `createDefaultRegistry`, fourteen built-in types, `ColumnType`   |
+| schema    | `createSchema`, `validateColumns`, `Column`                                            |
+| query     | `parseQuery`, `printQuery`, `suggest`, filter AST constructors                         |
+| execute   | `execute`, `compileFilter`, `compileSort`, `groupRows`, `computeFacets`, `flattenTree` |
+| view      | `createViewStore`, `defaultView`, `viewToUrlString`, `viewFromUrlString`               |
+| rows      | `createRowStore`, `createMutation`, `applyMutation`                                    |
+| selection | `reduceSelection`, `keyboardIntent`                                                    |
+| source    | `DataSource`, `QueryRequest`, `QueryResponse`, `createArraySource`                     |
+| format    | `createFormatContext`, `parseNumber`, `parseIsoDate`, `resolveRelativeRange`           |
+| export    | `toCsv`, `toTsv`                                                                       |
+| import    | `importCsv`, `detectColumnType` from `tally-core/import`                               |
+
+## Query language
+
+```
+status is active
+status is not past due and mrr > 2k
+plan is pro or team
+mrr between 1k and 5k
+renewal last 30 days
+renewal is 2026-01
+account contains acme
+owner is empty
+acme corp, status is active
+not (plan is free or mrr < 100)
+sort by mrr desc
+group by plan
+```
+
+Column names resolve by id, label or alias. Enum values resolve by value or label. Numbers accept `2k`, `1.5m`, `$5,000` and `12%`. Dates accept `2026`, `2026-01`, `2026-01-15`, `today`, `yesterday`, `last 7 days`, `next 2 weeks` and `this quarter`. Errors carry character offsets.

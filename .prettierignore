@@ -8,3 +8,7 @@ examples/playground/src/components/ui
 examples/playground/src/hooks/use-mobile.ts
 packages/php/resources/schemas
 packages/php/tests/Fixtures/conformance.json
+docs/content/docs
+docs/.next
+docs/.source
+docs/next-env.d.ts

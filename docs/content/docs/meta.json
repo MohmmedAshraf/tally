@@ -1,0 +1,23 @@
+{
+  "pages": [
+    "---Getting started---",
+    "index",
+    "---Guides---",
+    "core",
+    "react",
+    "---Query language---",
+    "query-language",
+    "---Protocol---",
+    "protocol",
+    "json-schema",
+    "---Adapters---",
+    "adapters",
+    "server",
+    "---AI---",
+    "ai",
+    "---Agents (MCP)---",
+    "mcp",
+    "---Laravel---",
+    "laravel"
+  ]
+}

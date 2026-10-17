@@ -7,6 +7,14 @@
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]
     },
+    "sync": {
+      "dependsOn": ["^build"],
+      "outputs": ["content/docs/**"]
+    },
+    "tally-docs#build": {
+      "dependsOn": ["^build"],
+      "outputs": [".next/**", "!.next/cache/**", "content/docs/**"]
+    },
     "typecheck": {
       "dependsOn": ["^build"]
     },
