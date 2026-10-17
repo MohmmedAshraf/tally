@@ -100,7 +100,6 @@ export function Film(): ReactNode {
                         src={film.captions}
                         srcLang="en"
                         label="English"
-                        default
                       />
                     </video>
                   </Dialog.Popup>
