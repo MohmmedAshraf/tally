@@ -12,6 +12,9 @@ const config: NextConfig = {
   rewrites: async () => [
     { source: '/docs', destination: `${mintlifyDocsOrigin}/docs` },
     { source: '/docs/:path*', destination: `${mintlifyDocsOrigin}/docs/:path*` },
+    { source: '/_mintlify/:path*', destination: `${mintlifyDocsOrigin}/_mintlify/:path*` },
+    { source: '/mintlify-assets/:path+', destination: `${mintlifyDocsOrigin}/mintlify-assets/:path+` },
+    { source: '/api/request', destination: `${mintlifyDocsOrigin}/_mintlify/api/request` },
   ],
 }
 

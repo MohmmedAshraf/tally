@@ -12,4 +12,4 @@ export const authorAvatarUrl = 'https://avatars.githubusercontent.com/u/44909285
 
 export const docsUrl = '/docs'
 
-export const mintlifyDocsOrigin = 'https://tally.mintlify.app'
+export const mintlifyDocsOrigin = 'https://tally-e00cda53.mintlify.site'
