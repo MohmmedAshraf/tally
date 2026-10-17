@@ -201,8 +201,8 @@ catalogs:
       specifier: 5.3.1
       version: 5.3.1
     '@hono/node-server':
-      specifier: 2.1.4
-      version: 2.1.4
+      specifier: 2.1.5
+      version: 2.1.5
     '@modelcontextprotocol/client':
       specifier: 2.3.1
       version: 2.3.1
@@ -302,6 +302,9 @@ catalogs:
     happy-dom:
       specifier: 21.0.1
       version: 21.0.1
+    hono:
+      specifier: 4.13.13
+      version: 4.13.13
     knip:
       specifier: 6.41.0
       version: 6.41.0
@@ -482,6 +485,28 @@ importers:
 
   examples/playground:
     dependencies:
+      '@hono/node-server':
+        specifier: 'catalog:'
+        version: 2.1.5(hono@4.13.13)
+      hono:
+        specifier: 'catalog:'
+        version: 4.13.13
+      kysely:
+        specifier: 'catalog:'
+        version: 0.29.6
+      lucide-react:
+        specifier: 'catalog:'
+        version: 1.55.0(@types/react@19.3.0)(react@19.3.0)
+      react:
+        specifier: 'catalog:'
+        version: 19.3.0
+      tally-core:
+        specifier: workspace:*
+        version: link:../../packages/core
+      tally-server:
+        specifier: workspace:*
+        version: link:../../packages/server
+    devDependencies:
       '@ai-sdk/anthropic':
         specifier: 'catalog:'
         version: 4.0.79(zod@4.6.6)
@@ -497,49 +522,6 @@ importers:
       '@fontsource-variable/onest':
         specifier: 'catalog:'
         version: 5.3.1
-      class-variance-authority:
-        specifier: 'catalog:'
-        version: 0.7.1
-      cmdk:
-        specifier: 'catalog:'
-        version: 1.1.1(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      cn:
-        specifier: 'catalog:'
-        version: 0.4.0
-      lucide-react:
-        specifier: 'catalog:'
-        version: 1.55.0(@types/react@19.3.0)(react@19.3.0)
-      react:
-        specifier: 'catalog:'
-        version: 19.3.0
-      react-dom:
-        specifier: 'catalog:'
-        version: 19.3.0(react@19.3.0)
-      react-error-boundary:
-        specifier: 'catalog:'
-        version: 6.1.6(@types/react@19.3.0)(react@19.3.0)
-      shadcn:
-        specifier: 'catalog:'
-        version: 4.21.4(supports-color@7.2.0)
-      tally-adapters:
-        specifier: workspace:*
-        version: link:../../packages/adapters
-      tally-ai:
-        specifier: workspace:*
-        version: link:../../packages/ai
-      tally-core:
-        specifier: workspace:*
-        version: link:../../packages/core
-      tally-react:
-        specifier: workspace:*
-        version: link:../../packages/react
-      tw-animate-css:
-        specifier: 'catalog:'
-        version: 1.4.0
-    devDependencies:
-      '@hono/node-server':
-        specifier: 'catalog:'
-        version: 2.1.4(hono@4.13.13)
       '@tailwindcss/vite':
         specifier: 'catalog:'
         version: 4.3.3(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
@@ -555,15 +537,39 @@ importers:
       '@vitejs/plugin-react':
         specifier: 'catalog:'
         version: 6.1.2(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
-      kysely:
+      class-variance-authority:
         specifier: 'catalog:'
-        version: 0.29.6
+        version: 0.7.1
+      cmdk:
+        specifier: 'catalog:'
+        version: 1.1.1(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      cn:
+        specifier: 'catalog:'
+        version: 0.4.0
+      react-dom:
+        specifier: 'catalog:'
+        version: 19.3.0(react@19.3.0)
+      react-error-boundary:
+        specifier: 'catalog:'
+        version: 6.1.6(@types/react@19.3.0)(react@19.3.0)
+      shadcn:
+        specifier: 'catalog:'
+        version: 4.21.4(supports-color@7.2.0)
       tailwindcss:
         specifier: 'catalog:'
         version: 4.3.3
-      tally-server:
+      tally-adapters:
         specifier: workspace:*
-        version: link:../../packages/server
+        version: link:../../packages/adapters
+      tally-ai:
+        specifier: workspace:*
+        version: link:../../packages/ai
+      tally-react:
+        specifier: workspace:*
+        version: link:../../packages/react
+      tw-animate-css:
+        specifier: 'catalog:'
+        version: 1.4.0
       typescript:
         specifier: 'catalog:'
         version: 7.0.2
@@ -1563,8 +1569,8 @@ packages:
   '@fumari/image-size@0.1.1':
     resolution: {integrity: sha512-iaiV2wyzJ4mW358NX4CX3yGit+WjKYzpaQ+rldK9BjL/5jFpeV6ruWnZVq7MEyMn3Gd0DLi8g/79NZAAQaGscw==}
 
-  '@hono/node-server@2.1.4':
-    resolution: {integrity: sha512-2g1qeHl4BduwDn6L8nkAvDrPUWPMlkQ//a5NhP/zIyaXKMjZNRV+cG9Csu+BiJFf6+68pqzjf4Hi5sJGKHuS1g==}
+  '@hono/node-server@2.1.5':
+    resolution: {integrity: sha512-MgP/I06GdvsilDspMk/qmRzpk8LOUStP6jFAbSRi40W09DhoyUn+Mj7eyKICPqeYKybOjVFLVIAQzvu1bfIa7Q==}
     engines: {node: '>=20'}
     peerDependencies:
       hono: ^4 || ^5.0.0-0
@@ -6687,7 +6693,7 @@ snapshots:
 
   '@fumari/image-size@0.1.1': {}
 
-  '@hono/node-server@2.1.4(hono@4.13.13)':
+  '@hono/node-server@2.1.5(hono@4.13.13)':
     dependencies:
       hono: 4.13.13
 
@@ -6882,7 +6888,7 @@ snapshots:
 
   '@modelcontextprotocol/sdk@1.32.1(supports-color@7.2.0)(zod@3.25.76)':
     dependencies:
-      '@hono/node-server': 2.1.4(hono@4.13.13)
+      '@hono/node-server': 2.1.5(hono@4.13.13)
       ajv: 8.20.0
       ajv-formats: 3.0.1
       content-type: 1.0.5
@@ -7555,7 +7561,7 @@ snapshots:
       '@alloc/quick-lru': 5.3.0
       '@tailwindcss/node': 4.3.3
       '@tailwindcss/oxide': 4.3.3
-      postcss: 8.5.29
+      postcss: 8.5.30
       tailwindcss: 4.3.3
 
   '@tailwindcss/vite@4.3.3(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))':

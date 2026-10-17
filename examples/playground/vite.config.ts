@@ -3,8 +3,7 @@ import { getRequestListener } from '@hono/node-server'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { defineConfig, type Plugin } from 'vite'
-import { createAnthropicProxy } from './server/anthropic.ts'
-import { createPlaygroundHandler } from './server/tally.ts'
+import { createApi } from './server/api.ts'
 
 const source = (path: string): string => fileURLToPath(new URL(path, import.meta.url))
 
@@ -12,26 +11,15 @@ function tallyServer(): Plugin {
   return {
     name: 'tally-server',
     async configureServer(server) {
-      const logError = (error: unknown): void => {
+      const api = await createApi((error) => {
         server.config.logger.error(
           error instanceof Error ? (error.stack ?? error.message) : String(error),
         )
-      }
-      const errorHandler = (error: unknown): Response => {
-        logError(error)
-        return new Response(null, { status: 500 })
-      }
-      const tally = getRequestListener(await createPlaygroundHandler(logError), { errorHandler })
-      const proxy = createAnthropicProxy()
-      const anthropic = getRequestListener(
-        (request, env) => proxy(request, env.incoming.socket.remoteAddress ?? 'unknown'),
-        { errorHandler },
-      )
-      server.middlewares.use('/api/tally', (request, response) => {
-        void tally(request, response)
       })
-      server.middlewares.use('/api/anthropic', (request, response) => {
-        void anthropic(request, response)
+      const listener = getRequestListener(api.fetch)
+      server.middlewares.use((request, response, next) => {
+        if (request.url?.startsWith('/api/') === true) void listener(request, response)
+        else next()
       })
     },
   }

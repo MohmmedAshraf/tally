@@ -2,41 +2,48 @@
   "name": "playground",
   "private": true,
   "type": "module",
+  "files": [
+    "dist",
+    "server",
+    "src/datasets"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "typecheck": "tsc -p tsconfig.json"
+    "start": "node server/index.ts",
+    "typecheck": "tsc -p tsconfig.json && tsc -p server/tsconfig.json"
   },
   "dependencies": {
+    "@hono/node-server": "catalog:",
+    "hono": "catalog:",
+    "kysely": "catalog:",
+    "lucide-react": "catalog:",
+    "react": "catalog:",
+    "tally-core": "workspace:*",
+    "tally-server": "workspace:*"
+  },
+  "devDependencies": {
     "@ai-sdk/anthropic": "catalog:",
     "@base-ui/react": "catalog:",
     "@fontsource-variable/geist": "catalog:",
     "@fontsource-variable/jetbrains-mono": "catalog:",
     "@fontsource-variable/onest": "catalog:",
-    "class-variance-authority": "catalog:",
-    "cmdk": "catalog:",
-    "cn": "catalog:",
-    "lucide-react": "catalog:",
-    "react": "catalog:",
-    "react-dom": "catalog:",
-    "react-error-boundary": "catalog:",
-    "shadcn": "catalog:",
-    "tally-adapters": "workspace:*",
-    "tally-ai": "workspace:*",
-    "tally-core": "workspace:*",
-    "tally-react": "workspace:*",
-    "tw-animate-css": "catalog:"
-  },
-  "devDependencies": {
-    "@hono/node-server": "catalog:",
     "@tailwindcss/vite": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
-    "kysely": "catalog:",
+    "class-variance-authority": "catalog:",
+    "cmdk": "catalog:",
+    "cn": "catalog:",
+    "react-dom": "catalog:",
+    "react-error-boundary": "catalog:",
+    "shadcn": "catalog:",
     "tailwindcss": "catalog:",
-    "tally-server": "workspace:*",
+    "tally-adapters": "workspace:*",
+    "tally-ai": "workspace:*",
+    "tally-react": "workspace:*",
+    "tw-animate-css": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:"
   }
