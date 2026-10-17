@@ -38,13 +38,14 @@ const accounts = createKyselyAdapter({ db, table: 'accounts', schema, dialect: s
 | `columns`    |          | Column id to SQL column name, for `{ fullName: 'full_name' }`.                              |
 | `flags`      |          | Named `sql` expressions that `flag` filters compile to.                                     |
 | `pagination` | `offset` | `offset` or `cursor`. Cursors are opaque and encode the offset.                             |
-| `maxLimit`   | `1000`   | Page sizes above this are clamped.                                                          |
+| `maxLimit`   | `1000`   | Page sizes above this are clamped. Requests without a page return at most this many rows.   |
 | `mutable`    | `true`   | `false` refuses `PATCH /rows`.                                                              |
 | `today`      | now      | ISO date that relative ranges such as `last 30 days` resolve against.                       |
 | `bins`       | `20`     | Histogram bins.                                                                             |
 | `maxTerms`   | `50`     | Terms facet size.                                                                           |
+| `onError`    |          | Receives the database error behind a rejected mutation.                                     |
 
-Every request is validated with `tally-protocol` before any SQL runs. Mutations run in one transaction and return the canonical rows read back from the database.
+Every request is validated with `tally-protocol` before any SQL runs. Mutations run in one transaction and return the canonical rows read back from the database. A database error rejects them with `Mutation failed` rather than the driver message.
 
 ### Semantics
 
@@ -84,7 +85,16 @@ app.all('/api/accounts/*', (c) => handler(c.req.raw))
 | `PATCH /rows` | `{ version, mutations }` | `MutationResult`, or `405` when the source is read only     |
 | `GET /events` |                          | `text/event-stream` of `patch` events carrying a `RowPatch` |
 
-Accepted mutations are broadcast to every open event stream, and patches from a source with `live` capability are relayed, so the schema route always reports `live: true`. Invalid requests return `400` with `{ code, message, details }` where every detail names the path of a problem.
+| Option         | Default   | Notes                                                                |
+| -------------- | --------- | -------------------------------------------------------------------- |
+| `source`       |           | Any `DataSource`.                                                    |
+| `schema`       |           | From `createSchema`.                                                 |
+| `basePath`     |           | Prefix stripped before routing.                                      |
+| `heartbeatMs`  | `15000`   | Interval of keep-alive comments on event streams.                    |
+| `maxBodyBytes` | `1048576` | Larger request bodies are refused with `413`.                        |
+| `onError`      |           | Receives unexpected errors. The response only says `Internal error`. |
+
+Accepted mutations are broadcast to every open event stream, and patches from a source with `live` capability are relayed, so the schema route always reports `live: true`. An event stream whose consumer falls more than 1024 events behind is closed, and the client reconnects. Invalid requests return `400` with `{ code, message, details }` where every detail names the path of a problem. Unknown routes return `404`, wrong methods `405` with an `Allow` header, and unexpected errors `500` with `{ code: 'internal' }`.
 
 ## Testing your own adapter
 

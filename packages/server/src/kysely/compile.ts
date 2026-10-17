@@ -205,7 +205,7 @@ export function createCompiler(options: CompilerOptions): Compiler {
       case 'search':
         return search(node.text)
       case 'flag':
-        return flags[node.name] ?? FALSE
+        return Object.hasOwn(flags, node.name) ? (flags[node.name] ?? FALSE) : FALSE
     }
   }
 

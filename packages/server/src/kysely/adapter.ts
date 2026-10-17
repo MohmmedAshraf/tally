@@ -36,6 +36,7 @@ export interface KyselyAdapterOptions {
   readonly today?: string | undefined
   readonly bins?: number | undefined
   readonly maxTerms?: number | undefined
+  readonly onError?: ((error: unknown) => void) | undefined
 }
 
 export interface KyselyAdapter extends DataSource {
@@ -80,6 +81,12 @@ function applyOrder<Q extends Orderable<Q>>(query: Q, parts: readonly OrderPart[
 
 function count(value: unknown): number {
   return Number(value ?? 0)
+}
+
+function uniqueAggregates(requests: readonly AggregateRequest[]): readonly AggregateRequest[] {
+  return [
+    ...new Map(requests.map((request) => [`${request.column}:${request.fn}`, request])).values(),
+  ]
 }
 
 async function sequence<T>(items: readonly T[], run: (item: T) => Promise<unknown>): Promise<void> {
@@ -189,7 +196,7 @@ export function createKyselyAdapter(options: KyselyAdapterOptions): KyselyAdapte
   ): Promise<readonly GroupSummary[] | undefined> => {
     if (request.group === undefined) return undefined
     const bucket = compiler.bucket(request.group, request.sort)
-    const aggregates = request.aggregates ?? []
+    const aggregates = uniqueAggregates(request.aggregates ?? [])
     const query = from(where)
       .select([bucket.expression.as('g'), sql`count(*)`.as('n'), ...aggregateSelection(aggregates)])
       .groupBy(bucket.expression)
@@ -286,7 +293,7 @@ export function createKyselyAdapter(options: KyselyAdapterOptions): KyselyAdapte
   ): Promise<Facets | undefined> => {
     if (ids === undefined) return undefined
     const entries = await Promise.all(
-      ids.flatMap((id) => {
+      [...new Set(ids)].flatMap((id) => {
         const target = compiler.target(id)
         if (target === undefined) return []
         if (
@@ -324,7 +331,7 @@ export function createKyselyAdapter(options: KyselyAdapterOptions): KyselyAdapte
     const slice = page(request)
     const paged =
       slice === undefined
-        ? rowsQuery
+        ? rowsQuery.limit(maxLimit)
         : bucket === undefined
           ? rowsQuery.limit(slice.limit).offset(slice.offset)
           : rowsQuery.where(
@@ -335,7 +342,7 @@ export function createKyselyAdapter(options: KyselyAdapterOptions): KyselyAdapte
                 .limit(slice.limit)
                 .offset(slice.offset),
             )
-    const aggregates = request.aggregates ?? []
+    const aggregates = uniqueAggregates(request.aggregates ?? [])
     const [rows, all, matched, summaries, aggregateRow, facetMap] = await Promise.all([
       paged.execute(),
       total(undefined),
@@ -417,10 +424,8 @@ export function createKyselyAdapter(options: KyselyAdapterOptions): KyselyAdapte
         .transaction()
         .execute((trx) => sequence(mutations, (mutation) => apply(trx, mutation)))
     } catch (error) {
-      return {
-        accepted: false,
-        errors: [{ message: error instanceof Error ? error.message : 'Mutation failed' }],
-      }
+      options.onError?.(error)
+      return { accepted: false, errors: [{ message: 'Mutation failed' }] }
     }
     const touched = [
       ...new Set(

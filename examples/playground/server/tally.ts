@@ -32,6 +32,7 @@ async function createTableHandler(
   table: string,
   schema: Schema,
   rows: readonly RowData[],
+  onError: (error: unknown) => void,
 ): Promise<TallyHandler> {
   const ddl = [
     'id integer primary key',
@@ -49,10 +50,12 @@ async function createTableHandler(
     chunks(rows.map(encode), CHUNK).map((chunk) => db.insertInto(table).values(chunk).execute()),
   )
   const source = createKyselyAdapter({ db, table, schema, dialect: sqliteDialect, mutable: true })
-  return createTallyHandler({ source, schema, basePath: `/${table}` })
+  return createTallyHandler({ source, schema, basePath: `/${table}`, onError })
 }
 
-export async function createPlaygroundHandler(): Promise<TallyHandler> {
+export async function createPlaygroundHandler(
+  onError: (error: unknown) => void,
+): Promise<TallyHandler> {
   const db = new Kysely<SqlDatabase>({
     dialect: new SqliteDialect({ database: nodeSqlite(new DatabaseSync(':memory:')) }),
   })
@@ -61,7 +64,13 @@ export async function createPlaygroundHandler(): Promise<TallyHandler> {
       datasets
         .filter((dataset) => dataset.remote)
         .map(async (dataset) => {
-          const handler = await createTableHandler(db, dataset.id, dataset.schema, dataset.rows)
+          const handler = await createTableHandler(
+            db,
+            dataset.id,
+            dataset.schema,
+            dataset.rows,
+            onError,
+          )
           return [dataset.id, handler] as const
         }),
     ),

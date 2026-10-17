@@ -138,6 +138,9 @@ describe.each(targets)('createKyselyAdapter on $name', ({ dialect, open }) => {
     })
     const page = await adapter.query({ version: 1, sort: [], page: { offset: 0, limit: 100 } })
     expect(page.rows).toHaveLength(3)
+    const unpaged = await adapter.query({ version: 1, sort: [] })
+    expect(unpaged.rows).toHaveLength(3)
+    expect(unpaged.matched).toBe(conformanceRows.length)
     const paying = await adapter.query({
       version: 1,
       sort: [],
@@ -150,10 +153,23 @@ describe.each(targets)('createKyselyAdapter on $name', ({ dialect, open }) => {
       filter: { type: 'flag', name: 'x' },
     })
     expect(unknown.matched).toBe(0)
+    const inherited = await Promise.all(
+      ['constructor', '__proto__', 'toString'].map((name) =>
+        adapter.query({ version: 1, sort: [], filter: { type: 'flag', name } }),
+      ),
+    )
+    expect(inherited.map((response) => response.matched)).toEqual([0, 0, 0])
   })
 
   it('applies mutations in a transaction and returns canonical rows', async () => {
-    const adapter = createKyselyAdapter({ db, table: TABLE, schema: conformanceSchema, dialect })
+    const errors: unknown[] = []
+    const adapter = createKyselyAdapter({
+      db,
+      table: TABLE,
+      schema: conformanceSchema,
+      dialect,
+      onError: (error) => errors.push(error),
+    })
     const result = await adapter.mutate([
       createMutation({
         label: 'Edit',
@@ -191,7 +207,9 @@ describe.each(targets)('createKyselyAdapter on $name', ({ dialect, open }) => {
     const failed = await adapter.mutate([
       createMutation({ label: 'Dup', inserted: [{ row: { id: 'acc_001', account: 'dup' } }] }),
     ])
-    expect(failed.accepted).toBe(false)
+    expect(failed).toEqual({ accepted: false, errors: [{ message: 'Mutation failed' }] })
+    expect(errors).toHaveLength(1)
+    expect(String(errors[0])).toMatch(/unique/i)
   })
 
   it('refuses mutations when read only', async () => {
@@ -287,5 +305,31 @@ describe('createKyselyAdapter', () => {
     })
     const schema = createSchema({ columns: [{ id: 'a' }], key: (row) => String(row['a']) })
     expect(() => createKyselyAdapter({ db, table: 't', schema })).toThrow(/key field/)
+  })
+
+  it('runs each requested facet and aggregate once', async () => {
+    const statements: string[] = []
+    const db = new Kysely<SqlDatabase>({
+      dialect: new SqliteDialect({ database: nodeSqlite(new DatabaseSync(':memory:')) }),
+      log: (event) => {
+        statements.push(event.query.sql)
+      },
+    })
+    await sql.raw('create table t (id integer primary key, mrr real)').execute(db)
+    const schema = createSchema({ columns: [{ id: 'mrr', type: 'number' }] })
+    const adapter = createKyselyAdapter({ db, table: 't', schema })
+    statements.length = 0
+    await adapter.query({ version: 1, sort: [], facets: ['mrr'] })
+    const single = statements.length
+    statements.length = 0
+    const response = await adapter.query({
+      version: 1,
+      sort: [],
+      facets: Array.from({ length: 50 }, () => 'mrr'),
+      aggregates: Array.from({ length: 50 }, () => ({ column: 'mrr', fn: 'sum' as const })),
+    })
+    expect(statements).toHaveLength(single + 1)
+    expect(response.aggregates).toEqual({ 'mrr:sum': 0 })
+    await db.destroy()
   })
 })

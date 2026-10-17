@@ -12,14 +12,21 @@ function tallyServer(): Plugin {
   return {
     name: 'tally-server',
     async configureServer(server) {
-      const errorHandler = (error: unknown): Response => {
+      const logError = (error: unknown): void => {
         server.config.logger.error(
           error instanceof Error ? (error.stack ?? error.message) : String(error),
         )
+      }
+      const errorHandler = (error: unknown): Response => {
+        logError(error)
         return new Response(null, { status: 500 })
       }
-      const tally = getRequestListener(await createPlaygroundHandler(), { errorHandler })
-      const anthropic = getRequestListener(createAnthropicProxy(), { errorHandler })
+      const tally = getRequestListener(await createPlaygroundHandler(logError), { errorHandler })
+      const proxy = createAnthropicProxy()
+      const anthropic = getRequestListener(
+        (request, env) => proxy(request, env.incoming.socket.remoteAddress ?? 'unknown'),
+        { errorHandler },
+      )
       server.middlewares.use('/api/tally', (request, response) => {
         void tally(request, response)
       })

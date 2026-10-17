@@ -1,5 +1,11 @@
-import { createArraySource, createMutation, createSchema } from 'tally-core'
-import { describe, expect, it } from 'vitest'
+import {
+  createArraySource,
+  createMutation,
+  createSchema,
+  type DataSource,
+  type RowPatch,
+} from 'tally-core'
+import { describe, expect, it, vi } from 'vitest'
 import { createTallyHandler } from './handler.ts'
 
 const schema = createSchema({
@@ -36,6 +42,24 @@ async function readUntil(
 
 function post(body: unknown, method = 'POST'): RequestInit {
   return { method, body: JSON.stringify(body), headers: { 'content-type': 'application/json' } }
+}
+
+function liveSetup() {
+  const listeners = new Set<(patch: RowPatch) => void>()
+  const source: DataSource = {
+    ...createArraySource(rows, schema),
+    subscribe: (onPatch) => {
+      listeners.add(onPatch)
+      return () => listeners.delete(onPatch)
+    },
+  }
+  const handler = createTallyHandler({ source, schema, heartbeatMs: 60_000 })
+  const open = (signal?: AbortSignal): Promise<Response> =>
+    handler(new Request('http://tally.test/events', signal === undefined ? {} : { signal }))
+  const emit = (patch: RowPatch): void => {
+    for (const listener of listeners) listener(patch)
+  }
+  return { listeners, open, emit }
 }
 
 describe('createTallyHandler', () => {
@@ -121,5 +145,78 @@ describe('createTallyHandler', () => {
       new Request('http://tally.test/rows', post({ version: 1, mutations: [] }, 'PATCH')),
     )
     expect(response.status).toBe(405)
+  })
+
+  it('rejects request bodies over the size limit with 413', async () => {
+    const handler = createTallyHandler({
+      source: createArraySource(rows, schema),
+      schema,
+      maxBodyBytes: 64,
+    })
+    const declared = await handler(
+      new Request('http://tally.test/query', {
+        method: 'POST',
+        body: '{}',
+        headers: { 'content-length': '65' },
+      }),
+    )
+    expect(declared.status).toBe(413)
+    const streamed = await handler(
+      new Request('http://tally.test/query', {
+        method: 'POST',
+        body: JSON.stringify({ version: 1, sort: [], facets: ['name'.repeat(20)] }),
+      }),
+    )
+    expect(streamed.status).toBe(413)
+    expect(await payload(streamed)).toEqual({
+      code: 'too_large',
+      message: 'Request body is too large',
+      details: [],
+    })
+  })
+
+  it('hides internal error messages and reports them to onError', async () => {
+    const leak = new Error('select * from secrets')
+    const source: DataSource = {
+      ...createArraySource(rows, schema),
+      query: () => Promise.reject(leak),
+    }
+    const onError = vi.fn<(error: unknown) => void>()
+    const handler = createTallyHandler({ source, schema, onError })
+    const response = await handler(
+      new Request('http://tally.test/query', post({ version: 1, sort: [] })),
+    )
+    expect(response.status).toBe(500)
+    expect(await payload(response)).toEqual({
+      code: 'internal',
+      message: 'Internal error',
+      details: [],
+    })
+    expect(onError).toHaveBeenCalledWith(leak)
+  })
+
+  it('ignores inherited object keys as routes and methods', async () => {
+    const { call } = setup()
+    expect((await call('/schema', { method: 'constructor' })).status).toBe(405)
+    expect((await call('/schema', { method: 'toString' })).status).toBe(405)
+  })
+
+  it('releases live subscriptions when the event stream is cancelled or aborted', async () => {
+    const { listeners, open } = liveSetup()
+    const cancelled = await open()
+    expect(listeners.size).toBe(1)
+    await cancelled.body?.cancel()
+    expect(listeners.size).toBe(0)
+    const aborted = await open(AbortSignal.abort())
+    expect(listeners.size).toBe(0)
+    expect((await aborted.body?.getReader().read())?.done).toBe(true)
+  })
+
+  it('drops event streams whose consumer falls behind', async () => {
+    const { listeners, open, emit } = liveSetup()
+    const stream = await open()
+    for (let index = 0; index < 2000; index += 1) emit({ deletes: [index] })
+    expect(listeners.size).toBe(0)
+    await expect(stream.body?.getReader().read()).rejects.toThrow(/fell behind/)
   })
 })
