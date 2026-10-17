@@ -8,5 +8,6 @@
     "module": "preserve",
     "moduleResolution": "bundler"
   },
-  "include": ["env.d.ts", "scripts/**/*.ts", "snippets/**/*.ts", "snippets/**/*.tsx"]
+  "include": ["env.d.ts", "scripts/**/*.ts", "snippets/**/*.ts", "snippets/**/*.tsx"],
+  "exclude": ["snippets/code/solid/**"]
 }

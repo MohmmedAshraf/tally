@@ -1,0 +1,64 @@
+---
+title: 'Right to left'
+description: 'Run the grid right to left: direction, pinning, keys, resizing, menus and digits.'
+icon: 'pilcrow-right'
+---
+
+`<Tally>` supports right-to-left layouts. Pinning, arrow keys, column resizing, scrolling, menus and the detail sheet follow the direction.
+
+## Setting the direction
+
+Pass `dir` to `<Tally>`, or leave it out and the grid reads the computed `direction` of its root, which inherits from any ancestor such as `<html dir="rtl">`. The grid measures the direction again when its root resizes.
+
+| `dir`   | Behavior                                             |
+| ------- | ---------------------------------------------------- |
+| `'rtl'` | Right to left. Sets `dir="rtl"` on the root element. |
+| `'ltr'` | Left to right.                                       |
+| omitted | Reads the computed direction of the root.            |
+
+{/* snippet: rtl/arabic.tsx */}
+
+```tsx accounts.tsx
+import { useState, type ReactNode } from 'react'
+import { createArraySource, createFormatContext, type RowData, type Schema } from 'tally-core'
+import { Tally, useGrid } from 'tally-react'
+
+const format = createFormatContext({ locale: 'ar-EG', numberingSystem: 'arab' })
+
+export function Accounts({ rows, schema }: { rows: RowData[]; schema: Schema }): ReactNode {
+  const [source] = useState(() => createArraySource(rows, schema))
+  const grid = useGrid({ schema, source, format })
+  return (
+    <Tally
+      grid={grid}
+      dir="rtl"
+      label="الحسابات"
+      labels={{ filterPlaceholder: 'تصفية…', rows: (count) => `${count} صف` }}
+    />
+  )
+}
+```
+
+## What follows the direction
+
+| Area      | Under `rtl`                                                                                            |
+| --------- | ------------------------------------------------------------------------------------------------------ |
+| Pinning   | `pin: 'left'` pins to the inline start, which is the right edge. `pin: 'right'` pins to the left edge. |
+| Menus     | The column menu's Pin left and Pin right name the visual side and store the matching inline side.      |
+| Keys      | Left and Right follow the screen: Right moves to the previous column.                                  |
+| Resizing  | Handles sit on the inline end. Dragging and arrow keys on a handle resize toward it.                   |
+| Scrolling | Virtual columns scroll with negative offsets, as browsers report them under `rtl`.                     |
+| Popups    | Menus, popovers and the detail sheet render inside the root and inherit its direction.                 |
+
+The view stores `left` and `right` as inline start and end, so a saved view works in both directions.
+
+## Digits and formatting
+
+Numbers and dates follow the grid's format context, not the direction. Pass `format` to `useGrid` with a `locale` and a `numberingSystem` such as `arab`. Cells, counts, page ranges and row numbers then use those digits.
+
+<Note>
+  The filter bar parses ASCII digits only. Arabic-Indic digits typed there match as text. Cell
+  editors accept both.
+</Note>
+
+Default labels format their counts with the format context. Labels you override receive plain numbers. See [Labels and localization](/guides/labels-and-localization).

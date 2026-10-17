@@ -1,0 +1,113 @@
+---
+title: 'Live updates'
+description: 'Push changed rows into a loaded grid with row patches.'
+icon: 'radio'
+---
+
+A live source pushes row patches to the grid while it is open. A patch upserts rows by key and deletes rows by key. The grid merges it into the rows it loaded without a reload.
+
+## Row patches
+
+| Field     | Type        | Notes                                       |
+| --------- | ----------- | ------------------------------------------- |
+| `upserts` | `RowData[]` | Rows to replace by key, or to add when new. |
+| `deletes` | `RowKey[]`  | Keys of rows to remove.                     |
+
+Upserted rows replace the loaded row with the same key. New rows are added. Without a group, the merged rows are placed in the order of the current sort.
+
+## From an array
+
+`createArraySource` returns a source with `patch(patch)`. It updates the source's rows and broadcasts the patch to every subscribed grid.
+
+{/* snippet: live-updates/patch.ts */}
+
+```ts patch.ts
+import { createArraySource, createSchema } from 'tally-core'
+
+const schema = createSchema({
+  key: 'id',
+  columns: [{ id: 'service' }, { id: 'latency', type: 'int' }],
+})
+
+export const source = createArraySource([{ id: 1, service: 'api', latency: 120 }], schema)
+
+source.patch({
+  upserts: [
+    { id: 1, service: 'api', latency: 95 },
+    { id: 2, service: 'worker', latency: 40 },
+  ],
+})
+
+source.patch({ deletes: [2] })
+```
+
+## From your own transport
+
+A source is live when it has `subscribe(onPatch)`. The grid subscribes on its first load and calls the returned function when it is disposed. Set `live: true` in the capabilities so servers and tools know it.
+
+{/* snippet: live-updates/custom-source.ts */}
+
+```ts with-socket.ts
+import type { DataSource } from 'tally-core'
+import { rowPatchSchema } from 'tally-protocol'
+
+export function withSocket(source: DataSource, url: string): DataSource {
+  return {
+    capabilities: { ...source.capabilities, live: true },
+    query: (request, signal) => source.query(request, signal),
+    subscribe: (onPatch) => {
+      const socket = new WebSocket(url)
+      socket.addEventListener('message', (event: MessageEvent<string>) => {
+        const parsed = rowPatchSchema.safeParse(JSON.parse(event.data))
+        if (parsed.success) onPatch(parsed.data)
+      })
+      return () => socket.close()
+    },
+  }
+}
+```
+
+`rowPatchSchema` from `tally-protocol` validates a patch that crossed the network.
+
+## Which sources are live
+
+| Source                   | Live updates                                                                                |
+| ------------------------ | ------------------------------------------------------------------------------------------- |
+| `createArraySource`      | `patch(patch)` on the source.                                                               |
+| `connectHttpSource`      | Server-sent events from `GET /events`, when the server reports `live: true`.                |
+| `createQuerySource`      | Patches from the wrapped source. Each one invalidates the cached queries.                   |
+| `createCollectionSource` | Collection changes become patches.                                                          |
+| `createSupabaseSource`   | Supabase Realtime, with `realtime` on and the table in the `supabase_realtime` publication. |
+| `tally-server`           | Accepted mutations and patches from a live source are relayed to every stream.              |
+| `tally/laravel`          | None. The schema route reports `live: false` and `GET /events` returns `404`.               |
+
+## Over HTTP
+
+`tally-server` writes each patch as an `event: patch` message on `GET /events` and sends a keep-alive comment every `heartbeatMs`, 15 seconds by default. `connectHttpSource` opens the stream with the same headers as every request and closes it when the grid is disposed.
+
+<Warning>
+  The stream reconnects on its own, but events carry no id. Patches sent while a client is
+  disconnected are not replayed. A stream whose client falls more than 1024 events behind is closed
+  by the server.
+</Warning>
+
+Patch events that do not match the protocol schema are dropped on the client.
+
+## Changed cells
+
+The row store records which columns a patch changed for each row. `useRows(grid).changed` maps a row key to those column ids, and in filters the grid runs itself, the `is:changed` flag matches those rows.
+
+{/* snippet: live-updates/changed.tsx */}
+
+```tsx changed-count.tsx
+import type { ReactNode } from 'react'
+import type { Grid } from 'tally-core'
+import { useRows } from 'tally-react'
+
+export function ChangedCount({ grid }: { grid: Grid }): ReactNode {
+  const { changed } = useRows(grid)
+  return <span>{changed.size} rows changed</span>
+}
+```
+
+See [Data sources and protocol](/concepts/data-sources-and-protocol) for the full source contract.

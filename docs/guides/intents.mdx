@@ -1,0 +1,130 @@
+---
+title: 'Intents'
+description: 'Every intent a key press becomes, what the grid does with it, and how to take it over.'
+icon: 'zap'
+---
+
+A key press in the grid becomes a `GridIntent` from `tally-core`. The grid then acts on the intent: it moves the selection, starts an edit, copies, undoes. `onIntent` on `<Tally>` sees each intent first, so the host can add commands, open its own panels or block an action.
+
+## The intents
+
+`keyboardIntent` in `tally-core` produces these. The right column is what `tally-react` does when `onIntent` does not consume the intent.
+
+| Intent           | Fields                    | Default handling in `tally-react`                                                        |
+| ---------------- | ------------------------- | ---------------------------------------------------------------------------------------- |
+| `select`         | `action: SelectionAction` | Dispatches the action to `grid.selection`.                                               |
+| `edit`           | `initial?: string`        | Opens the editor on the active cell, seeded with the typed character.                    |
+| `clearCells`     |                           | Sets every editable cell in the range to `null` as one `Clear` mutation.                 |
+| `copy`           |                           | Writes the range, or the selected rows, to the clipboard as TSV.                         |
+| `cut`            |                           | Copies, then clears the range.                                                           |
+| `paste`          |                           | Reads TSV from the clipboard and writes it from the active cell as one `Paste` mutation. |
+| `undo`, `redo`   |                           | `grid.undo()` and `grid.redo()`.                                                         |
+| `escape`         |                           | Clears the selection.                                                                    |
+| `toggleRow`      |                           | Toggles the active row in the row selection.                                             |
+| `expand`         | `open: boolean`           | Expands or collapses the active tree row.                                                |
+| `focusFilter`    |                           | Focuses the filter bar.                                                                  |
+| `inspect`        |                           | Nothing. Left to the host.                                                               |
+| `commandPalette` |                           | Nothing. Left to the host.                                                               |
+
+Copy uses the column types' formatted text. Clear, cut and paste skip columns with `editable: false` and do nothing when the source cannot mutate. See [Editing and validation](/guides/editing-and-validation).
+
+## Keys
+
+| Keys                               | Intent                                |
+| ---------------------------------- | ------------------------------------- |
+| Arrows                             | `select` with a `move` action         |
+| Shift + arrows                     | `select`, extending the range         |
+| PageUp, PageDown                   | `select`, one viewport of rows        |
+| Home, End                          | `select`, first or last column        |
+| Cmd/Ctrl + arrows                  | `select`, jump to the edge            |
+| Cmd/Ctrl + Home, End               | `select`, first or last cell          |
+| Cmd/Ctrl + A                       | `select` with `selectAllCells`        |
+| Tab, Shift + Tab                   | `select`, next or previous cell       |
+| Enter, F2                          | `edit`                                |
+| A printable character              | `edit` with `initial`                 |
+| Delete, Backspace                  | `clearCells`                          |
+| Cmd/Ctrl + C, X, V                 | `copy`, `cut`, `paste`                |
+| Cmd/Ctrl + Z                       | `undo`                                |
+| Cmd/Ctrl + Shift + Z, Cmd/Ctrl + Y | `redo`                                |
+| Escape                             | `escape`                              |
+| Space                              | `inspect`                             |
+| Shift + Space                      | `toggleRow`                           |
+| Alt + Left, Alt + Right            | `expand` with `open: false` or `true` |
+| Cmd/Ctrl + K                       | `commandPalette`                      |
+| /                                  | `focusFilter`                         |
+
+The primary modifier is Command on macOS and Control elsewhere. `tally-react` reads the platform from `navigator.platform`. Enter, F2, Delete and typing need an active cell. Tab on the first or last column is not captured, so focus leaves the grid. Under `dir="rtl"` Left and Right are swapped before the lookup. See [RTL](/guides/rtl).
+
+While an editor is open, the grid does not handle keys. The editor owns them until it commits or cancels.
+
+## onIntent
+
+`onIntent` has the type `IntentHandler`: `(intent: GridIntent) => boolean | undefined`. Return `true` to consume the intent. Return anything else to let the grid handle it.
+
+{/* snippet: intents/inspector.tsx */}
+
+```tsx accounts.tsx
+import type { ReactNode } from 'react'
+import type { Grid, RowData } from 'tally-core'
+import { Tally, type IntentHandler } from 'tally-react'
+
+export function Accounts({
+  grid,
+  inspect,
+}: {
+  grid: Grid
+  inspect: (row: RowData) => void
+}): ReactNode {
+  const onIntent: IntentHandler = (intent) => {
+    if (intent.type === 'cut' || intent.type === 'clearCells') return true
+    if (intent.type !== 'inspect') return undefined
+    const active = grid.selection.get().active
+    const item = active === undefined ? undefined : grid.model().rows[active.row]
+    if (item !== undefined) inspect(item.row)
+    return true
+  }
+  return <Tally grid={grid} label="Accounts" onIntent={onIntent} />
+}
+```
+
+This handler opens an inspector on Space and blocks cut and clear. Copy, paste and everything else still work.
+
+## Pointer input
+
+Mouse input does not go through intents. A click focuses a cell, Shift + click extends the range, a drag selects a range and a double click opens the editor. The grid dispatches those to `grid.selection` directly. Clicks on links, buttons and inputs inside a cell are left alone.
+
+Watch pointer selection with `grid.selection.subscribe` or `useSelection(grid)`.
+
+## Without React
+
+`keyboardIntent(input, state, geometry, options?)` is a pure function. A host that renders its own grid maps key events with it and dispatches `select` intents to the selection store.
+
+{/* snippet: intents/host.ts */}
+
+```ts host.ts
+import { keyboardIntent, type Grid, type GridIntent } from 'tally-core'
+
+export function handleKey(grid: Grid, event: KeyboardEvent): GridIntent | undefined {
+  const intent = keyboardIntent(
+    {
+      key: event.key,
+      shiftKey: event.shiftKey,
+      metaKey: event.metaKey,
+      ctrlKey: event.ctrlKey,
+      altKey: event.altKey,
+    },
+    grid.selection.get(),
+    grid.selection.geometry(),
+    { platform: /mac/i.test(navigator.platform) ? 'mac' : 'other' },
+  )
+  if (intent?.type === 'select') grid.selection.dispatch(intent.action)
+  return intent
+}
+```
+
+| Option     | Notes                                                                |
+| ---------- | -------------------------------------------------------------------- |
+| `platform` | `'mac'` uses Command as the primary modifier. Default `'other'`.     |
+| `editing`  | `true` while a cell is being edited. Only Escape produces an intent. |
+
+See [Selection and keyboard](/concepts/selection-and-keyboard) for the selection actions and reducer.

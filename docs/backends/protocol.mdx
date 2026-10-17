@@ -1,0 +1,246 @@
+---
+title: 'Tally Query Protocol'
+sidebarTitle: 'Protocol'
+description: 'The four HTTP routes a Tally backend serves, their bodies, the error body and the event stream.'
+icon: 'network'
+---
+
+The Tally Query Protocol is the `DataSource` contract as JSON over HTTP. `tally-server` serves it from Node, `tally/laravel` serves it from Laravel, and `connectHttpSource` in `tally-adapters` consumes it. Any server that answers these four routes backs a grid.
+
+## Routes
+
+Every route sits under one base URL, such as `/api/accounts`.
+
+| Route         | Body              | Response                              |
+| ------------- | ----------------- | ------------------------------------- |
+| `GET /schema` |                   | `SchemaResponse`                      |
+| `POST /query` | `QueryRequest`    | `QueryResponse`                       |
+| `PATCH /rows` | `MutationRequest` | `MutationResult`                      |
+| `GET /events` |                   | `text/event-stream` of `patch` events |
+
+Every body carries `version: 1`, except responses to `/query` and `/rows`.
+
+## Schema
+
+`GET /schema` describes the grid: its columns, what the server does itself and the key field.
+
+{/* snippet: protocol/schema-response.ts */}
+
+```ts schema-response.ts
+import type { SchemaResponse } from 'tally-protocol'
+
+export const schemaResponse: SchemaResponse = {
+  version: 1,
+  key: 'id',
+  columns: [
+    { id: 'account', label: 'Account', type: 'text' },
+    { id: 'plan', type: 'enum', options: [{ value: 'free' }, { value: 'pro' }, { value: 'team' }] },
+    { id: 'mrr', label: 'MRR', type: 'currency', aggregate: 'sum' },
+  ],
+  capabilities: {
+    filter: true,
+    sort: true,
+    group: true,
+    search: true,
+    aggregates: true,
+    facets: true,
+    pagination: 'offset',
+    mutate: true,
+    live: true,
+  },
+}
+```
+
+| Field          | Notes                                                                                                           |
+| -------------- | --------------------------------------------------------------------------------------------------------------- |
+| `version`      | Always `1`.                                                                                                     |
+| `columns`      | Column definitions in the shape `createSchema` accepts. See [Schema and columns](/concepts/schema-and-columns). |
+| `capabilities` | The nine capabilities. See [Data sources and protocol](/concepts/data-sources-and-protocol#capabilities).       |
+| `key`          | The key field. It need not be a column.                                                                         |
+
+`connectHttpSource` builds the client schema from this response, so the columns are defined once, on the server.
+
+## Query
+
+`POST /query` takes the query of the current view and the page, and answers with rows and the summaries the grid asked for.
+
+{/* snippet: protocol/query.ts */}
+
+```ts query.ts
+import type { QueryRequest, QueryResponse } from 'tally-core'
+
+export const request: QueryRequest = {
+  version: 1,
+  filter: { type: 'condition', column: 'mrr', op: 'gt', value: 2000 },
+  sort: [{ column: 'mrr', direction: 'desc' }],
+  group: { column: 'plan' },
+  page: { offset: 0, limit: 100 },
+  aggregates: [{ column: 'mrr', fn: 'sum' }],
+  facets: ['plan'],
+}
+
+export const response: QueryResponse = {
+  rows: [{ id: 7, account: 'Acme', plan: 'pro', mrr: 4200 }],
+  total: 1240,
+  matched: 1,
+  groups: [{ key: 'pro', value: 'pro', count: 1, aggregates: { 'mrr:sum': 4200 } }],
+  aggregates: { 'mrr:sum': 4200 },
+  facets: {
+    plan: { kind: 'terms', terms: [{ value: 'pro', count: 1 }], distinct: 1 },
+  },
+}
+```
+
+| Request field | Type                                        | Notes                                                       |
+| ------------- | ------------------------------------------- | ----------------------------------------------------------- |
+| `version`     | `1`                                         |                                                             |
+| `filter`      | `Filter`                                    | The filter AST. Absent when the grid filters on the client. |
+| `sort`        | `Sort[]`                                    | `{ column, direction }` in priority order. May be empty.    |
+| `group`       | `Group`                                     | `{ column, granularity? }`.                                 |
+| `page`        | `{ offset, limit }` or `{ cursor?, limit }` | Absent when the source declares `pagination: 'none'`.       |
+| `aggregates`  | `{ column, fn }[]`                          | Footer aggregates.                                          |
+| `facets`      | `string[]`                                  | Column ids to facet.                                        |
+
+| Response field | Type                                  | Notes                                     |
+| -------------- | ------------------------------------- | ----------------------------------------- |
+| `rows`         | `RowData[]`                           | The rows of the page.                     |
+| `total`        | `number`                              | Rows before filtering.                    |
+| `matched`      | `number`                              | Rows after filtering.                     |
+| `cursor`       | `string`                              | The next cursor. Absent on the last page. |
+| `groups`       | `{ key, value, count, aggregates }[]` | One summary per group.                    |
+| `aggregates`   | `Record<string, unknown>`             | Keyed `column:fn`, such as `mrr:sum`.     |
+| `facets`       | `Record<string, Facet>`               | A facet per requested column.             |
+
+A facet is either `{ kind: 'terms', terms: [{ value, count }], distinct }` or `{ kind: 'histogram', min, max, bins: [{ start, end, count }] }`. The column type decides which.
+
+The grid only sends what the capabilities allow. A filter that contains a flag is never sent, and a filter with a search is not sent to a source without `search`. The grid applies those itself. See [Query language reference](/reference/query-language) for every operator a filter can carry.
+
+## Rows
+
+`PATCH /rows` applies the mutations the grid committed, in order.
+
+{/* snippet: protocol/mutation.ts */}
+
+```ts mutation.ts
+import type { MutationResult } from 'tally-core'
+import type { MutationRequest } from 'tally-protocol'
+
+export const request: MutationRequest = {
+  version: 1,
+  mutations: [
+    {
+      id: 'm1',
+      label: 'Edit MRR',
+      at: 1792224000000,
+      changes: [{ key: 7, column: 'mrr', from: 4200, to: 4800 }],
+      inserted: [],
+      deleted: [],
+    },
+  ],
+}
+
+export const result: MutationResult = {
+  accepted: true,
+  rows: [{ id: 7, account: 'Acme', plan: 'pro', mrr: 4800 }],
+}
+```
+
+| Mutation field | Notes                                             |
+| -------------- | ------------------------------------------------- |
+| `id`, `label`  | Identity and the label shown in the undo history. |
+| `at`           | Epoch milliseconds.                               |
+| `changes`      | `{ key, column, from, to }` per edited cell.      |
+| `inserted`     | `{ row, index? }` per new row.                    |
+| `deleted`      | `{ row, index }` per removed row.                 |
+
+The result is `{ accepted, rows?, errors? }`. `rows` are the canonical rows after the write, and the grid replaces its copies with them. `errors` are `{ key?, column?, message }`. A rejected mutation is rolled back in the grid. See [Mutations and undo](/concepts/mutations-and-undo).
+
+A read-only server answers `405` with the code `read_only`.
+
+## Events
+
+`GET /events` is a server-sent event stream. Each change is one `patch` event whose data is a `RowPatch`:
+
+```text
+event: patch
+data: {"upserts":[{"id":7,"account":"Acme","plan":"pro","mrr":4800}]}
+```
+
+Upserts replace the row with the same key or add it, and `deletes` lists keys to remove. `tally-server` writes a `: ping` comment every 15 seconds to keep the connection open, and broadcasts every accepted mutation to every open stream. The client reconnects when the stream drops. A server that reports `live: false` in its capabilities gets no event stream from the client.
+
+## Errors
+
+Errors share one body:
+
+```json
+{
+  "code": "invalid_query",
+  "message": "Query request is invalid",
+  "details": ["sort.0.column: unknown column \"nope\""]
+}
+```
+
+Each detail starts with the path of one problem.
+
+| Status | Code            | When                                                                      |
+| ------ | --------------- | ------------------------------------------------------------------------- |
+| `400`  | `invalid_query` | The body is not JSON, breaks the wire schema or does not fit the columns. |
+| `404`  | `not_found`     | Unknown route.                                                            |
+| `405`  | `read_only`     | `PATCH /rows` on a read-only grid.                                        |
+| `405`  |                 | Wrong method, with an `Allow` header and no body.                         |
+| `413`  | `too_large`     | The body is larger than `maxBodyBytes`. `tally-server` only.              |
+| `500`  | `internal`      | An unexpected error. The message only says `Internal error`.              |
+
+The checks behind `invalid_query` cover the columns, operators, value kinds, operator arity, groupable columns, granularity on date columns only, aggregates and facets.
+
+`connectHttpSource` turns an error body into an `HttpSourceError` with `status`, `code`, `message` and `details`.
+
+## Validating requests
+
+`tally-protocol` holds a Zod schema for every body and validates a request against a `Schema`. A server in TypeScript does not need `tally-server` to speak the protocol:
+
+{/* snippet: protocol/server.ts */}
+
+```ts server.ts
+import { TallyError, createArraySource, createSchema } from 'tally-core'
+import { validateQueryRequest } from 'tally-protocol'
+
+const schema = createSchema({
+  key: 'id',
+  columns: [{ id: 'account' }, { id: 'mrr', type: 'currency' }],
+})
+const source = createArraySource([{ id: 1, account: 'Acme', mrr: 4200 }], schema)
+
+export async function query(request: Request): Promise<Response> {
+  try {
+    const body: unknown = await request.json()
+    const valid = validateQueryRequest(body, schema)
+    return Response.json(await source.query(valid, request.signal))
+  } catch (error) {
+    if (!(error instanceof TallyError)) throw error
+    const { code, message, details } = error
+    return Response.json({ code, message, details }, { status: 400 })
+  }
+}
+```
+
+| Function                                    | Effect                                                                  |
+| ------------------------------------------- | ----------------------------------------------------------------------- |
+| `validateQueryRequest(input, schema)`       | Parses the shape, checks it against the schema, throws `invalid_query`. |
+| `validateMutationRequest(input, schema)`    | The same for a mutation request.                                        |
+| `parseQueryRequest`, `parseMutationRequest` | Shape only.                                                             |
+| `queryIssues`, `mutationIssues`             | The list of problems, without throwing.                                 |
+
+The wire schemas are exported too: `queryRequestSchema`, `queryResponseSchema`, `mutationRequestSchema`, `mutationResultSchema`, `rowPatchSchema` and `schemaResponseSchema`.
+
+## Other languages
+
+The same contract ships as JSON Schema for servers in any language. Import a file from `tally-protocol/schemas/*.json` or call `toJsonSchema(name)`. Every document is on the [JSON Schema](/reference/json-schema) page.
+
+```ts
+import queryRequest from 'tally-protocol/schemas/query-request.json' with { type: 'json' }
+```
+
+## Conformance
+
+A backend is conformant when it answers the same rows, totals, groups, aggregates and facets as the in-memory executor of `tally-core` for a fixture dataset. `runConformance` runs every case against your handler and lists what differed, by path. See [Writing your own source](/backends/adapters#writing-your-own-source) and [Testing with conformance](/backends/node#conformance).

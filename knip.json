@@ -4,7 +4,7 @@
     ".": {},
     "packages/*": {},
     "docs": {
-      "entry": ["snippets/code/**/*.{ts,tsx}"]
+      "entry": ["snippets/code/**/*.{ts,tsx,vue,svelte}"]
     },
     "web": {},
     "examples/playground": {

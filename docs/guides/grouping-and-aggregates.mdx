@@ -1,0 +1,130 @@
+---
+title: 'Grouping and aggregates'
+description: 'Group rows by a column, bucket dates, and summarize columns in the footer and group rows.'
+icon: 'rows-3'
+---
+
+A grid groups by one column at a time. Every group gets a header row with its value, its row count and the footer aggregates for that group.
+
+## Grouping
+
+| Where       | How                                         |
+| ----------- | ------------------------------------------- |
+| Column menu | Group by, or Ungroup on the grouped column. |
+| Filter bar  | `group by plan`                             |
+| Code        | `grid.view.setGroup(column, granularity?)`  |
+
+`setGroup(undefined)` removes the group. Only columns whose type is groupable, and that do not set `groupable: false`, can be grouped.
+
+Date columns group into buckets. The granularity is part of the view, not of the query text.
+
+| Granularity | Key                                      |
+| ----------- | ---------------------------------------- |
+| `day`       | `2026-05-14`                             |
+| `week`      | `2026-05-11`, the Monday of the ISO week |
+| `month`     | `2026-05`. The default.                  |
+| `quarter`   | `2026-Q2`                                |
+| `year`      | `2026`                                   |
+
+## Group order
+
+When the sort includes the group column, groups follow that sort. Otherwise they follow option order for enums, natural order for other values, and newest first for dates. Empty values form one group, labelled Empty, which comes last.
+
+Click the chevron of a group to collapse it. Collapsed group keys are stored in `collapsedGroups` on the view, and `toggleGroupCollapsed(key)` changes them from code.
+
+## Aggregates
+
+| Aggregate  | Result                               |
+| ---------- | ------------------------------------ |
+| `sum`      | Sum of numbers.                      |
+| `avg`      | Mean of numbers.                     |
+| `min`      | Smallest value in the type's order.  |
+| `max`      | Largest value in the type's order.   |
+| `count`    | Number of non-empty values.          |
+| `distinct` | Number of distinct non-empty values. |
+
+Each column type lists the aggregates it supports. See [Column types](/concepts/column-types).
+
+The footer shows one aggregate per column. Set it with the `aggregate` column option, from the Footer submenu of the column menu, or with `grid.view.setFooter(column, fn)`. A date column with `min` or `max` shows the full range in the footer.
+
+Group rows show the same footer aggregates for their own rows, except `count`, which the group header already shows.
+
+{/* snippet: grouping-and-aggregates/group.ts */}
+
+```ts group.ts
+import { createArraySource, createGrid, createSchema } from 'tally-core'
+
+const schema = createSchema({
+  key: 'id',
+  columns: [
+    { id: 'account', label: 'Account' },
+    { id: 'mrr', label: 'MRR', type: 'currency', aggregate: 'sum' },
+    { id: 'renewal', type: 'date' },
+  ],
+})
+
+const source = createArraySource(
+  [
+    { id: 1, account: 'Acme', mrr: 4200, renewal: '2026-11-02' },
+    { id: 2, account: 'Globex', mrr: 1800, renewal: '2027-01-20' },
+  ],
+  schema,
+)
+
+const grid = createGrid({ schema, source })
+
+grid.view.setGroup('renewal', 'quarter')
+grid.view.setFooter('mrr', 'avg')
+await grid.load()
+
+export const groups = grid.get().groups?.map((group) => ({
+  key: group.key,
+  count: group.count,
+  mrr: group.aggregates['mrr:avg'],
+}))
+
+export const total = grid.get().aggregates?.['mrr:avg']
+```
+
+Aggregate results are keyed `column:fn`, as `aggregateKey({ column, fn })` builds them.
+
+## Without a grid
+
+`execute` groups and aggregates an array directly.
+
+{/* snippet: grouping-and-aggregates/execute.ts */}
+
+```ts execute.ts
+import { createSchema, execute } from 'tally-core'
+
+const schema = createSchema({
+  columns: [
+    { id: 'plan', type: 'enum', options: [{ value: 'pro' }, { value: 'team' }] },
+    { id: 'mrr', type: 'currency' },
+  ],
+})
+
+const result = execute(
+  [
+    { id: 1, plan: 'pro', mrr: 4200 },
+    { id: 2, plan: 'team', mrr: 9100 },
+    { id: 3, plan: 'pro', mrr: 1800 },
+  ],
+  { group: { column: 'plan' }, aggregates: [{ column: 'mrr', fn: 'sum' }] },
+  schema,
+)
+
+export const totals = result.groups?.map((group) => [group.key, group.aggregates['mrr:sum']])
+```
+
+## Where it runs
+
+The grid sends the group and the footer aggregates to the source when it has the `group` and `aggregates` capabilities. Otherwise it computes them over the rows it loaded. The Supabase adapter always computes them in the grid, since PostgREST has no grouping.
+
+With offset pagination, a page holds groups rather than rows, and the pager counts groups.
+
+<Warning>
+  The SQL adapters cut group summaries to `maxGroups`, `1000` by default. Pages past that limit are
+  empty. Raise it in [Node](/backends/node) or [Laravel](/backends/laravel) when a column has more
+  distinct values.
+</Warning>

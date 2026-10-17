@@ -1,0 +1,96 @@
+---
+title: 'Facets'
+description: 'Value counts and histograms per column, used by suggestions, chips and the column menu.'
+icon: 'chart-column'
+---
+
+A facet summarizes the values of one column over the rows that match the filter. The grid requests facets with every query and keeps them in its state.
+
+| Facet       | For                   | Content                                               |
+| ----------- | --------------------- | ----------------------------------------------------- |
+| `terms`     | Text, enums, booleans | `terms` with `{ value, count }`, and `distinct`.      |
+| `histogram` | Numbers and dates     | `min`, `max` and `bins` with `{ start, end, count }`. |
+
+Each column type declares its facet kind. A type with facet `none` has no facet. See [Column types](/concepts/column-types).
+
+## Where they show
+
+- The filter bar suggests values from terms facets.
+- A chip's popover lists value counts for enums and draws a histogram for numbers and dates.
+- The column menu shows the number of unique values.
+
+## Which columns
+
+The grid asks for a facet on every column that is filterable and whose type has a facet kind. `facetColumns(schema)` returns that list. Set `filterable: false` to leave a column out.
+
+## Reading facets
+
+Facets are in the grid state. Select them with `useGridState` so the component only renders when they change.
+
+{/* snippet: facets/plan-counts.tsx */}
+
+```tsx plan-counts.tsx
+import type { ReactNode } from 'react'
+import type { Grid } from 'tally-core'
+import { useGridState } from 'tally-react'
+
+export function PlanCounts({ grid }: { grid: Grid }): ReactNode {
+  const facet = useGridState(grid, (state) => state.facets?.['plan'])
+  if (facet?.kind !== 'terms') return null
+  return (
+    <ul>
+      {facet.terms.map((term) => (
+        <li key={String(term.value)}>
+          {String(term.value)}: {term.count}
+        </li>
+      ))}
+    </ul>
+  )
+}
+```
+
+## Without a grid
+
+`computeFacets(rows, columns, schema, context, options?)` computes facets over an array.
+
+{/* snippet: facets/facets.ts */}
+
+```ts facets.ts
+import { computeFacets, createExecutionContext, createSchema } from 'tally-core'
+
+const schema = createSchema({
+  columns: [
+    { id: 'plan', type: 'enum', options: [{ value: 'free' }, { value: 'pro' }, { value: 'team' }] },
+    { id: 'mrr', type: 'currency' },
+  ],
+})
+
+const rows = [
+  { id: 1, plan: 'pro', mrr: 4200 },
+  { id: 2, plan: 'team', mrr: 9100 },
+  { id: 3, plan: 'pro', mrr: 1800 },
+]
+
+export const facets = computeFacets(rows, ['plan', 'mrr'], schema, createExecutionContext(), {
+  bins: 4,
+  maxTerms: 10,
+})
+```
+
+| Option     | Default | Notes                       |
+| ---------- | ------- | --------------------------- |
+| `bins`     | `20`    | Histogram bins.             |
+| `maxTerms` | `50`    | Terms kept, after ordering. |
+
+Terms of an enum follow option order. Other terms are ordered by count, highest first. Empty values are not counted.
+
+The same options exist on `createArraySource` as `facetOptions`, and as `bins` and `maxTerms` on the SQL adapters.
+
+## Where they run
+
+The grid sends the facet columns to the source when it has the `facets` capability. Otherwise it computes them over the rows it loaded.
+
+<Note>
+  Facets computed in the grid only count loaded rows. The Supabase adapter computes facets this way,
+  from the loaded page.
+</Note>

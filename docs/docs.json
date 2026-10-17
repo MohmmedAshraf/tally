@@ -13,15 +13,27 @@
   },
   "favicon": "/favicon.svg",
   "fonts": {
-    "heading": { "family": "Geist" },
-    "body": { "family": "Geist" }
+    "heading": {
+      "family": "Geist"
+    },
+    "body": {
+      "family": "Geist"
+    }
   },
   "icons": {
     "library": "lucide"
   },
   "navbar": {
-    "links": [{ "label": "Playground", "href": "https://play.tally.outhebox.dev" }],
-    "primary": { "type": "github", "href": "https://github.com/MohmmedAshraf/tally" }
+    "links": [
+      {
+        "label": "Playground",
+        "href": "https://play.tally.outhebox.dev"
+      }
+    ],
+    "primary": {
+      "type": "github",
+      "href": "https://github.com/MohmmedAshraf/tally"
+    }
   },
   "footer": {
     "socials": {
@@ -50,8 +62,49 @@
         ]
       },
       {
+        "group": "Guides",
+        "pages": [
+          "guides/filtering",
+          "guides/sorting",
+          "guides/grouping-and-aggregates",
+          "guides/facets",
+          "guides/pagination",
+          "guides/pinning-and-column-layout",
+          "guides/editing-and-validation",
+          "guides/cards-and-detail-sheet",
+          "guides/live-updates",
+          "guides/csv-import-and-export",
+          "guides/url-state",
+          "guides/theming",
+          "guides/labels-and-localization",
+          "guides/rtl",
+          "guides/accessibility",
+          "guides/performance",
+          "guides/custom-column-types",
+          "guides/custom-renderers-and-editors",
+          "guides/intents"
+        ]
+      },
+      {
+        "group": "Frameworks",
+        "pages": ["frameworks/react", "frameworks/vue", "frameworks/svelte", "frameworks/solid"]
+      },
+      {
+        "group": "Backends",
+        "pages": ["backends/protocol", "backends/node", "backends/laravel", "backends/adapters"]
+      },
+      {
+        "group": "AI and agents",
+        "pages": ["ai/ask", "ai/ai-columns", "ai/mcp-server"]
+      },
+      {
         "group": "Reference",
-        "pages": ["reference/query-language", "reference/json-schema", "reference/packages"]
+        "pages": [
+          "reference/query-language",
+          "reference/json-schema",
+          "reference/extension-points",
+          "reference/packages"
+        ]
       }
     ]
   }

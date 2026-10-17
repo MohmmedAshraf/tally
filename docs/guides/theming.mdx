@@ -1,0 +1,91 @@
+---
+title: 'Theming'
+description: 'Colors, type, sizes and state styling of the React component through CSS custom properties.'
+icon: 'palette'
+---
+
+`tally-react` ships one stylesheet. Every selector is scoped under `.tally`, and every color, radius, font and size is a CSS custom property you can override.
+
+## Stylesheets
+
+```ts
+import 'tally-react/styles.css'
+import 'tally-react/fonts.css'
+```
+
+`styles.css` is required. `fonts.css` self-hosts Onest and JetBrains Mono through `@fontsource-variable/onest` and `@fontsource-variable/jetbrains-mono`. Leave it out and the system font stack takes over.
+
+The stylesheet is unlayered, so it survives Tailwind's preflight and other resets without configuration. With Tailwind v4, import it into a layer when utilities should be able to override Tally classes:
+
+```css
+@layer theme, base, tally, components, utilities;
+@import 'tailwindcss';
+@import 'tally-react/styles.css' layer(tally);
+```
+
+## Light and dark
+
+Colors use `light-dark()` and follow `color-scheme`. Without a `theme` prop the grid follows `prefers-color-scheme`. `theme="light"` or `theme="dark"` sets `data-theme` on the root and forces one scheme.
+
+## Tokens
+
+Override tokens on `.tally`, on a class you pass as `className`, or on any ancestor.
+
+```css
+.tally {
+  --tally-accent: oklch(0.6 0.18 30);
+}
+```
+
+| Group      | Tokens                                                                                                                                                                      |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Surfaces   | `--tally-bg`, `--tally-canvas`, `--tally-soft`, `--tally-hover`, `--tally-popup`                                                                                            |
+| Text       | `--tally-ink`, `--tally-ink-2`, `--tally-ink-3`, `--tally-inverse`, `--tally-inverse-ink`                                                                                   |
+| Lines      | `--tally-line`, `--tally-line-2`, `--tally-line-strong`                                                                                                                     |
+| Accent     | `--tally-accent`, `--tally-selection`, `--tally-selection-row`, `--tally-ring`                                                                                              |
+| Signs      | `--tally-up`, `--tally-up-soft`, `--tally-down`, `--tally-down-soft`                                                                                                        |
+| Warnings   | `--tally-warn`, `--tally-warn-ink`, `--tally-warn-soft`                                                                                                                     |
+| AI columns | `--tally-ai`, `--tally-ai-soft`, `--tally-ai-ink`                                                                                                                           |
+| Shape      | `--tally-radius`, `--tally-radius-sm`, `--tally-radius-xs`                                                                                                                  |
+| Type       | `--tally-font`, `--tally-font-mono`, `--tally-font-size`                                                                                                                    |
+| Sizes      | `--tally-row-height`, `--tally-header-height`, `--tally-group-band-height`, `--tally-group-height`, `--tally-footer-height`, `--tally-gutter-width`, `--tally-cell-padding` |
+
+`--tally-selection`, `--tally-selection-row` and `--tally-ring` are mixed from `--tally-accent`, so changing the accent recolors selection and focus too.
+
+<Note>
+  Compact density sets `--tally-row-height` and `--tally-font-size`, and spacious density sets
+  `--tally-row-height`, on `.tally[data-density]`. That selector wins over `.tally`. Override sizes
+  per density with the same selector, such as `.tally[data-density='compact']`.
+</Note>
+
+## State attributes
+
+State is exposed as data attributes for targeted overrides.
+
+| Attribute       | On             | Set when                                         |
+| --------------- | -------------- | ------------------------------------------------ |
+| `data-density`  | Root           | Always. `compact`, `comfortable` or `spacious`.  |
+| `data-theme`    | Root           | The `theme` prop is set.                         |
+| `data-narrow`   | Root           | The root is narrower than `cardsBelow`.          |
+| `data-layout`   | Viewport       | `cards` while cards are shown.                   |
+| `data-pin`      | Cells          | The column is pinned. `left` or `right`.         |
+| `data-pin-edge` | Cells          | The cell is on the inner edge of a pinned block. |
+| `data-sorted`   | Header cells   | The column is sorted. `asc` or `desc`.           |
+| `data-active`   | Cells          | The cell is the active cell.                     |
+| `data-range`    | Cells          | The cell is in the selected range.               |
+| `data-selected` | Rows, cards    | The row is selected.                             |
+| `data-editing`  | Cells          | The cell is being edited.                        |
+| `data-sign`     | Percent values | `up` above zero, `down` below.                   |
+| `data-rule`     | Cells          | A formatting rule matches the cell.              |
+
+```css
+.tally-cell[data-sign='down'] {
+  font-weight: 600;
+}
+```
+
+## Reduced motion
+
+Under `prefers-reduced-motion: reduce` the stylesheet turns off row transitions, the progress animation, chip and column entrance animations, skeleton shimmer and the detail sheet transition. AI column values appear without the reveal animation.
+
+See [Custom renderers and editors](/guides/custom-renderers-and-editors) to change the markup of a cell rather than its styles.

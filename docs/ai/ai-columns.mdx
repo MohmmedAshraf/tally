@@ -1,0 +1,181 @@
+---
+title: 'AI columns'
+description: 'Columns a model fills per row, in batches, delivered as live patches.'
+icon: 'sparkles'
+---
+
+`withAiColumns` from `tally-ai` wraps any data source. Rows come back at once. The model fills the AI columns in batches, and each batch arrives as a live patch, so the grid updates the cells as they resolve.
+
+## Usage
+
+{/* snippet: ai-columns/mood.ts */}
+
+```ts mood.ts
+import type { LanguageModel } from 'ai'
+import { createArraySource, createSchema, type RowData } from 'tally-core'
+import { withAiColumns, type AiSource } from 'tally-ai'
+
+const schema = createSchema({
+  key: 'id',
+  columns: [
+    { id: 'account' },
+    { id: 'notes' },
+    {
+      id: 'mood',
+      type: 'enum',
+      options: [{ value: 'happy' }, { value: 'neutral' }, { value: 'unhappy' }],
+      ai: true,
+      filterable: false,
+      sortable: false,
+      groupable: false,
+    },
+  ],
+})
+
+export function moodSource(rows: readonly RowData[], model: LanguageModel): AiSource {
+  return withAiColumns(createArraySource(rows, schema), schema, [
+    {
+      column: 'mood',
+      model,
+      instruction: 'Judge the customer mood from the notes.',
+      inputs: ['notes'],
+      batchSize: 20,
+      concurrency: 2,
+    },
+  ])
+}
+```
+
+## Column rules
+
+AI columns are computed on the client, after the source has answered the query. The source cannot filter, sort or group by a value it does not have.
+
+- Set `filterable`, `sortable` and `groupable` to `false`. `withAiColumns` throws `invalid_column` otherwise, and `unknown_column` for an id that is not in the schema.
+- Set `ai: true`. `tally-react` then draws the header with a sparkle, shows a shimmer while a value is pending and reveals it when it arrives.
+
+## Options
+
+| Option        | Default             | Notes                                           |
+| ------------- | ------------------- | ----------------------------------------------- |
+| `column`      |                     | Id of the column to fill.                       |
+| `model`       |                     | Any AI SDK `LanguageModel`.                     |
+| `instruction` |                     | What to compute.                                |
+| `inputs`      | every non-AI column | Columns sent to the model for each row.         |
+| `batchSize`   | `20`                | Rows per model call.                            |
+| `concurrency` | `2`                 | Model calls in flight per column.               |
+| `cache`       | in-memory `Map`     | Anything with `get(key)` and `set(key, value)`. |
+
+## Batches and the cache
+
+Every row a query returns is checked against the cache. A cached value is filled in at once. A missing one is queued. Queued rows go to the model in batches of `batchSize`, with up to `concurrency` calls at a time per column.
+
+The model receives each row as its key and its input columns, and answers with one value per key. The answer is parsed with the column type, so an enum gets one of its options and a number gets a number. A row the model cannot judge gets `null`.
+
+The cache key is the column, the row key and the input values. A value is computed again when one of its inputs changes. Pass the same `cache` to a new wrapper to keep values when the schema or the source is rebuilt.
+
+A failed model call leaves those cells empty. The rows are not queued again until they are loaded again.
+
+## Live patches
+
+The wrapped source always reports `live: true`. Filled values reach the grid as patches with `upserts`. Patches from the inner source pass through, and their rows are filled too. Mutations go to the inner source unchanged.
+
+| Member             | Returns                                                        |
+| ------------------ | -------------------------------------------------------------- |
+| `pending(column?)` | Keys of rows still queued or in flight, for one column or all. |
+| `idle()`           | A promise that resolves when every batch has finished.         |
+
+## Design a column from a prompt
+
+`designColumn(prompt, { model, schema, signal })` asks the model for a column definition and the instruction to fill it. The column comes back ready for `withAiColumns`:
+
+- a unique snake_case id, a label and a type: `text`, `number`, `enum`, `boolean` or `date`
+- tinted options for an enum
+- `ai: true`, and `filterable`, `sortable`, `groupable` and `editable` set to `false`
+
+{/* snippet: ai-columns/design.ts */}
+
+```ts design.ts
+import type { LanguageModel } from 'ai'
+import type { DataSource, Schema } from 'tally-core'
+import { designColumn, withAiColumns, type AiSource } from 'tally-ai'
+
+export async function addChurnRisk(
+  base: DataSource,
+  schema: Schema,
+  model: LanguageModel,
+): Promise<{ schema: Schema; source: AiSource }> {
+  const { column, instruction } = await designColumn('Churn risk, low, medium or high', {
+    model,
+    schema,
+  })
+  const extended = schema.extend([column], 1)
+  const source = withAiColumns(base, extended, [{ column: column.id, model, instruction }])
+  return { schema: extended, source }
+}
+```
+
+`schema.extend(columns, index)` returns a new schema with the columns inserted at `index`.
+
+## The AI button
+
+`tally-react` adds an AI button to the toolbar when the `ai` prop has an `addColumn` handler. The button opens a prompt, with `suggestions` listed under it. The handler receives the prompt and the grid and returns the id of the new column. The grid then animates the column in. A thrown error shows in the popover.
+
+{/* snippet: ai-columns/add-column.tsx */}
+
+```tsx accounts.tsx
+import type { LanguageModel } from 'ai'
+import { useMemo, useState, type ReactNode } from 'react'
+import type { Column, DataSource, Schema } from 'tally-core'
+import { designColumn, withAiColumns } from 'tally-ai'
+import { Tally, useGrid, type TallyAi } from 'tally-react'
+
+interface Added {
+  readonly column: Column
+  readonly instruction: string
+}
+
+export function Accounts({
+  schema: base,
+  source: rows,
+  model,
+}: {
+  schema: Schema
+  source: DataSource
+  model: LanguageModel
+}): ReactNode {
+  const [added, setAdded] = useState<readonly Added[]>([])
+  const [cache] = useState(() => new Map<string, unknown>())
+  const schema = useMemo(() => base.extend(added.map((entry) => entry.column)), [base, added])
+  const source = useMemo(
+    () =>
+      added.length === 0
+        ? rows
+        : withAiColumns(
+            rows,
+            schema,
+            added.map(({ column, instruction }) => ({
+              column: column.id,
+              model,
+              instruction,
+              cache,
+            })),
+          ),
+    [rows, schema, added, model, cache],
+  )
+  const ai = useMemo<TallyAi>(
+    () => ({
+      addColumn: async (prompt, grid) => {
+        const design = await designColumn(prompt, { model, schema: grid.schema })
+        setAdded((list) => [...list, design])
+        return design.column.id
+      },
+      suggestions: ['Churn risk, low, medium or high'],
+    }),
+    [model],
+  )
+  const grid = useGrid({ schema, source })
+  return <Tally grid={grid} label="Accounts" ai={ai} />
+}
+```
+
+The added columns live in state. A new schema and a new source follow from them, and `useGrid` recreates the grid with the current view. The shared cache keeps values already filled.

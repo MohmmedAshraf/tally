@@ -1,0 +1,112 @@
+---
+title: 'Pagination'
+description: 'Load rows by page with offsets, or as the user scrolls with cursors.'
+icon: 'book-open'
+---
+
+The source decides how rows are paged through its `pagination` capability. The grid adapts its requests and its UI to it.
+
+| Pagination | Requests             | In `<Tally>`                                            |
+| ---------- | -------------------- | ------------------------------------------------------- |
+| `none`     | No page. Every row.  | All rows render, virtualized.                           |
+| `offset`   | `{ offset, limit }`  | The pager in the toolbar moves between pages.           |
+| `cursor`   | `{ cursor?, limit }` | The next page loads when the user scrolls near the end. |
+
+## Page size
+
+`pageSize` on `useGrid` or `createGrid` sets the limit of every request. The default is `100`.
+
+{/* snippet: pagination/source.ts */}
+
+```ts source.ts
+import { createArraySource, createGrid, createSchema } from 'tally-core'
+
+const schema = createSchema({
+  key: 'id',
+  columns: [{ id: 'account' }, { id: 'mrr', type: 'currency' }],
+})
+
+const rows = Array.from({ length: 500 }, (_, index) => ({
+  id: index + 1,
+  account: `Account ${index + 1}`,
+  mrr: (index + 1) * 10,
+}))
+
+const source = createArraySource(rows, schema, { pagination: 'offset' })
+
+export const grid = createGrid({ schema, source, pageSize: 50 })
+
+await grid.load()
+grid.setPage(2)
+```
+
+| Member            | Notes                                                                            |
+| ----------------- | -------------------------------------------------------------------------------- |
+| `state.page`      | `{ index, size }`. The index is used for offset pagination.                      |
+| `state.cursor`    | The cursor of the last response.                                                 |
+| `state.exhausted` | `true` when a cursor source has no more rows, or the source is not cursor based. |
+| `setPage(index)`  | Loads a page of an offset source.                                                |
+| `loadMore()`      | Appends the next page of a cursor source. Does nothing while loading.            |
+
+A change to the filter, sort, group or footer reloads the grid at the first page.
+
+## Your own pager
+
+The default `Pager` hides itself unless the source uses offsets. Pass `toolbar={false}` or replace the toolbar to render your own.
+
+{/* snippet: pagination/pager.tsx */}
+
+```tsx pager.tsx
+import type { ReactNode } from 'react'
+import type { Grid } from 'tally-core'
+import { useGridState } from 'tally-react'
+
+export function PageInfo({ grid }: { grid: Grid }): ReactNode {
+  const page = useGridState(grid, (state) => state.page)
+  const matched = useGridState(grid, (state) => state.matched ?? state.total ?? 0)
+  const pages = Math.max(1, Math.ceil(matched / page.size))
+  return (
+    <nav aria-label="Pages">
+      <button
+        type="button"
+        disabled={page.index === 0}
+        onClick={() => grid.setPage(page.index - 1)}
+      >
+        Previous
+      </button>
+      <span>
+        {page.index + 1} / {pages}
+      </span>
+      <button
+        type="button"
+        disabled={page.index >= pages - 1}
+        onClick={() => grid.setPage(page.index + 1)}
+      >
+        Next
+      </button>
+    </nav>
+  )
+}
+```
+
+When the view is grouped, a page holds groups rather than rows, and the default pager counts groups.
+
+## Sources
+
+| Source                 | Option                                                                |
+| ---------------------- | --------------------------------------------------------------------- |
+| `createArraySource`    | `pagination`: `none` by default.                                      |
+| `createKyselyAdapter`  | `pagination`: `offset` by default. `maxLimit` clamps page sizes.      |
+| `tally/laravel`        | `pagination()`: `Pagination::Offset` by default. `maxLimit()` clamps. |
+| `createSupabaseSource` | `pagination`: `offset` by default.                                    |
+
+Cursors from these sources are opaque and encode an offset.
+
+## Exporting every page
+
+`grid.fetchAll(max?)` walks every page of the current view and returns the rows, up to 100,000 by default. CSV export uses it. See [CSV import and export](/guides/csv-import-and-export).
+
+<Note>
+  Work the grid does locally, such as a filter the source cannot run, only sees the rows on the
+  loaded page.
+</Note>

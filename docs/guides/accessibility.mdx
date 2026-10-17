@@ -1,0 +1,90 @@
+---
+title: 'Accessibility'
+description: 'Grid roles, keyboard access, live announcements, focus and reduced motion in tally-react.'
+icon: 'accessibility'
+---
+
+`<Tally>` renders the ARIA grid pattern, runs fully from the keyboard and announces the result of every query change through a live region. This page lists what the component does, so you can test against it and extend it.
+
+## Name the grid
+
+`label` is the accessible name of the grid. It is also the name of the cards region on narrow screens and of exported CSV files.
+
+```tsx
+<Tally grid={grid} label="Accounts" />
+```
+
+## Roles
+
+| Element                   | Role and attributes                                                                                               |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Viewport                  | `grid` with `aria-label`, `aria-multiselectable`, `aria-busy` while loading, `aria-rowcount` and `aria-colcount`. |
+| Header row                | `row` with `columnheader` cells. Each header has `aria-sort`: `ascending`, `descending` or `none`.                |
+| Body, pinned rows, footer | `rowgroup`.                                                                                                       |
+| Row                       | `row` with `aria-rowindex` and `aria-selected`. The row number cell is a `rowheader`.                             |
+| Cell                      | `gridcell` with `aria-colindex` and `aria-selected` when it is in the range.                                      |
+| Tree and group rows       | `aria-expanded` on rows that can open.                                                                            |
+| Resize handle             | `separator` with `aria-orientation="vertical"`, `aria-valuenow` and a label.                                      |
+| Cards layout              | `region` named by `label`. Each card is an `article` named by its title.                                          |
+| Detail sheet              | A dialog named by the row title, with a Close button.                                                             |
+| Pager                     | `nav` named by the `pages` label.                                                                                 |
+| Errors                    | Load errors, filter errors and failed actions use `role="alert"`.                                                 |
+
+`aria-rowcount` is `-1` while the total is unknown and while the grid is grouped. Rows are virtualized, so `aria-rowindex` and `aria-colindex` carry the real positions.
+
+## Focus
+
+The grid is one tab stop. Focus stays on the viewport and the active cell is exposed through `aria-activedescendant`, so screen readers follow it while the DOM focus does not move. Tabbing into the grid with the keyboard focuses the first cell when none is active.
+
+Every key in [Intents](/guides/intents) works without a mouse: moving, extending ranges, editing, copying, undoing, selecting rows and expanding tree rows. Tab on the first or last column leaves the grid. Resize handles are focusable, and Left and Right resize the column by 8 pixels.
+
+Buttons, chips, menu triggers, row checks, cards and resize handles draw a focus ring on `:focus-visible`. The ring color is `--tally-ring`. See [Theming](/guides/theming).
+
+## Announcements
+
+A visually hidden live region with `role="status"`, `aria-live="polite"` and `aria-atomic="true"` speaks what changed. It waits for the query to finish and then reads the change and the new row count together.
+
+| Change                      | Label      | Default text                                   |
+| --------------------------- | ---------- | ---------------------------------------------- |
+| Sort changed                | `sorted`   | `Sorted by MRR descending`, or `Sort cleared`  |
+| Group changed               | `grouped`  | `Grouped by Plan`, or `Ungrouped`              |
+| Filter changed              | `filtered` | `Filtered by plan is pro`, or `Filter cleared` |
+| A query is still running    | `loading`  | `Loading`                                      |
+| Query finished              | `rows`     | `42 rows`                                      |
+| Row selection count changed | `selected` | `3 selected`                                   |
+| An edit, paste or import    |            | The mutation label, such as `Edit MRR`         |
+| Undo                        | `undone`   | `Undid Edit MRR`                               |
+| Redo                        | `redone`   | `Redid Edit MRR`                               |
+
+Several changes in one step are read together, such as `Sorted by MRR descending. Filtered by plan is pro. 42 rows`. The filter is read in its canonical query language form. A message equal to the previous one is still read again.
+
+Every message is a label, so it can be reworded or translated through `labels`.
+
+{/* snippet: accessibility/announcements.tsx */}
+
+```tsx accounts.tsx
+import type { ReactNode } from 'react'
+import type { Grid } from 'tally-core'
+import { Tally, type TallyLabels } from 'tally-react'
+
+const labels: Partial<TallyLabels> = {
+  sorted: (sorts) =>
+    sorts.length === 0
+      ? 'Sorting removed'
+      : `Now sorted by ${sorts.map((sort) => sort.column).join(' then ')}`,
+  filtered: (filter) => (filter === undefined ? 'Showing every row' : `Showing ${filter}`),
+  rows: (count) => `${count} matching rows`,
+}
+
+export function Accounts({ grid }: { grid: Grid }): ReactNode {
+  return <Tally grid={grid} label="Accounts" labels={labels} />
+}
+```
+
+## Reduced motion
+
+Under `prefers-reduced-motion: reduce`, the stylesheet turns off the loading bar animation, row and detail sheet transitions, chip and column entrance animations, skeleton shimmer and the switch transition. The text decode effect on the row count, the filter bar and AI cells shows the final text at once.
+
+## Icons and decoration
+
+Icons are `aria-hidden`. Avatars, tiles, sparklines and meters are `aria-hidden` too; the cell text carries the value. A custom renderer should keep a readable text value in the cell for the same reason. See [Custom renderers and editors](/guides/custom-renderers-and-editors).

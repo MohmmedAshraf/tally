@@ -1,0 +1,121 @@
+---
+title: 'MCP server'
+description: 'Teach your coding agent Tally: guides, extension points and query tools over MCP.'
+icon: 'plug'
+---
+
+`tally-mcp-server` is an MCP server for coding agents. It serves every package guide as a resource, maps a change in plain words to the extension point that owns it, parses query text, validates protocol requests and infers a schema from data. It speaks stdio.
+
+## Install
+
+<Tabs>
+  <Tab title="Claude Code">
+    ```sh
+    claude mcp add tally -- npx tally-mcp-server
+    ```
+  </Tab>
+  <Tab title="Cursor">
+    Add the server to `.cursor/mcp.json` in your project:
+
+    ```json .cursor/mcp.json
+    {
+      "mcpServers": {
+        "tally": { "command": "npx", "args": ["tally-mcp-server"] }
+      }
+    }
+    ```
+
+  </Tab>
+  <Tab title="Other clients">
+    Any MCP client that starts stdio servers works with the same command:
+
+    ```json
+    {
+      "mcpServers": {
+        "tally": { "command": "npx", "args": ["tally-mcp-server"] }
+      }
+    }
+    ```
+
+  </Tab>
+</Tabs>
+
+## Resources
+
+| URI                      | Content                                                                             |
+| ------------------------ | ----------------------------------------------------------------------------------- |
+| `tally://guide/overview` | Packages and how they fit together.                                                 |
+| `tally://guide/extend`   | Where each change goes: package, API and a snippet per extension point.             |
+| `tally://guide/core`     | Schema, column types, query language, views, executor, mutations.                   |
+| `tally://guide/react`    | The component, hooks, renderers, editors, labels, intents, styling.                 |
+| `tally://guide/vue`      | `tally-vue` composables, provide and inject.                                        |
+| `tally://guide/svelte`   | `tally-svelte` runes, context and readable stores.                                  |
+| `tally://guide/solid`    | `tally-solid` signals and context.                                                  |
+| `tally://guide/protocol` | Wire schemas, validation, JSON Schema, conformance suite.                           |
+| `tally://guide/server`   | Kysely SQL adapter, dialects, Fetch handler, SSE.                                   |
+| `tally://guide/php`      | `tally/laravel`: grid classes, `Route::tally()`, Eloquent query compiler, dialects. |
+| `tally://guide/adapters` | HTTP, TanStack Query, TanStack DB and Supabase sources.                             |
+| `tally://guide/ai`       | Natural language to query, AI columns, column design.                               |
+| `tally://schema/{name}`  | JSON Schema for each [wire type](/reference/json-schema).                           |
+
+The guides are the package READMEs, copied when the server is built, so they match the code they ship with.
+
+## Tools
+
+| Tool                     | Input                               | Returns                                                                  |
+| ------------------------ | ----------------------------------- | ------------------------------------------------------------------------ |
+| `tally_where`            | `change`                            | The extension points that own the change, with package, API and example. |
+| `tally_search`           | `query`, `limit`                    | The best matching guide sections. `limit` is 1 to 20.                    |
+| `tally_parse_query`      | `text`, `columns`                   | The query AST, its canonical form and parse errors with offsets.         |
+| `tally_validate_request` | `kind`, `request`, `columns`, `key` | Every problem by path, exactly as `tally-server` reports it.             |
+| `tally_infer_schema`     | `rows` or `csv`, `key`              | Columns with detected types and enum options, ready for `createSchema`.  |
+
+`columns` takes the same objects as `createSchema`. `kind` is `query` or `mutation`, and `key` names the key field when a mutation is validated.
+
+## Extension points
+
+`tally_where` and the `extend` guide answer from one list: every place a Tally grid can be changed, with the package, the API and an example. See [Extension points](/reference/extension-points) for the full list.
+
+## Embedding
+
+`createTallyServer` returns an `McpServer` from `@modelcontextprotocol/server`. Connect it to any transport.
+
+{/* snippet: mcp-server/embed.ts */}
+
+```ts server.ts
+import { readFile } from 'node:fs/promises'
+import { StdioServerTransport } from '@modelcontextprotocol/server/stdio'
+import { createTallyServer } from 'tally-mcp-server'
+
+const server = createTallyServer({
+  guides: {
+    core: await readFile('node_modules/tally-core/README.md', 'utf8'),
+    react: await readFile('node_modules/tally-react/README.md', 'utf8'),
+  },
+})
+
+await server.connect(new StdioServerTransport())
+```
+
+| Option    | Default | Notes                                                                 |
+| --------- | ------- | --------------------------------------------------------------------- |
+| `guides`  |         | Guide name to markdown. Each one is served as `tally://guide/{name}`. |
+| `version` | `0.0.0` | Version the server reports.                                           |
+
+The `extend` guide is always generated from the extension points and replaces one you pass.
+
+`findExtensionPoints`, `searchSections`, `parseQueryText`, `validateRequest`, `inferFromRows` and `inferFromCsv` are exported for use without a server.
+
+{/* snippet: mcp-server/helpers.ts */}
+
+```ts helpers.ts
+import { findExtensionPoints, parseQueryText, type ParsedQuery } from 'tally-mcp-server'
+
+export const points: readonly string[] = findExtensionPoints('show a ring instead of a number').map(
+  (point) => point.id,
+)
+
+export const parsed: ParsedQuery = parseQueryText('mrr > 2k, sort by mrr desc', [
+  { id: 'mrr', type: 'currency' },
+])
+```

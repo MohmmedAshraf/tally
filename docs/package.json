@@ -5,17 +5,35 @@
   "scripts": {
     "dev": "npx mint dev --port 3333",
     "generate": "node scripts/generate.ts",
-    "check": "tsc -p tsconfig.json"
+    "check": "tsc -p tsconfig.json && tsc -p tsconfig.solid.json"
   },
   "devDependencies": {
+    "@hono/node-server": "catalog:",
+    "@modelcontextprotocol/server": "catalog:",
+    "@supabase/supabase-js": "catalog:",
+    "@tanstack/db": "catalog:",
+    "@tanstack/query-core": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
+    "ai": "catalog:",
+    "hono": "catalog:",
+    "kysely": "catalog:",
+    "mysql2": "catalog:",
     "prettier": "catalog:",
     "react": "catalog:",
+    "solid-js": "catalog:",
+    "svelte": "catalog:",
     "tally-adapters": "workspace:*",
+    "tally-ai": "workspace:*",
     "tally-core": "workspace:*",
+    "tally-mcp-server": "workspace:*",
     "tally-protocol": "workspace:*",
     "tally-react": "workspace:*",
-    "typescript": "catalog:"
+    "tally-server": "workspace:*",
+    "tally-solid": "workspace:*",
+    "tally-svelte": "workspace:*",
+    "tally-vue": "workspace:*",
+    "typescript": "catalog:",
+    "vue": "catalog:"
   }
 }

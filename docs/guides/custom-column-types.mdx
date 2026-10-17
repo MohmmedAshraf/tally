@@ -1,0 +1,121 @@
+---
+title: 'Custom column types'
+description: 'Write a column type from scratch, register it, and use it on the client and the server.'
+icon: 'blocks'
+---
+
+A column type decides how a value is checked, parsed, formatted, compared and filtered. [Column types](/concepts/column-types) lists the built-ins and the `ColumnType` contract. This guide writes one from scratch and carries it through every layer.
+
+## Write the type
+
+A type is a plain object. This one stores a rating from 1 to 5 as an integer and shows it as stars.
+
+{/* snippet: custom-column-types/rating.ts */}
+
+```ts rating.ts
+import { createDefaultRegistry, createSchema, type ColumnType } from 'tally-core'
+
+const STAR = '★'
+
+const rating: ColumnType<number> = {
+  name: 'rating',
+  kind: 'number',
+  operators: ['eq', 'neq', 'lt', 'lte', 'gt', 'gte', 'between', 'in', 'notIn', 'empty', 'notEmpty'],
+  aggregates: ['avg', 'min', 'max', 'count'],
+  facet: 'histogram',
+  align: 'start',
+  card: 'badge',
+  searchable: false,
+  groupable: true,
+  is: (value: unknown): value is number =>
+    typeof value === 'number' && Number.isInteger(value) && value >= 1 && value <= 5,
+  parse: (input) => {
+    const text = String(input).trim()
+    const stars = /^★+$/.test(text) ? text.length : Number(text)
+    return Number.isInteger(stars) && stars >= 1 && stars <= 5 ? stars : undefined
+  },
+  format: (value) => STAR.repeat(value),
+  compare: (a, b) => a - b,
+  detect: (sample) => /^★{1,5}$/.test(sample),
+  jsonSchema: () => ({ type: 'integer', minimum: 1, maximum: 5 }),
+}
+
+export const registry = createDefaultRegistry().register(rating)
+
+export const schema = createSchema({
+  key: 'id',
+  registry,
+  columns: [
+    { id: 'product', label: 'Product' },
+    { id: 'score', label: 'Score', type: 'rating', aggregate: 'avg' },
+  ],
+})
+```
+
+| Member       | What it does here                                                                |
+| ------------ | -------------------------------------------------------------------------------- |
+| `kind`       | `number`. The kind decides how the executor and the SQL adapters compare values. |
+| `operators`  | The filter operators the query language accepts on the column.                   |
+| `aggregates` | The footer and group aggregates the column offers.                               |
+| `facet`      | `histogram`, `terms` or `none`.                                                  |
+| `is`         | Whether a stored value belongs to the type. Used by validation.                  |
+| `parse`      | Text from the filter bar, an editor, a paste or a CSV cell to a value.           |
+| `format`     | The text cells, cards, CSV copy and filter chips show.                           |
+| `compare`    | Sort order. Empty values never reach it; they always sort last.                  |
+| `detect`     | Optional. Lets CSV import infer the type from a sample.                          |
+| `jsonSchema` | The value's JSON Schema. Protocol validation and the generated schemas use it.   |
+
+`parse` returns `undefined` when the input does not parse. An edit or a paste with such a value is skipped. An empty input becomes `null` before `parse` is called.
+
+## Register it
+
+`createDefaultRegistry()` holds the fourteen built-ins. `register` adds a type and returns the registry. Pass the registry to `createSchema`, and columns can use the new name in `type`.
+
+| Error            | When                                              |
+| ---------------- | ------------------------------------------------- |
+| `duplicate_type` | A type with the same name is already registered.  |
+| `unknown_type`   | A column names a type the registry does not hold. |
+
+`createTypeRegistry(types)` starts from an empty registry instead, for a schema that should not see the built-ins.
+
+## Start from a built-in
+
+Spreading a built-in keeps its parsing, formatting and operators and changes the rest. [Column types](/concepts/column-types#registering-a-type) registers an `sku` type this way, as text that shows as metadata on cards.
+
+## Render it
+
+The grid draws a custom type with the renderer for its kind until you register one by name. Renderers are keyed by type name first, then by kind. See [Custom renderers and editors](/guides/custom-renderers-and-editors).
+
+```tsx
+<Tally grid={grid} renderers={{ rating: ({ text }) => <span aria-label={text}>{text}</span> }} />
+```
+
+## Over HTTP
+
+The server sends columns with their type names, not the type objects. A client that connects to a server using custom types passes the same registry, or schema creation fails with `unknown_type`.
+
+{/* snippet: custom-column-types/http.ts */}
+
+```ts http.ts
+import { connectHttpSource } from 'tally-adapters'
+import { registry } from './rating.ts'
+
+export const { schema, source } = await connectHttpSource({
+  url: '/api/reviews',
+  registry,
+})
+```
+
+On the server, give `createSchema` the same registry before handing the schema to `createKyselyAdapter` and `createTallyHandler`. Requests are validated against it, so the custom operators and aggregates are checked like the built-ins. The SQL adapter compiles a column by its kind, so a `number` type compares and sums as a number.
+
+In Laravel, return extra types from `types()` on the grid class. `ColumnType` has factories per kind:
+
+```php
+ColumnType::number('rating', [AggregateFn::Avg, AggregateFn::Min, AggregateFn::Max, AggregateFn::Count])
+```
+
+See [Node](/backends/node) and [Laravel](/backends/laravel).
+
+## CSV import
+
+`detectColumnType` from `tally-core/import` tries types in a fixed priority, then every other registered type with a `detect` function. A sample column whose values match `detect` is imported as the custom type. See [CSV import and export](/guides/csv-import-and-export).

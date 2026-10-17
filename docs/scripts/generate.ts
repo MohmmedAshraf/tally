@@ -20,6 +20,7 @@ import {
   type Operator,
   type Schema,
 } from 'tally-core'
+import { EXTENSION_POINTS } from 'tally-mcp-server'
 import { JSON_SCHEMA_NAMES, toJsonSchema } from 'tally-protocol'
 
 const repo = fileURLToPath(new URL('../../', import.meta.url))
@@ -30,21 +31,48 @@ const repoUrl = 'https://github.com/MohmmedAshraf/tally/blob/main/'
 interface PackageEntry {
   readonly name: string
   readonly directory: string
+  readonly guide: string
 }
 
 const packages: readonly PackageEntry[] = [
-  { name: 'tally-core', directory: 'packages/core' },
-  { name: 'tally-react', directory: 'packages/react' },
-  { name: 'tally-vue', directory: 'packages/vue' },
-  { name: 'tally-svelte', directory: 'packages/svelte' },
-  { name: 'tally-solid', directory: 'packages/solid' },
-  { name: 'tally-protocol', directory: 'packages/protocol' },
-  { name: 'tally-server', directory: 'packages/server' },
-  { name: 'tally/laravel', directory: 'packages/php' },
-  { name: 'tally-adapters', directory: 'packages/adapters' },
-  { name: 'tally-ai', directory: 'packages/ai' },
-  { name: 'tally-mcp-server', directory: 'packages/mcp' },
+  { name: 'tally-core', directory: 'packages/core', guide: '/concepts/schema-and-columns' },
+  { name: 'tally-react', directory: 'packages/react', guide: '/frameworks/react' },
+  { name: 'tally-vue', directory: 'packages/vue', guide: '/frameworks/vue' },
+  { name: 'tally-svelte', directory: 'packages/svelte', guide: '/frameworks/svelte' },
+  { name: 'tally-solid', directory: 'packages/solid', guide: '/frameworks/solid' },
+  { name: 'tally-protocol', directory: 'packages/protocol', guide: '/backends/protocol' },
+  { name: 'tally-server', directory: 'packages/server', guide: '/backends/node' },
+  { name: 'tally/laravel', directory: 'packages/php', guide: '/backends/laravel' },
+  { name: 'tally-adapters', directory: 'packages/adapters', guide: '/backends/adapters' },
+  { name: 'tally-ai', directory: 'packages/ai', guide: '/ai/ask' },
+  { name: 'tally-mcp-server', directory: 'packages/mcp', guide: '/ai/mcp-server' },
 ]
+
+const extensionPointPages: Readonly<Record<string, string>> = {
+  renderer: '/guides/custom-renderers-and-editors',
+  editor: '/guides/custom-renderers-and-editors',
+  'column-type': '/guides/custom-column-types',
+  'column-options': '/concepts/schema-and-columns',
+  theme: '/guides/theming',
+  labels: '/guides/labels-and-localization',
+  intents: '/guides/intents',
+  toolbar: '/frameworks/react',
+  'sql-backend': '/backends/node',
+  'laravel-backend': '/backends/laravel',
+  'http-source': '/backends/adapters',
+  supabase: '/backends/adapters',
+  cache: '/backends/adapters',
+  live: '/guides/live-updates',
+  ask: '/ai/ask',
+  'ai-column': '/ai/ai-columns',
+  'framework-binding': '/frameworks/vue',
+  views: '/concepts/views',
+  cards: '/guides/cards-and-detail-sheet',
+  csv: '/guides/csv-import-and-export',
+  validation: '/backends/protocol',
+  conformance: '/backends/protocol',
+  'query-language': '/concepts/query-language',
+}
 
 interface Section {
   readonly heading: string | undefined
@@ -532,7 +560,7 @@ ${toMdx(readme.paragraph, readme.path)}
 
 ${firstCodeBlock(sectionText(readme, 'Install'))}
 
-[README](${repoUrl}${entry.directory}/README.md)`
+[Guide](${entry.guide}) · [README](${repoUrl}${entry.directory}/README.md)`
   })
   return page(
     {
@@ -541,6 +569,38 @@ ${firstCodeBlock(sectionText(readme, 'Install'))}
       icon: 'package',
     },
     sections.join('\n\n'),
+  )
+}
+
+function extensionPointsPage(): string {
+  const sections = EXTENSION_POINTS.map((point) => {
+    const guide = extensionPointPages[point.id]
+    if (guide === undefined) throw new Error(`Extension point ${point.id} has no docs page`)
+    const language = point.package === 'tally/laravel' ? 'php' : 'tsx'
+    return `## ${escapeMdx(point.title)}
+
+| Package | API |
+| --- | --- |
+| ${code(point.package)} | ${code(escapeCell(point.api))} |
+
+${escapeMdx(point.how)}
+
+\`\`\`${language}
+${point.example}
+\`\`\`
+
+[Guide](${guide})`
+  })
+  return page(
+    {
+      title: 'Extension points',
+      description:
+        'Where each change goes: the package, the API and an example per extension point.',
+      icon: 'puzzle',
+    },
+    `The MCP server serves this list as \`tally://guide/extend\` and searches it with \`tally_where\`.
+
+${sections.join('\n\n')}`,
   )
 }
 
@@ -602,6 +662,7 @@ async function main(): Promise<void> {
     [`${docs}reference/query-language.mdx`, queryLanguagePage(core)],
     [`${docs}reference/json-schema.mdx`, jsonSchemaPage(protocol)],
     [`${docs}reference/packages.mdx`, packagesPage(readmes)],
+    [`${docs}reference/extension-points.mdx`, extensionPointsPage()],
   ]
   const used = new Set<string>()
   const pages = await filesUnder(docs, (file) => extname(file) === '.mdx')

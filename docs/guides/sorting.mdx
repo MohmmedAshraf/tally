@@ -1,0 +1,69 @@
+---
+title: 'Sorting'
+description: 'Sort by one or more columns from the header, the column menu or code.'
+icon: 'arrow-down-up'
+---
+
+A sort is a list of `{ column, direction }` in priority order. It lives in the view, so it is saved with the view and written to the URL.
+
+## In the grid
+
+| Action                           | Result                                                          |
+| -------------------------------- | --------------------------------------------------------------- |
+| Click a header                   | Sorts by that column. Click again to flip, a third time clears. |
+| Shift + click a header           | Adds the column to the existing sort.                           |
+| Column menu, first two items     | Sort ascending or descending, replacing the sort.               |
+| Column menu, Add to sort         | Adds the column to the existing sort.                           |
+| `sort by mrr desc` in the filter | Replaces the sort.                                              |
+
+The header shows the direction of each sorted column and sets `aria-sort`.
+
+## Natural direction
+
+A column starts at its natural direction: descending for numbers and dates, ascending for everything else. The column menu labels follow the same rule, High to low for numbers and A to Z for text.
+
+## Sorting from code
+
+{/* snippet: sorting/sort.ts */}
+
+```ts sort.ts
+import { createArraySource, createGrid, createSchema } from 'tally-core'
+
+const schema = createSchema({
+  key: 'id',
+  columns: [
+    { id: 'account', label: 'Account' },
+    { id: 'plan', type: 'enum', options: [{ value: 'free' }, { value: 'pro' }, { value: 'team' }] },
+    { id: 'mrr', label: 'MRR', type: 'currency' },
+    { id: 'notes', sortable: false },
+  ],
+})
+
+const grid = createGrid({ schema, source: createArraySource([], schema) })
+
+grid.view.toggleSort('plan')
+grid.view.toggleSort('mrr', true)
+
+export const sort = grid.view.get().sort
+
+grid.view.setSort([{ column: 'account', direction: 'asc' }])
+```
+
+| Method                          | Effect                                      |
+| ------------------------------- | ------------------------------------------- |
+| `toggleSort(column, additive?)` | Cycles natural direction, flipped, cleared. |
+| `setSort(sorts)`                | Replaces the whole sort.                    |
+
+`compileSort(sorts, schema, context)` and `sortRows(rows, sorts, schema, context)` in `tally-core` sort an array outside a grid.
+
+## Order
+
+- Each column type compares its own values. Enum columns sort in option order, not by label.
+- Empty values sort last in both directions.
+- `sortable: false` on a column removes the sort items from its column menu.
+
+When the source has no `sort` capability, the grid sorts the rows the source returned. The SQL adapters follow the same order, see the semantics in [Node](/backends/node).
+
+## Sorting and live rows
+
+When the view is sorted and not grouped, a row changed by a live patch moves to its new position without a reload. See [Live updates](/guides/live-updates).

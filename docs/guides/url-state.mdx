@@ -1,0 +1,87 @@
+---
+title: 'URL state'
+description: 'Keep the view in the query string so filters, sorts and layouts survive reloads and links.'
+icon: 'link'
+---
+
+A view is plain data, so it fits in a URL. `tally-core` writes a view to a query string and reads it back. `useViewUrl` in `tally-react` keeps the two in sync.
+
+## In React
+
+{/* snippet: url-state/sync.tsx */}
+
+```tsx accounts.tsx
+import type { ReactNode } from 'react'
+import type { DataSource, Schema } from 'tally-core'
+import { Tally, useGrid, useViewUrl } from 'tally-react'
+
+export function Accounts({ schema, source }: { schema: Schema; source: DataSource }): ReactNode {
+  const grid = useGrid({ schema, source })
+  useViewUrl(grid, { param: 'accounts', history: 'push' })
+  return <Tally grid={grid} label="Accounts" />
+}
+```
+
+On mount, a view in the URL replaces the grid's view. Without one, the grid's view is written to the URL. After that every view change updates the URL, and `popstate` restores the view of the history entry. The hook touches `window` only inside effects, so it is safe to render on the server.
+
+| Option    | Type                                     | Notes                                               |
+| --------- | ---------------------------------------- | --------------------------------------------------- |
+| `param`   | `string`                                 | Parameter for the query text. Default `q`.          |
+| `history` | `'replace' \| 'push'`                    | Default `replace`. `push` adds an entry per change. |
+| `encode`  | `(view: View, search: string) => string` | Returns the next query string. Replaces the format. |
+| `decode`  | `(search: string) => View`               | Reads a view from the query string.                 |
+
+## The format
+
+```text
+?q=status+is+active,+sort+by+mrr+desc,+group+by+renewal&granularity=month&density=compact
+```
+
+Filter, sort and group are written as [query language](/concepts/query-language) text in `q`. The other parameters are written only when they differ from the schema's default view.
+
+| Parameter     | Content                                                                         |
+| ------------- | ------------------------------------------------------------------------------- |
+| `granularity` | Date grouping granularity.                                                      |
+| `density`     | Row density.                                                                    |
+| `columns`     | Column order, with `:width`, `:2fr`, `:hidden`, `:left` or `:right` per column. |
+| `footer`      | `column:aggregate` pairs.                                                       |
+| `state`       | Formatting rules, pinned rows, expanded rows and collapsed groups.              |
+
+`state` is JSON encoded as base64url. It is the only part that is not readable. It is checked with `validateView` when read, so `viewFromUrlString` throws on a blob that does not match the view shape. `useViewUrl` catches it and keeps the current view.
+
+Other parameters in the query string are left alone. Commas, colons, parentheses and slashes stay unescaped so the link stays readable.
+
+## Without React
+
+| Function                                         | Returns                               |
+| ------------------------------------------------ | ------------------------------------- |
+| `viewToUrlString(view, schema, options?)`        | The query string, without `?`.        |
+| `viewFromUrlString(search, schema, options?)`    | A view reconciled against the schema. |
+| `viewToSearchParams(view, schema, options?)`     | The same as `URLSearchParams`.        |
+| `viewFromSearchParams(params, schema, options?)` | A view from `URLSearchParams`.        |
+
+`param` changes the name of the query text parameter. `base` is a query string or `URLSearchParams` whose other parameters are kept.
+
+{/* snippet: url-state/server.ts */}
+
+```ts links.ts
+import { createSchema, viewFromUrlString, viewToUrlString, type View } from 'tally-core'
+
+const schema = createSchema({
+  key: 'id',
+  columns: [{ id: 'account' }, { id: 'mrr', type: 'currency' }, { id: 'renewal', type: 'date' }],
+})
+
+export function viewFromRequest(request: Request): View {
+  return viewFromUrlString(new URL(request.url).search, schema)
+}
+
+export function linkTo(view: View, path: string): string {
+  const search = viewToUrlString(view, schema, { base: 'tab=overview' })
+  return search === '' ? path : `${path}?${search}`
+}
+```
+
+A view read from a URL goes through the same reconciliation as any other view. Unknown columns are dropped and new columns are added, so old links keep working after the schema changes. Parse errors in `q` are not raised. The view gets the query `parseQuery` built from the text.
+
+See [Views](/concepts/views) for the view object and the view store.

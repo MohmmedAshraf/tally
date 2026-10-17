@@ -1,0 +1,89 @@
+---
+title: 'Svelte'
+description: 'Svelte 5 runes and stores that bind a Tally grid to a component.'
+icon: 'code-xml'
+---
+
+`tally-svelte` binds a `Grid` from `tally-core` to a component's lifecycle and exposes its stores as runes and readable stores. It renders nothing. You write the markup, and the engine does the querying, view state, mutations and undo. The full rendered component exists only in [React](/frameworks/react).
+
+```sh
+npm install tally-svelte tally-core svelte
+```
+
+Svelte 5.7 or newer. The package ships rune modules, so your Svelte toolchain compiles it.
+
+## Usage
+
+{/* snippet: svelte/accounts.svelte */}
+
+```svelte Accounts.svelte
+<script lang="ts">
+  import { createArraySource, createSchema } from 'tally-core'
+  import { gridState, gridView, useGrid } from 'tally-svelte'
+
+  let { rows } = $props()
+
+  const schema = createSchema({
+    key: 'id',
+    columns: [
+      { id: 'account', label: 'Account' },
+      { id: 'mrr', label: 'MRR', type: 'currency', aggregate: 'sum' },
+    ],
+  })
+  const source = createArraySource(rows, schema)
+
+  const grid = useGrid(() => ({ schema, source }))
+  const state = gridState(grid)
+  const view = gridView(grid)
+</script>
+
+<p>{state.current.status}, sorted by {view.current.sort[0]?.column ?? 'nothing'}</p>
+<button onclick={() => grid.current.view.toggleSort('mrr')}>Sort by MRR</button>
+```
+
+`useGrid` takes a getter so it can follow props. It creates a `Grid`, loads it in an effect and disposes it when the component is destroyed. It recreates the grid when `schema` or `source` change identity, and when the format context changes. The current view carries over.
+
+Snapshots subscribe only while an effect reads them, and read the engine directly otherwise.
+
+## API
+
+| Function               | Returns                                                       |
+| ---------------------- | ------------------------------------------------------------- |
+| `useGrid(options)`     | A `ReactiveGrid` whose `current` follows recreation.          |
+| `gridState(grid)`      | `{ current }` with status, totals, aggregates and page.       |
+| `gridView(grid)`       | `{ current }` with the current `View`.                        |
+| `gridRows(grid)`       | `{ current }` with loaded rows and changed cells.             |
+| `gridSelection(grid)`  | `{ current }` with the active cell, ranges and selected rows. |
+| `gridStores(grid)`     | `state`, `view`, `rows` and `selection` as readable stores.   |
+| `setGridContext(grid)` | Shares a grid with descendants.                               |
+| `getGridContext()`     | The shared grid as a `ReactiveGrid`. Throws without one.      |
+
+Every function that takes `grid` accepts a `Grid` or a `ReactiveGrid`. Derive narrower values with `$derived`.
+
+## Modules of your own
+
+The functions work in `.svelte.ts` modules too, as long as they are called during component setup.
+
+{/* snippet: svelte/accounts.svelte.ts */}
+
+```ts accounts.svelte.ts
+import { createArraySource, createSchema, type RowData } from 'tally-core'
+import { gridState, useGrid, type ReactiveGrid } from 'tally-svelte'
+
+const schema = createSchema({
+  key: 'id',
+  columns: [
+    { id: 'account', label: 'Account' },
+    { id: 'mrr', label: 'MRR', type: 'currency', aggregate: 'sum' },
+  ],
+})
+
+export function useAccounts(rows: () => readonly RowData[]): {
+  grid: ReactiveGrid
+  total: () => number | undefined
+} {
+  const grid = useGrid(() => ({ schema, source: createArraySource(rows(), schema) }))
+  const state = gridState(grid)
+  return { grid, total: () => state.current.total }
+}
+```

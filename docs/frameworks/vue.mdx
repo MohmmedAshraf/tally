@@ -1,0 +1,94 @@
+---
+title: 'Vue'
+description: 'Composables that bind a Tally grid to a Vue component and expose its state as refs.'
+icon: 'code-xml'
+---
+
+`tally-vue` binds a `Grid` from `tally-core` to a component's lifecycle and exposes its stores as shallow refs. It renders nothing. You write the markup, and the engine does the querying, view state, mutations and undo. The full rendered component exists only in [React](/frameworks/react).
+
+```sh
+npm install tally-vue tally-core vue
+```
+
+Vue 3.5 or newer.
+
+## Usage
+
+{/* snippet: vue/accounts.vue */}
+
+```vue Accounts.vue
+<script setup lang="ts">
+import { createArraySource, createSchema } from 'tally-core'
+import { useGrid, useGridState, useView } from 'tally-vue'
+
+const props = defineProps<{ rows: Account[] }>()
+
+const schema = createSchema({
+  key: 'id',
+  columns: [
+    { id: 'account', label: 'Account' },
+    { id: 'mrr', label: 'MRR', type: 'currency', aggregate: 'sum' },
+  ],
+})
+const source = createArraySource(props.rows, schema)
+
+const grid = useGrid({ schema, source })
+const state = useGridState(grid)
+const view = useView(grid)
+</script>
+
+<template>
+  <p>{{ state.status }}, sorted by {{ view.sort[0]?.column ?? 'nothing' }}</p>
+  <button @click="grid.view.toggleSort('mrr')">Sort by MRR</button>
+</template>
+```
+
+`useGrid` accepts options, a ref or a getter. It creates a `Grid`, loads it after mount and disposes it when the scope stops. It recreates the grid when `schema` or `source` change identity, and when the format context changes. The current view carries over. Reactive proxies are unwrapped before they reach the engine.
+
+Loading and subscriptions start after mount, so server rendering produces the initial state without touching the data source.
+
+## Composables
+
+| Composable           | Returns                                                         |
+| -------------------- | --------------------------------------------------------------- |
+| `useGrid(options)`   | A `ComputedRef<Grid>` bound to the current effect scope.        |
+| `useGridState(grid)` | A shallow readonly ref of status, totals, aggregates and page.  |
+| `useView(grid)`      | A shallow readonly ref of the current `View`.                   |
+| `useRows(grid)`      | A shallow readonly ref of loaded rows and changed cells.        |
+| `useSelection(grid)` | A shallow readonly ref of the active cell, ranges and rows.     |
+| `provideGrid(grid)`  | Provides a grid to descendants.                                 |
+| `injectGrid()`       | The provided grid as a `ComputedRef<Grid>`. Throws without one. |
+
+Every composable that takes `grid` accepts a `Grid`, a ref or a getter, and follows the grid when it is recreated. Derive narrower values with `computed`.
+
+## Composables of your own
+
+A getter lets the grid follow reactive input. Here a new source is built whenever the rows change, and the grid is recreated with the current view.
+
+{/* snippet: vue/use-accounts.ts */}
+
+```ts use-accounts.ts
+import { computed, type ComputedRef, type Ref } from 'vue'
+import { createArraySource, createSchema, type RowData } from 'tally-core'
+import { useGrid, useGridState } from 'tally-vue'
+
+const schema = createSchema({
+  key: 'id',
+  columns: [
+    { id: 'account', label: 'Account' },
+    { id: 'mrr', label: 'MRR', type: 'currency', aggregate: 'sum' },
+  ],
+})
+
+export function useAccounts(rows: Ref<readonly RowData[]>): {
+  sortByMrr: () => void
+  total: ComputedRef<number | undefined>
+} {
+  const grid = useGrid(() => ({ schema, source: createArraySource(rows.value, schema) }))
+  const state = useGridState(grid)
+  return {
+    sortByMrr: () => grid.value.view.toggleSort('mrr'),
+    total: computed(() => state.value.total),
+  }
+}
+```

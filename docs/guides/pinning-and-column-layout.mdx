@@ -1,0 +1,96 @@
+---
+title: 'Pinning and column layout'
+description: 'Pin columns and rows, set widths, fill spare width, reorder, hide and band columns.'
+icon: 'pin'
+---
+
+Column layout is part of the view. The schema sets the defaults, and every change a user makes is stored in `view.columns` as order, `width`, `flex`, `hidden` and `pin`.
+
+## Column options
+
+{/* snippet: pinning-and-column-layout/schema.ts */}
+
+```ts schema.ts
+import { createSchema } from 'tally-core'
+
+export const schema = createSchema({
+  key: 'id',
+  columns: [
+    { id: 'account', label: 'Account', pin: 'left', width: 220, minWidth: 160 },
+    { id: 'owner', type: 'person', flex: 1 },
+    { id: 'mrr', label: 'MRR', type: 'currency', group: 'Revenue' },
+    { id: 'growth', type: 'percent', group: 'Revenue' },
+    { id: 'renewal', type: 'date', maxWidth: 180 },
+    { id: 'notes', hidden: true },
+    { id: 'health', type: 'number', pin: 'right', width: 96 },
+  ],
+})
+```
+
+| Option     | Default | Notes                                                                  |
+| ---------- | ------- | ---------------------------------------------------------------------- |
+| `pin`      |         | `left` or `right`. Pinned columns stay in place while the rest scroll. |
+| `width`    | `160`   | Width in pixels.                                                       |
+| `minWidth` | `48`    | Floor for resizing. Never below `48`.                                  |
+| `maxWidth` |         | Ceiling for resizing and fill.                                         |
+| `flex`     | `0`     | Share of spare viewport width. `width` stays the floor.                |
+| `hidden`   | `false` | Hidden from the grid, still in the schema.                             |
+| `group`    |         | Label of a header band over adjacent columns with the same group.      |
+
+Bands cover the scrolling columns only.
+
+## In the grid
+
+| Action                            | Result                                           |
+| --------------------------------- | ------------------------------------------------ |
+| Drag a header                     | Moves the column.                                |
+| Drag a header edge                | Resizes the column and clears its flex.          |
+| Double-click a header edge        | Fits the width to the rendered cells.            |
+| Arrow keys on a focused edge      | Resizes by 8 pixels.                             |
+| Column menu, Pin left or right    | Pins or unpins the column.                       |
+| Column menu, Fill remaining width | Toggles `flex` between `1` and `0`.              |
+| Column menu, Hide column          | Hides the column.                                |
+| Display menu                      | Shows or hides every column, and pins it left.   |
+| Row menu, Pin row                 | Pins the row, or every selected row, to the top. |
+
+Under `dir="rtl"` the start side is on the right, and the menu labels follow it. See [RTL](/guides/rtl).
+
+## From code
+
+{/* snippet: pinning-and-column-layout/layout.ts */}
+
+```ts layout.ts
+import { createSchema, createViewStore, layoutColumns } from 'tally-core'
+
+const schema = createSchema({
+  key: 'id',
+  columns: [{ id: 'account' }, { id: 'owner' }, { id: 'mrr', type: 'currency' }],
+})
+
+const view = createViewStore(schema)
+
+view.pinColumn('account', 'left')
+view.moveColumn('mrr', 1)
+view.resizeColumn('owner', 240)
+view.setColumnFlex('mrr', 1)
+view.togglePinnedRow(42)
+
+export const layout = layoutColumns(view.get(), schema, 1200)
+```
+
+| Method                        | Effect                                    |
+| ----------------------------- | ----------------------------------------- |
+| `pinColumn(id, side)`         | `left`, `right`, or `undefined` to unpin. |
+| `moveColumn(id, toIndex)`     | Moves a column in the view order.         |
+| `resizeColumn(id, width)`     | Fixed width. Clears `flex`.               |
+| `setColumnFlex(id, flex)`     | Share of spare width.                     |
+| `setColumnHidden(id, hidden)` | Hides or shows a column.                  |
+| `togglePinnedRow(key)`        | Pins or unpins a row by key.              |
+
+Layout changes do not reload the grid.
+
+## Computing the layout
+
+`layoutColumns(view, schema, available?)` returns the visible columns with their final widths, split into `left`, `center` and `right`. With `available`, flex columns grow into the spare width, clamped by `maxWidth`. `grid.layout(available?)` caches the same result, and `useColumnLayout(grid, available?)` reads it in React.
+
+Pinned rows are stored in `view.pinnedRows` and render above the other rows, in the order the source returned them.

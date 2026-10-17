@@ -1,0 +1,407 @@
+---
+title: 'Extension points'
+description: 'Where each change goes: the package, the API and an example per extension point.'
+icon: 'puzzle'
+---
+
+The MCP server serves this list as `tally://guide/extend` and searches it with `tally_where`.
+
+## Change how a column type or kind is drawn
+
+| Package       | API                                                    |
+| ------------- | ------------------------------------------------------ |
+| `tally-react` | `<Tally renderers={{ [typeName \| kind]: Renderer }}>` |
+
+Pass a renderer keyed by the column type name first, then its kind. It receives value, text, row, column, type and format. Keep the data and the query untouched; only the cell changes.
+
+```tsx
+const renderers = {
+  health: ({ value, text }) => <Ring value={value} label={text} />,
+}
+<Tally grid={grid} renderers={renderers} />
+```
+
+[Guide](/guides/custom-renderers-and-editors)
+
+## Change how a cell is edited
+
+| Package       | API                                                |
+| ------------- | -------------------------------------------------- |
+| `tally-react` | `<Tally editors={{ [typeName \| kind]: Editor }}>` |
+
+Pass an editor keyed by type name or kind. It receives value, column, commit(value, move?) and cancel(). Call commit to write through grid.setCells with undo.
+
+```tsx
+const editors = {
+  enum: ({ value, column, commit, cancel }) => (
+    <MySelect value={value} options={column.options} onChange={commit} onEscape={cancel} />
+  ),
+}
+<Tally grid={grid} editors={editors} />
+```
+
+[Guide](/guides/custom-renderers-and-editors)
+
+## Add a new column type
+
+| Package      | API                                                                    |
+| ------------ | ---------------------------------------------------------------------- |
+| `tally-core` | `createTypeRegistry(...types) and createSchema({ columns, registry })` |
+
+Implement ColumnType: name, kind, parse, format, compare, is, operators, facet, card, optional detect and jsonSchema. Register it and pass the registry to createSchema. Servers receive the type name through the schema route, so pass the same registry to connectHttpSource on the client.
+
+```tsx
+const rating: ColumnType = {
+  ...builtinTypes.int,
+  name: 'rating',
+  format: (value) => '★'.repeat(value),
+}
+const registry = createTypeRegistry(...builtinTypes.all, rating)
+const schema = createSchema({ columns, registry })
+```
+
+[Guide](/guides/custom-column-types)
+
+## Shape a column: label, width, pin, aggregate, avatar, subtitle, sparkline, relative, card role
+
+| Package      | API                                                                                                                                                                                              |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `tally-core` | `createSchema({ columns: [{ id, type, label, width, flex, pin, aggregate, avatar, subtitle, sparkline, relative, card, hidden, editable, filterable, sortable, groupable, options, format }] })` |
+
+Column options drive the default renderers and the menus. Nothing else is needed for an initials tile, a secondary line, a sparkline before a number or a relative date line.
+
+```tsx
+{ id: 'account', label: 'Account', avatar: true, subtitle: 'domain', pin: 'left', flex: 1 }
+{ id: 'mrr', type: 'currency', aggregate: 'sum', sparkline: 'history' }
+{ id: 'renewal', type: 'date', relative: true }
+```
+
+[Guide](/concepts/schema-and-columns)
+
+## Theme, colors, fonts, density, radius
+
+| Package       | API                                                                   |
+| ------------- | --------------------------------------------------------------------- |
+| `tally-react` | `CSS custom properties on .tally, data attributes, <Tally theme dir>` |
+
+Override --tally-\* tokens on .tally or any ancestor. Dark mode follows color-scheme or theme="dark". Target states through data attributes such as [data-selected] or [data-sign="down"]. Density is a view property.
+
+```tsx
+.tally {
+  --tally-accent: oklch(0.6 0.18 30);
+  --tally-font: 'Inter', sans-serif;
+  --tally-row-height: 40px;
+}
+```
+
+[Guide](/guides/theming)
+
+## Translate or reword UI text
+
+| Package       | API                                     |
+| ------------- | --------------------------------------- |
+| `tally-react` | `<Tally labels={Partial<TallyLabels>}>` |
+
+Every string in the UI is a key of TallyLabels. Pass the ones to change; the rest keep defaultLabels.
+
+```tsx
+<Tally grid={grid} labels={{ filterPlaceholder: 'Filtern…', rows: (n) => `${n} Zeilen` }} />
+```
+
+[Guide](/guides/labels-and-localization)
+
+## Hook keyboard and mouse actions, command palette, inspector
+
+| Package       | API                                                               |
+| ------------- | ----------------------------------------------------------------- |
+| `tally-react` | `<Tally onIntent={(intent: GridIntent) => boolean \| undefined}>` |
+
+Every input becomes a GridIntent first. Return true to consume it. Cmd/Ctrl+K emits commandPalette, Space emits inspect, so a host binds its own palette or side panel without forking the grid.
+
+```tsx
+<Tally
+  grid={grid}
+  onIntent={(intent) => {
+    if (intent.type === 'commandPalette') {
+      openPalette()
+      return true
+    }
+    return undefined
+  }}
+/>
+```
+
+[Guide](/guides/intents)
+
+## Replace or extend the toolbar
+
+| Package       | API                                                                                                                            |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `tally-react` | `<Tally toolbar toolbarStart>, exported parts Toolbar, FilterBar, Chip, DisplayMenu, Pager, HeaderMenu, RulesPopover, RowMenu` |
+
+Children render at the end of the default toolbar, toolbarStart before the filter bar. Pass toolbar=\{false\} and compose the exported parts with useGridContext for a different arrangement.
+
+```tsx
+<Tally grid={grid} toolbarStart={<ViewTabs />}>
+  <ExportButton />
+</Tally>
+```
+
+[Guide](/frameworks/react)
+
+## Serve the grid from a SQL database
+
+| Package        | API                                                                                                                        |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `tally-server` | `createKyselyAdapter({ db, table, schema, dialect, columns, flags }) and createTallyHandler({ source, schema, basePath })` |
+
+The adapter compiles validated protocol requests to SQL and passes the conformance suite on SQLite, Postgres and MySQL. Mount the Fetch handler on any framework. For SQL Server or another engine implement SqlDialect. For Laravel use tally/laravel.
+
+```tsx
+const accounts = createKyselyAdapter({ db, table: 'accounts', schema, dialect: postgresDialect })
+const handler = createTallyHandler({ source: accounts, schema, basePath: '/api/accounts' })
+app.all('/api/accounts/*', (c) => handler(c.req.raw))
+```
+
+[Guide](/backends/node)
+
+## Serve the grid from a Laravel app
+
+| Package         | API                                                                                                 |
+| --------------- | --------------------------------------------------------------------------------------------------- |
+| `tally/laravel` | `class AccountsGrid extends Grid { query(); columns() } and Route::tally(uri, AccountsGrid::class)` |
+
+Extend Grid with the Eloquent query and the column definitions, then register it with the Route::tally macro. The adapter validates every request against the protocol JSON Schema, compiles it with the query builder and passes the conformance suite on SQLite, Postgres and MySQL. Override columnMap(), flags(), mutable(), maxLimit() or dialect() on the grid.
+
+```php
+final class AccountsGrid extends Grid
+{
+    public function query(): Builder
+    {
+        return Account::query()->whereBelongsTo(auth()->user()->team);
+    }
+
+    public function columns(): array
+    {
+        return [
+            ['id' => 'account', 'label' => 'Account'],
+            ['id' => 'mrr', 'type' => 'currency', 'aggregate' => 'sum'],
+        ];
+    }
+}
+
+Route::tally('/api/accounts', AccountsGrid::class);
+```
+
+[Guide](/backends/laravel)
+
+## Connect the grid to an HTTP API
+
+| Package          | API                                                    |
+| ---------------- | ------------------------------------------------------ |
+| `tally-adapters` | `connectHttpSource({ url, headers, fetch, registry })` |
+
+Any server that answers GET /schema, POST /query, PATCH /rows and GET /events speaks the protocol. One call fetches the schema and returns a DataSource with live patches over SSE. For an API that does not speak the protocol, implement DataSource from tally-core directly: capabilities, query, optional mutate and subscribe.
+
+```tsx
+const { schema, source } = await connectHttpSource({
+  url: '/api/accounts',
+  headers: () => ({ authorization: `Bearer ${token()}` }),
+})
+const grid = useGrid({ schema, source })
+```
+
+[Guide](/backends/adapters)
+
+## Run the grid straight against Supabase
+
+| Package          | API                                                                                        |
+| ---------------- | ------------------------------------------------------------------------------------------ |
+| `tally-adapters` | `createSupabaseSource({ client, table, schema, realtime }) from 'tally-adapters/supabase'` |
+
+Filters, search, sorts and pages compile to PostgREST, edits go through the table API, Realtime delivers patches. Groups, aggregates and facets are computed from the loaded page.
+
+```tsx
+const source = createSupabaseSource({ client: createClient(url, key), table: 'accounts', schema })
+```
+
+[Guide](/backends/adapters)
+
+## Cache and dedupe requests, or run local-first
+
+| Package          | API                                                                                                                                                |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tally-adapters` | `createQuerySource({ client, source, queryKey }) from 'tally-adapters/query', createCollectionSource(collection, schema) from 'tally-adapters/db'` |
+
+Wrap any source in TanStack Query for caching and devtools, or run over a TanStack DB collection so filters execute locally and edits go through the collection persistence handlers.
+
+```tsx
+const source = createQuerySource({
+  client: queryClient,
+  source: remote,
+  queryKey: ['accounts'],
+  staleTime: 30_000,
+})
+```
+
+[Guide](/backends/adapters)
+
+## Push live updates into the grid
+
+| Package      | API                                                                                                                   |
+| ------------ | --------------------------------------------------------------------------------------------------------------------- |
+| `tally-core` | `DataSource.subscribe(onPatch) delivering RowPatch { upserts, deletes }; ArraySource.patch; tally-server GET /events` |
+
+A source with live capability publishes patches; the grid merges them, marks changed cells and re-ranks rows by the view sort. The HTTP handler relays patches over server sent events and the HTTP source reconnects on its own.
+
+```tsx
+source.patch({ upserts: [{ id: 7, mrr: 1200 }] })
+source.patch({ deletes: [9] })
+```
+
+[Guide](/guides/live-updates)
+
+## Answer natural language with a validated query
+
+| Package    | API                                                                                |
+| ---------- | ---------------------------------------------------------------------------------- |
+| `tally-ai` | `ask(question, { model, schema }) and createAskHandler({ model }) for the ai prop` |
+
+The model answers in Tally query text which is parsed against the schema with one repair round; only a query that parses is returned. In the browser call the provider through a same-origin proxy that adds the API key.
+
+```tsx
+const ai = { ask: createAskHandler({ model: anthropic('claude-sonnet-5-5') }) }
+<Tally grid={grid} ai={ai} />
+```
+
+[Guide](/ai/ask)
+
+## Add a column the model fills per row
+
+| Package    | API                                                                                                                   |
+| ---------- | --------------------------------------------------------------------------------------------------------------------- |
+| `tally-ai` | `withAiColumns(source, schema, [{ column, model, instruction, inputs }]) and designColumn(prompt, { model, schema })` |
+
+Declare the column ai: true, non filterable, non sortable, non groupable. Values stream in as live patches and are cached per row. designColumn turns a prompt into a column definition plus the fill instruction; wire it to the addColumn handler of the ai prop.
+
+```tsx
+const { column, instruction } = await designColumn('Churn risk, low or high', { model, schema })
+const extended = schema.extend([column], 1)
+const source = withAiColumns(base, extended, [{ column: column.id, model, instruction }])
+```
+
+[Guide](/ai/ai-columns)
+
+## Use the grid engine from Vue, Svelte or Solid
+
+| Package                                | API                                                                                                                                        |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `tally-vue, tally-svelte, tally-solid` | `useGrid(options) with useGridState / gridState / createGridState, plus view, rows and selection helpers and a context pair per framework` |
+
+The engine is tally-core and renders nothing. Each binding keeps one Grid per component (recreated when schema, source or format change, keeping the view), subscribes to its stores with the framework reactivity primitive and unsubscribes on unmount. Build the markup yourself; the full component only exists for React.
+
+```tsx
+const grid = useGrid({ schema, source })
+const state = useGridState(grid)
+const view = useView(grid)
+grid.view.toggleSort('mrr')
+```
+
+[Guide](/frameworks/vue)
+
+## Saved views, URL state, formatting rules, density
+
+| Package      | API                                                                                    |
+| ------------ | -------------------------------------------------------------------------------------- |
+| `tally-core` | `grid.view (ViewStore), viewToUrlString, viewFromUrlString, reconcileView, View.rules` |
+
+A View holds filter, sort, group, columns, density, footer and rules. Serialize it for a URL or a database, restore it with reconcileView so renamed columns drop out cleanly. Conditional formatting lives in View.rules.
+
+```tsx
+const search = viewToUrlString(grid.view.get(), schema)
+grid.view.set(reconcileView(viewFromUrlString(search, schema), schema))
+```
+
+[Guide](/concepts/views)
+
+## Phone layout and the detail sheet
+
+| Package       | API                                                                                              |
+| ------------- | ------------------------------------------------------------------------------------------------ |
+| `tally-react` | `<Tally layout cardsBelow detail>, column card roles title \| badge \| metric \| meta \| hidden` |
+
+Below cardsBelow pixels rows render as cards grouped by card role. Tapping a card opens a sheet with every visible field. Pass detail=\{false\} to disable it or a function to render the sheet body.
+
+```tsx
+<Tally
+  grid={grid}
+  layout="auto"
+  cardsBelow={620}
+  detail={({ item, close }) => <AccountPanel row={item.row} onClose={close} />}
+/>
+```
+
+[Guide](/guides/cards-and-detail-sheet)
+
+## Import or export CSV
+
+| Package      | API                                                                             |
+| ------------ | ------------------------------------------------------------------------------- |
+| `tally-core` | `importCsv(text, options) from 'tally-core/import', toCsv(rows, schema), toTsv` |
+
+Import detects column types and enum options from the samples and reports issues per cell. Export formats with the schema so enum labels and dates come out as displayed.
+
+```tsx
+const { columns, rows, issues } = importCsv(text, { keyField: 'id' })
+const schema = createSchema({ columns: columns.map((entry) => entry.column), key: 'id' })
+```
+
+[Guide](/guides/csv-import-and-export)
+
+## Validate requests on your own server
+
+| Package          | API                                                                                                         |
+| ---------------- | ----------------------------------------------------------------------------------------------------------- |
+| `tally-protocol` | `validateQueryRequest(input, schema), validateMutationRequest, queryIssues, mutationIssues, schemas/*.json` |
+
+Parse the wire shape then check columns, operators, arities and aggregates against the schema. Throws TallyError invalid_query with one detail per problem. JSON Schema files serve adapters in other languages.
+
+```tsx
+const request = validateQueryRequest(await req.json(), schema)
+```
+
+[Guide](/backends/protocol)
+
+## Prove a new adapter matches the reference engine
+
+| Package          | API                                                                     |
+| ---------------- | ----------------------------------------------------------------------- |
+| `tally-protocol` | `runConformance((request) => adapter.query(request), { capabilities })` |
+
+The suite replays every filter, sort, group, aggregate, facet and page case over a fixture dataset with empties in every column and diffs the result against the in-memory executor. Create the adapter with today set to CONFORMANCE_TODAY.
+
+```tsx
+const report = await runConformance((request) => adapter.query(request), {
+  capabilities: adapter.capabilities,
+})
+expect(report.failures).toEqual([])
+```
+
+[Guide](/backends/protocol)
+
+## Write or parse a filter in the query language
+
+| Package      | API                                                                          |
+| ------------ | ---------------------------------------------------------------------------- |
+| `tally-core` | `parseQuery(text, schema), printQuery(query, schema), suggest(text, schema)` |
+
+Columns resolve by id, label or alias, enum values by value or label. Numbers accept 2k and $5,000, dates accept 2026-01, today, last 30 days, this quarter. Errors carry offsets. Use the tally_parse_query tool to check a string before shipping it.
+
+```tsx
+const { query, errors } = parseQuery(
+  'plan is pro or team and renewal next 30 days sort by mrr desc',
+  schema,
+)
+```
+
+[Guide](/concepts/query-language)

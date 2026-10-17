@@ -1,0 +1,148 @@
+---
+title: 'React'
+description: 'The Tally component, its props, the hooks and the stylesheet.'
+icon: 'atom'
+---
+
+`tally-react` renders a grid from `tally-core`. It is the only package that ships the full component: virtualized rows and columns, the filter bar, menus, editors, cards and the detail sheet. The Vue, Svelte and Solid packages bind the engine and render nothing.
+
+```sh
+npm install tally-react tally-core react react-dom
+```
+
+React 19 or newer.
+
+## Usage
+
+{/* snippet: react/accounts.tsx */}
+
+```tsx accounts.tsx
+import { useState, type ReactNode } from 'react'
+import { createArraySource, createSchema, type RowData } from 'tally-core'
+import { Tally, useGrid } from 'tally-react'
+import 'tally-react/styles.css'
+
+const schema = createSchema({
+  key: 'id',
+  columns: [
+    { id: 'account', label: 'Account', pin: 'left' },
+    { id: 'plan', type: 'enum', options: [{ value: 'free' }, { value: 'pro' }, { value: 'team' }] },
+    { id: 'mrr', label: 'MRR', type: 'currency', aggregate: 'sum' },
+    { id: 'growth', type: 'percent' },
+    { id: 'renewal', type: 'date' },
+  ],
+})
+
+export function Accounts({ rows }: { rows: readonly RowData[] }): ReactNode {
+  const [source] = useState(() => createArraySource(rows, schema))
+  const grid = useGrid({ schema, source })
+  return <Tally grid={grid} label="Accounts" />
+}
+```
+
+`useGrid` creates a `Grid` from `tally-core`, loads it on mount and disposes it on unmount. It recreates the grid when `schema` or `source` change identity, and when the format context changes. The current view carries over.
+
+Keep the source stable. Create it once with `useState` or `useMemo`, or the grid is rebuilt on every render.
+
+## `<Tally>`
+
+| Prop                 | Type                                           | Notes                                                                                                          |
+| -------------------- | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `grid`               | `Grid`                                         | From `useGrid` or `createGrid`.                                                                                |
+| `label`              | `string`                                       | Accessible name of the grid. Also the name of exported CSV files.                                              |
+| `theme`              | `'light' \| 'dark'`                            | Omit to follow `prefers-color-scheme`.                                                                         |
+| `dir`                | `'ltr' \| 'rtl'`                               | Omit to read the direction of the root or an ancestor.                                                         |
+| `layout`             | `'auto' \| 'grid' \| 'cards'`                  | `auto` switches to cards below `cardsBelow` pixels.                                                            |
+| `cardsBelow`         | `number`                                       | Default `620`.                                                                                                 |
+| `detail`             | `DetailRenderer \| boolean`                    | Tapping a card opens a sheet with every visible field. `false` disables it, a function renders the sheet body. |
+| `toolbar`            | `ReactNode \| boolean`                         | `true` renders the default toolbar, `false` hides it, a node replaces it.                                      |
+| `toolbarStart`       | `ReactNode`                                    | Renders before the filter bar in the default toolbar.                                                          |
+| `ai`                 | `TallyAi`                                      | `ask`, `addColumn` and `suggestions`. See [Ask](/ai/ask) and [AI columns](/ai/ai-columns).                     |
+| `renderers`          | `CellRenderers`                                | Cell renderers by column type name or kind, merged over `defaultRenderers`.                                    |
+| `editors`            | `CellEditors`                                  | Cell editors by column type name or kind, merged over `defaultEditors`.                                        |
+| `labels`             | `Partial<TallyLabels>`                         | Every string in the UI, merged over `defaultLabels`.                                                           |
+| `onIntent`           | `(intent: GridIntent) => boolean \| undefined` | Runs before the built-in handler. Return `true` to consume the intent.                                         |
+| `initialSize`        | `{ width, height }`                            | Viewport size before the first measurement, for server rendering and tests.                                    |
+| `className`, `style` |                                                | Applied to the root element.                                                                                   |
+| `children`           | `ReactNode`                                    | Rendered at the end of the default toolbar.                                                                    |
+
+## Hooks
+
+| Hook                          | Returns                                       |
+| ----------------------------- | --------------------------------------------- |
+| `useGrid(options)`            | A `Grid` bound to the component lifecycle.    |
+| `useGridState(grid, select?)` | Status, totals, aggregates, facets and page.  |
+| `useView(grid, select?)`      | The current `View`.                           |
+| `useRows(grid)`               | Loaded rows, their version and changed cells. |
+| `useSelection(grid)`          | Active cell, ranges and selected rows.        |
+| `useColumnLayout(grid)`       | Visible columns with widths and pin edges.    |
+| `useRowModel(grid)`           | Flattened rows, groups and pinned rows.       |
+| `useGridContext()`            | The nearest `Grid` from `GridProvider`.       |
+| `useViewUrl(grid, options?)`  | Nothing. Syncs the view with the URL.         |
+
+Pass a selector to `useGridState` or `useView` so a component re-renders only when the selected value changes.
+
+{/* snippet: react/status.tsx */}
+
+```tsx status.tsx
+import type { ReactNode } from 'react'
+import { useGridContext, useGridState, useView } from 'tally-react'
+
+export function Status(): ReactNode {
+  const grid = useGridContext()
+  const matched = useGridState(grid, (state) => state.matched ?? state.total)
+  const sorted = useView(grid, (view) => view.sort[0]?.column)
+  return (
+    <p>
+      {matched ?? 0} rows, sorted by {sorted ?? 'nothing'}
+    </p>
+  )
+}
+```
+
+`<Tally>` provides its grid to everything it renders, so `useGridContext` works inside a custom toolbar or a renderer. Wrap other parts of your page in `GridProvider` to share a grid with them.
+
+## Composition
+
+The default toolbar is made of exported parts: `Toolbar`, `FilterBar`, `Chip`, `DisplayMenu`, `AiMenu`, `Pager`, `HeaderMenu`, `RulesPopover` and `RowMenu`. Pass a node as `toolbar` to arrange them yourself.
+
+{/* snippet: react/toolbar.tsx */}
+
+```tsx accounts.tsx
+import type { ReactNode } from 'react'
+import type { Grid } from 'tally-core'
+import { DisplayMenu, FilterBar, Pager, Tally } from 'tally-react'
+
+export function Accounts({ grid }: { grid: Grid }): ReactNode {
+  return (
+    <Tally
+      grid={grid}
+      label="Accounts"
+      toolbar={
+        <div className="accounts-toolbar">
+          <FilterBar grid={grid} />
+          <DisplayMenu grid={grid} />
+          <Pager grid={grid} />
+        </div>
+      }
+    />
+  )
+}
+```
+
+The parts read the shell of the `<Tally>` they render in, so render them through `toolbar` or `children`, not outside the component.
+
+## Styles and fonts
+
+Import the stylesheet once. `fonts.css` self-hosts Onest and JetBrains Mono. Leave it out and the system stack takes over.
+
+```ts
+import 'tally-react/styles.css'
+import 'tally-react/fonts.css'
+```
+
+Every selector is scoped under `.tally` and the stylesheet is unlayered, so it survives Tailwind's preflight and other resets. See [Theming](/guides/theming) for tokens, layers and data attributes.
+
+## Bundle
+
+Own code is under 23 kB brotli. With Base UI, TanStack Virtual, Pragmatic drag and drop and Lucide it is under 101 kB. `tally-core`, `react` and `react-dom` are not included in those numbers.

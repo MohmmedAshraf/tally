@@ -1,0 +1,175 @@
+---
+title: 'Custom renderers and editors'
+description: 'Change how cells are drawn and edited, by column type name or kind.'
+icon: 'paintbrush'
+---
+
+`tally-react` draws every cell with a renderer and edits it with an editor. Both are plain components, looked up by the column's type. Pass your own through the `renderers` and `editors` props of `<Tally>`.
+
+## Lookup
+
+A renderer is found by the type name first, then by the type kind. The same rule picks editors. Your entries are merged over `defaultRenderers` and `defaultEditors`.
+
+| Key       | Default renderer                                 |
+| --------- | ------------------------------------------------ |
+| `text`    | Text, with an optional avatar tile and subtitle. |
+| `number`  | Monospaced text, with an optional sparkline.     |
+| `date`    | Date text, with an optional relative line.       |
+| `enum`    | A pill, tinted with the option `color`.          |
+| `boolean` | A check mark.                                    |
+| `bool`    | A check mark.                                    |
+| `person`  | An initials avatar and the name.                 |
+| `bar`     | A meter from 0 to 100.                           |
+| `email`   | A `mailto:` link.                                |
+| `url`     | A link that opens in a new tab.                  |
+
+<Note>
+  `bool`, `person`, `bar`, `email` and `url` have renderers keyed by type name. A renderer keyed by
+  their kind does not reach them. Override them by name.
+</Note>
+
+The same renderer draws the cell in the grid, the field on a card and the label of a group row.
+
+## Renderers
+
+A renderer receives `CellProps` and returns a node.
+
+| Prop     | Type            | Notes                                   |
+| -------- | --------------- | --------------------------------------- |
+| `value`  | `unknown`       | The raw value from the row.             |
+| `text`   | `string`        | The value formatted by the column type. |
+| `row`    | `RowData`       | The whole row.                          |
+| `column` | `Column`        | The column definition.                  |
+| `type`   | `ColumnType`    | The column type.                        |
+| `format` | `FormatContext` | Locale, time zone and numbering system. |
+
+{/* snippet: custom-renderers-and-editors/renderers.tsx */}
+
+```tsx renderers.tsx
+import { type CellRenderers } from 'tally-react'
+
+export const renderers: CellRenderers = {
+  currency: ({ value, text }) => (
+    <span className="tally-text tally-mono" data-negative={typeof value === 'number' && value < 0}>
+      {text}
+    </span>
+  ),
+  bool: ({ value }) => (value === true ? 'Yes' : value === false ? 'No' : null),
+  enum: ({ text, column }) => <span title={column.description}>{text}</span>,
+}
+```
+
+Use `text` for display so locale and numbering system stay right. Use `value` for decisions such as a sign or a threshold.
+
+## Column options for the default renderers
+
+Four column options shape the built-in renderers without any code.
+
+{/* snippet: custom-renderers-and-editors/schema.ts */}
+
+```ts schema.ts
+import { createSchema } from 'tally-core'
+
+export const schema = createSchema({
+  key: 'id',
+  columns: [
+    { id: 'account', label: 'Account', avatar: true, subtitle: 'domain', width: 200, flex: 2 },
+    { id: 'domain', hidden: true },
+    { id: 'growth', type: 'percent', sparkline: 'trend', format: { signed: true } },
+    { id: 'health', type: 'bar' },
+    { id: 'renewal', type: 'date', relative: true },
+  ],
+})
+```
+
+| Option      | Renderer | Effect                                                                                          |
+| ----------- | -------- | ----------------------------------------------------------------------------------------------- |
+| `avatar`    | text     | Draws an initials tile before the value.                                                        |
+| `subtitle`  | text     | Names another column whose value sits under the text. It must be a column of the schema.        |
+| `sparkline` | number   | Names a row field holding an array of numbers, drawn before the value. It need not be a column. |
+| `relative`  | date     | Adds a relative line such as "in 17 days" under the date.                                       |
+
+Subtitles and relative lines hide at compact density. A sparkline needs at least two numbers. With `format.signed`, the sparkline takes the color of the sign.
+
+### Width
+
+`width` is a fixed width in pixels. A column with `flex` grows into spare viewport width in proportion to its value, and its `width` stays the floor. The column menu toggles it with Fill remaining width. Fit width measures the rendered cells. Dragging a resize handle sets a fixed width again. See [Pinning and column layout](/guides/pinning-and-column-layout).
+
+## Editors
+
+An editor renders while a cell is being edited. It receives `CellEditorProps`.
+
+| Prop      | Type                                          | Notes                                         |
+| --------- | --------------------------------------------- | --------------------------------------------- |
+| `value`   | `unknown`                                     | The current value.                            |
+| `initial` | `string \| undefined`                         | The character typed to start editing, if any. |
+| `column`  | `Column`                                      | The column definition.                        |
+| `type`    | `ColumnType`                                  | The column type.                              |
+| `format`  | `FormatContext`                               | Locale, time zone and numbering system.       |
+| `commit`  | `(value: unknown, move?: EditorMove) => void` | Saves the value and closes the editor.        |
+| `cancel`  | `() => void`                                  | Closes the editor without saving.             |
+
+`move` is `'down'`, `'up'`, `'right'` or `'left'`. It decides where the active cell goes after the commit. The default editors commit with `down` on Enter, `up` on Shift + Enter, `right` on Tab and `left` on Shift + Tab, and without a move on blur.
+
+{/* snippet: custom-renderers-and-editors/editor.tsx */}
+
+```tsx editor.tsx
+import { useRef, useState, type ReactNode } from 'react'
+import { columnLabel } from 'tally-core'
+import { type CellEditorProps, type CellEditors } from 'tally-react'
+
+function ScoreEditor({ value, column, commit, cancel }: CellEditorProps): ReactNode {
+  const [score, setScore] = useState(typeof value === 'number' ? value : 0)
+  const settled = useRef(false)
+  const settle = (finish: () => void): void => {
+    if (settled.current) return
+    settled.current = true
+    finish()
+  }
+  return (
+    <input
+      type="range"
+      min={0}
+      max={100}
+      value={score}
+      autoFocus
+      aria-label={columnLabel(column)}
+      onChange={(event) => setScore(Number(event.target.value))}
+      onKeyDown={(event) => {
+        if (event.key === 'Escape') {
+          event.preventDefault()
+          settle(cancel)
+        }
+        if (event.key === 'Enter' || event.key === 'Tab') {
+          event.preventDefault()
+          settle(() => commit(score, event.key === 'Tab' ? 'right' : 'down'))
+        }
+      }}
+      onBlur={() => settle(() => commit(score))}
+    />
+  )
+}
+
+export const editors: CellEditors = { bar: ScoreEditor }
+```
+
+Call `commit` or `cancel` once. Focus returns to the grid when the editor closes, which blurs the input, so guard against a second call as above.
+
+The committed value goes through the column type's `parse`. A value that does not parse is dropped, and an empty value becomes `null`. Each commit is one mutation, so undo reverts it.
+
+| Key      | Default editor                                  |
+| -------- | ----------------------------------------------- |
+| `text`   | A text input, or a textarea when `wrap` is set. |
+| `number` | A text input with a decimal keyboard.           |
+| `date`   | A native date input.                            |
+| `enum`   | A combobox of the column options.               |
+
+Boolean columns have no editor. Enter or a double click toggles the value.
+
+## Wiring
+
+```tsx
+<Tally grid={grid} label="Accounts" renderers={renderers} editors={editors} />
+```
+
+Define `renderers` and `editors` outside the component, or memoize them. A new object on every render re-renders every cell.

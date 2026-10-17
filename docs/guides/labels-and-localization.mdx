@@ -1,0 +1,94 @@
+---
+title: 'Labels and localization'
+description: 'Translate every string of the React component and format values for a locale, time zone and numbering system.'
+icon: 'languages'
+---
+
+Two things change with the language of a grid: the strings of the interface and the way values are formatted. Strings come from `labels` on `<Tally>`. Values are formatted with the grid's format context.
+
+## Format context
+
+The format context drives number, currency, percent and date formatting, search over formatted text, and the default labels.
+
+| Field             | Default | Notes                                                   |
+| ----------------- | ------- | ------------------------------------------------------- |
+| `locale`          | `en-US` | BCP 47 locale passed to `Intl`.                         |
+| `timeZone`        | `UTC`   | Time zone for dates and for `today` in relative ranges. |
+| `numberingSystem` | `latn`  | `Intl` numbering system, such as `arab`.                |
+
+Build one with `createFormatContext(overrides)` and pass it as `format` to `useGrid` or `createGrid`. `useGrid` recreates the grid when the format context changes and carries the current view over.
+
+{/* snippet: labels-and-localization/format.tsx */}
+
+```tsx accounts.tsx
+import type { ReactNode } from 'react'
+import { createFormatContext, type DataSource, type Schema } from 'tally-core'
+import { Tally, useGrid } from 'tally-react'
+
+const format = createFormatContext({
+  locale: 'ar-EG',
+  timeZone: 'Africa/Cairo',
+  numberingSystem: 'arab',
+})
+
+export function Accounts({ schema, source }: { schema: Schema; source: DataSource }): ReactNode {
+  const grid = useGrid({ schema, source, format })
+  return <Tally grid={grid} label="الحسابات" dir="rtl" />
+}
+```
+
+`new Intl.NumberFormat(locale).resolvedOptions().numberingSystem` gives the numbering system a locale uses by default.
+
+`createArraySource` takes the same `format` option for the comparisons and search it runs. Pass the same context to the source and the grid.
+
+## Digits
+
+Number values typed in cell editors or read from CSV accept Latin, Arabic-Indic and Eastern Arabic-Indic digits, and the Arabic decimal and thousands separators. The filter bar parses ASCII digits only. Arabic-Indic digits typed there match as text.
+
+## Labels
+
+`labels` takes a partial `TallyLabels`. It is merged over the default labels, which are built from the grid's format context.
+
+{/* snippet: labels-and-localization/labels.tsx */}
+
+```tsx konten.tsx
+import type { ReactNode } from 'react'
+import type { Grid } from 'tally-core'
+import { Tally, type TallyLabels } from 'tally-react'
+
+const labels: Partial<TallyLabels> = {
+  filterPlaceholder: 'Filtern…',
+  display: 'Ansicht',
+  exportCsv: 'CSV exportieren',
+  rows: (count) => `${count.toLocaleString('de-DE')} Zeilen`,
+  sorted: (sorts) =>
+    sorts.length === 0 ? 'Sortierung entfernt' : `Sortiert nach ${sorts[0]?.column ?? ''}`,
+  exportFileName: (name) => `${name ?? 'export'}.csv`,
+}
+
+export function Konten({ grid }: { grid: Grid }): ReactNode {
+  return <Tally grid={grid} label="Konten" labels={labels} />
+}
+```
+
+Default labels format their counts with the format context, including `numberingSystem`. Your overrides receive plain numbers and format them themselves. `defaultLabels` exports the English defaults.
+
+| Area             | Keys                                                                                                                                                                                                                                                                                                                                              |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Filter bar       | `filter`, `filterPlaceholder`, `askPlaceholder`, `asking`, `editAsText`, `removeFilter(text)`                                                                                                                                                                                                                                                     |
+| AI               | `ai`, `addAiColumn`, `aiColumnPlaceholder`, `add`                                                                                                                                                                                                                                                                                                 |
+| Toolbar          | `undo`, `redo`, `display`, `density`, `densities`, `columns`, `exportCsv`, `importCsv`, `rows(count)`, `selected(count)`                                                                                                                                                                                                                          |
+| Column menu      | `columnMenu(column)`, `sortAZ`, `sortZA`, `sortHighLow`, `sortLowHigh`, `addToSort`, `addToSortHint`, `groupBy(column)`, `ungroup`, `filterBy(column)`, `pinLeft`, `pinRight`, `unpin`, `pin`, `pinned`, `hideColumn`, `fitWidth`, `fitWidthHint`, `fillWidth`, `footer`, `none`, `uniqueValues(count)`, `typeName(type)`, `resizeColumn(column)` |
+| Formatting rules | `formattingRules`, `addRule`, `removeRule`, `operator`, `value`, `style`, `tint(id)`                                                                                                                                                                                                                                                              |
+| Rows             | `addRow`, `copy`, `pinRow(count)`, `unpinRow(count)`, `deleteRows(count)`, `deleteRowsTitle(count)`, `cancel`, `selectRow(title)`, `selectRowAt(position)`, `selectAllRows`, `toggleRow`, `openRow(title)`, `close`                                                                                                                               |
+| Groups           | `emptyGroup`, `toggleGroup`, `groupRange(from, to, total)`                                                                                                                                                                                                                                                                                        |
+| Empty and errors | `empty`, `noMatches`, `noMatchesDetail(query)`, `clearFilter`, `noColumns`, `showAllColumns`, `retry`, `loading`                                                                                                                                                                                                                                  |
+| Pages            | `pages`, `previousPage`, `nextPage`, `pageRange(from, to, total)`                                                                                                                                                                                                                                                                                 |
+| Announcements    | `sorted(sorts)`, `grouped(column)`, `filtered(filter)`, `undone(action)`, `redone(action)`                                                                                                                                                                                                                                                        |
+| CSV              | `importRows(count)`, `exportFileName(name)`                                                                                                                                                                                                                                                                                                       |
+
+`sorted` receives a list of `{ column, direction }`. `grouped` and `filtered` receive `undefined` when the group or the filter is cleared. The announcements are read by screen readers through a live region. See [Accessibility](/guides/accessibility).
+
+Column labels, enum option labels and the grid `label` come from your schema and props, not from `labels`.
+
+See [RTL](/guides/rtl) for right-to-left layouts.

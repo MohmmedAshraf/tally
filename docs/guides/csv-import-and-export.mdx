@@ -1,0 +1,103 @@
+---
+title: 'CSV import and export'
+description: 'Export the rows of a view to CSV, import CSV into a grid, and build a schema from a file.'
+icon: 'file-spreadsheet'
+---
+
+The Display menu of `<Tally>` has Export CSV and Import CSV. Both are built on functions in `tally-core` you can call yourself.
+
+## Export
+
+Export CSV writes every row that matches the view, not only the loaded page. It uses the visible columns in view order, column labels as headers and raw values. The file is named after the grid's `label`, through the `exportFileName` label.
+
+Remote pages are fetched through the source with `grid.fetchAll(max?)`. It stops at 100,000 rows by default. A source without pagination returns the rows it already loaded.
+
+{/* snippet: csv-import-and-export/export.ts */}
+
+```ts export.ts
+import { toCsv, type Grid } from 'tally-core'
+
+export async function exportCsv(grid: Grid): Promise<string> {
+  const rows = await grid.fetchAll()
+  const columns = grid.layout().columns.map((entry) => entry.column)
+  return toCsv(rows, grid.schema, { columns, header: 'label', format: grid.context.format })
+}
+```
+
+| Option      | Default        | Notes                                                      |
+| ----------- | -------------- | ---------------------------------------------------------- |
+| `columns`   | every column   | Columns to write, in order.                                |
+| `header`    | `id`           | `id`, `label` or `none`.                                   |
+| `formatted` | `false`        | `true` writes the formatted text instead of the raw value. |
+| `delimiter` | `,`            | Field delimiter.                                           |
+| `newline`   | `\n`           | Line separator.                                            |
+| `format`    | `en-US`, `UTC` | Format context for formatted values.                       |
+
+`toTsv` takes the same options with a tab delimiter, no header and formatted values. Cells that start like a spreadsheet formula are escaped in both.
+
+<Note>
+  CSV export writes raw values, such as `4200` and `2026-11-02`. Copy writes the clipboard with
+  `toTsv`, so it carries the formatted text, such as `$4,200` and `Nov 2, 2026`.
+</Note>
+
+## Import
+
+Import CSV is shown when the source can mutate. It reads the file with `importRows(text, schema)`:
+
+- Headers match columns by id, label or alias, then by the slug of the header.
+- Headers that match no column are ignored. A file where no header matches throws `unknown_column`.
+- Each cell is parsed with the column type. An empty cell becomes `null`.
+- A cell the type cannot parse is left out of the row and reported as an issue with its row, column, value and message.
+
+The menu refuses the file on the first issue and shows it in the status banner. Otherwise it inserts every row as one mutation, so one undo removes them. A row whose key is missing or already taken gets a new one from `newRow`.
+
+{/* snippet: csv-import-and-export/import.ts */}
+
+```ts import.ts
+import { importRows, type Grid, type MutationResult } from 'tally-core'
+
+export async function importFile(grid: Grid, file: File): Promise<MutationResult> {
+  const { rows, issues } = importRows(await file.text(), grid.schema)
+  const issue = issues[0]
+  if (issue !== undefined) throw new Error(`Row ${issue.row + 1}: ${issue.message}`)
+  return grid.insertRows(rows.map((row) => ({ ...grid.newRow(), ...row })))
+}
+```
+
+`importRows` takes a `delimiter` option. Without one, the delimiter is detected.
+
+## A schema from a file
+
+`importCsv` from `tally-core/import` reads a file you have no schema for. It detects a type for every column, builds enum options from the distinct values and picks a key. It lives in its own entry point so the detection code loads only where it is used.
+
+{/* snippet: csv-import-and-export/infer.ts */}
+
+```ts infer.ts
+import { createArraySource, createSchema } from 'tally-core'
+import { importCsv } from 'tally-core/import'
+
+const text = 'Account,Plan,MRR,Renewal\nAcme,pro,4200,2026-11-02\nGlobex,team,9800,2027-01-15'
+
+const { columns, rows, keyField } = importCsv(text)
+
+export const schema = createSchema({
+  key: keyField,
+  columns: columns.map((entry) => entry.column),
+})
+
+export const source = createArraySource(rows, schema)
+```
+
+| Option           | Notes                                                                                                                                               |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `types`          | Column id to type name, to override detection.                                                                                                      |
+| `keyField`       | Key column. Default `id`. When it is missing, has empty values or repeats, rows are numbered in `id` if no `id` column exists, in `_key` otherwise. |
+| `registry`       | Type registry with your own column types.                                                                                                           |
+| `delimiter`      | Field delimiter. Detected when omitted.                                                                                                             |
+| `threshold`      | Share of values a type must match to be detected. Default `0.75`.                                                                                   |
+| `maxEnumOptions` | Most distinct values a column can have to be detected as an enum.                                                                                   |
+| `priority`       | Order in which types are tried. Default `defaultDetectionPriority`.                                                                                 |
+
+The result has `columns`, each with the column, the detection, sample values and the count of invalid values, plus `rows`, `issues`, `keyField` and the `delimiter` used. A value the detected type cannot parse is kept as text and reported as an issue.
+
+`detectColumnType(values, registry, options)` runs the detection for one list of values.

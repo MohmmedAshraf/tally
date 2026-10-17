@@ -1,0 +1,292 @@
+---
+title: 'Adapters'
+description: 'Client data sources for HTTP, TanStack Query, TanStack DB and Supabase, and how to write your own.'
+icon: 'plug'
+---
+
+`tally-adapters` holds client data sources. Each one implements the `DataSource` contract from `tally-core`, so the grid works the same over every backend. [Data sources](/data-sources) compares them; this page covers each one in full.
+
+```sh
+npm install tally-adapters tally-core
+```
+
+| Source                   | Import                    | Capabilities                                                           |
+| ------------------------ | ------------------------- | ---------------------------------------------------------------------- |
+| `connectHttpSource`      | `tally-adapters`          | Whatever the server reports.                                           |
+| `createQuerySource`      | `tally-adapters/query`    | Those of the wrapped source.                                           |
+| `createCollectionSource` | `tally-adapters/db`       | Everything but pagination, computed locally. Always live.              |
+| `createSupabaseSource`   | `tally-adapters/supabase` | Filter, search, sort and pages on the database. Live through Realtime. |
+
+## HTTP
+
+`connectHttpSource` fetches `GET /schema` once and returns a schema and a source for any server that speaks the [protocol](/backends/protocol), such as [tally-server](/backends/node) or [tally/laravel](/backends/laravel). [Data sources](/data-sources#http) shows it with `useGrid`.
+
+| Option     | Type                                             | Notes                                            |
+| ---------- | ------------------------------------------------ | ------------------------------------------------ |
+| `url`      | `string`                                         | Base URL of the handler, relative or absolute.   |
+| `headers`  | `HeadersInit \| () => HeadersInit \| Promise<…>` | Sent with every request and the event stream.    |
+| `fetch`    | `typeof fetch`                                   | Defaults to the global `fetch`.                  |
+| `registry` | `TypeRegistry`                                   | Custom column types the server schema refers to. |
+
+When the capabilities are already known, `createHttpSource` builds the source without the schema round trip. `fetchSchema` returns the raw `SchemaResponse`.
+
+{/* snippet: adapters/http.ts */}
+
+```ts http.ts
+import { HttpSourceError, createHttpSource, fetchSchema } from 'tally-adapters'
+import { createSchema, parseQuery, type QueryResponse } from 'tally-core'
+
+const transport = { url: '/api/accounts', headers: { 'x-team': 'growth' } }
+
+const remote = await fetchSchema(transport)
+const schema = createSchema({ columns: remote.columns, key: remote.key })
+const source = createHttpSource({ ...transport, capabilities: remote.capabilities })
+
+export async function overdue(): Promise<QueryResponse | undefined> {
+  const { query } = parseQuery('renewal last 30 days, sort by renewal', schema)
+  try {
+    return await source.query({ version: 1, ...query })
+  } catch (error) {
+    if (error instanceof HttpSourceError && error.status === 400) return undefined
+    throw error
+  }
+}
+```
+
+Responses are validated against the protocol schemas. A failed request throws an `HttpSourceError` with `status`, `code`, `message` and `details` from the [error body](/backends/protocol#errors). A body that is not a protocol error gets the code `http_error`.
+
+The grid's `AbortSignal` is passed to `fetch`, so a superseded query is cancelled on the wire. Live patches arrive over server-sent events. The stream sends the same headers, reconnects on its own and closes when the grid disposes. A server that reports `live: false` gives a source without `subscribe`, and a read-only server gives one without `mutate`.
+
+## TanStack Query
+
+`createQuerySource` wraps any source so its requests go through a `QueryClient` from `@tanstack/query-core`. Identical requests are deduped, results are cached by request, and the devtools show every grid query.
+
+{/* snippet: adapters/query.ts */}
+
+```ts query.ts
+import { QueryClient } from '@tanstack/query-core'
+import { connectHttpSource } from 'tally-adapters'
+import { createQuerySource } from 'tally-adapters/query'
+
+const client = new QueryClient()
+const remote = await connectHttpSource({ url: '/api/accounts' })
+
+export const schema = remote.schema
+
+export const source = createQuerySource({
+  client,
+  source: remote.source,
+  queryKey: ['accounts'],
+  staleTime: 30_000,
+  gcTime: 300_000,
+})
+```
+
+| Option      | Default     | Notes                  |
+| ----------- | ----------- | ---------------------- |
+| `client`    |             | A `QueryClient`.       |
+| `source`    |             | The source to wrap.    |
+| `queryKey`  | `['tally']` | Prefix of every key.   |
+| `staleTime` |             | Passed to every query. |
+| `gcTime`    |             | Passed to every query. |
+
+Queries are keyed `[...queryKey, 'query', request]` and the schema `[...queryKey, 'schema']`.
+
+An accepted mutation or a live patch invalidates every query under the key, so the next request refetches. `source.invalidate()` does the same by hand, for example after a write made outside the grid.
+
+## TanStack DB
+
+`createCollectionSource(collection, schema, options?)` runs the grid over a TanStack DB collection. Filters, sorts, groups, aggregates and facets execute locally with the reference engine. Collection changes arrive as live patches. Edits go through the collection's `insert`, `update` and `delete`, so its persistence handlers and optimistic state apply.
+
+{/* snippet: adapters/db.ts */}
+
+```ts db.ts
+import { createCollection, localOnlyCollectionOptions } from '@tanstack/db'
+import { createSchema, type RowData } from 'tally-core'
+import { createCollectionSource } from 'tally-adapters/db'
+
+const schema = createSchema({
+  key: 'id',
+  columns: [{ id: 'account' }, { id: 'mrr', type: 'currency' }],
+})
+
+const rows: RowData[] = [{ id: 'acc_1', account: 'Acme', mrr: 4200 }]
+
+const accounts = createCollection(
+  localOnlyCollectionOptions({ getKey: (row: RowData) => String(row['id']), initialData: rows }),
+)
+
+export const source = createCollectionSource(accounts, schema, {
+  item: (row) => ({ ...row, id: crypto.randomUUID() }),
+})
+```
+
+| Option         | Default                      | Notes                                                     |
+| -------------- | ---------------------------- | --------------------------------------------------------- |
+| `mutable`      | `true`                       | `false` makes the source read only.                       |
+| `item`         | strips `$` fields            | Maps a new grid row to a collection item before `insert`. |
+| `today`        | today                        | Reference date for relative ranges.                       |
+| `format`       | `en-US`, `UTC`               | Format context used for comparisons and search.           |
+| `flags`        |                              | `(name, row) => boolean` for `is:name` filters.           |
+| `facetOptions` | `{ bins: 20, maxTerms: 50 }` | Histogram bins and terms facet size.                      |
+
+Any collection works, whatever its sync. Virtual properties the collection adds to items, such as `$hasPendingWrites`, are stripped from rows. A mutation resolves when every transaction it started is persisted.
+
+## Supabase
+
+`createSupabaseSource` runs the grid against a Supabase table with no server of your own. Filters, search, sorts and pages compile to PostgREST query strings, edits go through the table API, and Supabase Realtime delivers live patches.
+
+{/* snippet: adapters/supabase.ts */}
+
+```ts supabase.ts
+import { createClient } from '@supabase/supabase-js'
+import { createSchema } from 'tally-core'
+import { createSupabaseSource } from 'tally-adapters/supabase'
+
+const client = createClient(
+  process.env['SUPABASE_URL'] ?? '',
+  process.env['SUPABASE_ANON_KEY'] ?? '',
+)
+
+const schema = createSchema({
+  key: 'id',
+  columns: [
+    { id: 'account', label: 'Account' },
+    { id: 'mrr', label: 'MRR', type: 'currency' },
+    { id: 'renewal', type: 'date' },
+  ],
+})
+
+export const source = createSupabaseSource({
+  client,
+  table: 'accounts',
+  schema,
+  columns: { renewal: 'renews_on' },
+  pagination: 'cursor',
+})
+```
+
+| Option       | Type                     | Notes                                                                     |
+| ------------ | ------------------------ | ------------------------------------------------------------------------- |
+| `client`     | `SupabaseClient`         |                                                                           |
+| `table`      | `string`                 |                                                                           |
+| `schema`     | `Schema`                 | The key must be a field name. It need not be a column.                    |
+| `dbSchema`   | `string`                 | Default `public`.                                                         |
+| `columns`    | `Record<string, string>` | Column id to database column name.                                        |
+| `pagination` | `'offset' \| 'cursor'`   | Default `offset`. Cursors encode an offset.                               |
+| `maxLimit`   | `number`                 | Default `1000`.                                                           |
+| `mutable`    | `boolean`                | Default `true`.                                                           |
+| `realtime`   | `boolean`                | Default `true`. The table must be in the `supabase_realtime` publication. |
+| `today`      | `string`                 | Reference date for relative ranges.                                       |
+
+Text comparisons are case insensitive through `ilike`, with wildcards escaped, so `%` and `_` in values match literally. Negation is pushed down to each condition, so empty cells behave like the reference engine.
+
+<Warning>
+  PostgREST exposes no grouping, so groups, aggregates and facets are computed in the grid from the
+  loaded page. A mutation runs as one request per statement, not as a transaction. Sorting follows
+  the database collation, so text order can differ from the reference engine for mixed case values,
+  and enum columns sort by value rather than option order.
+</Warning>
+
+## Writing your own source
+
+A source is an object with `capabilities` and `query`. `mutate` and `subscribe` are optional. The contract is in [Data sources and protocol](/concepts/data-sources-and-protocol#the-datasource-interface).
+
+{/* snippet: adapters/custom-source.ts */}
+
+```ts accounts-source.ts
+import type { Capabilities, DataSource, Mutation, MutationResult, RowPatch } from 'tally-core'
+import { mutationResultSchema, queryResponseSchema, rowPatchSchema } from 'tally-protocol'
+
+const capabilities: Capabilities = {
+  filter: false,
+  sort: true,
+  group: false,
+  search: false,
+  aggregates: false,
+  facets: false,
+  pagination: 'offset',
+  mutate: true,
+  live: true,
+}
+
+export function createAccountsSource(base: string): DataSource {
+  return {
+    capabilities,
+    async query(request, signal) {
+      const params = new URLSearchParams()
+      for (const sort of request.sort) params.append('sort', `${sort.column}:${sort.direction}`)
+      if (request.page !== undefined && 'offset' in request.page) {
+        params.set('offset', String(request.page.offset))
+        params.set('limit', String(request.page.limit))
+      }
+      const response = await fetch(`${base}/accounts?${params.toString()}`, {
+        signal: signal ?? null,
+      })
+      return queryResponseSchema.parse(await response.json())
+    },
+    async mutate(mutations: readonly Mutation[]): Promise<MutationResult> {
+      const response = await fetch(`${base}/accounts`, {
+        method: 'PATCH',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ mutations }),
+      })
+      return mutationResultSchema.parse(await response.json())
+    },
+    subscribe(onPatch: (patch: RowPatch) => void): () => void {
+      const socket = new WebSocket(`${base.replace(/^http/, 'ws')}/accounts/live`)
+      socket.addEventListener('message', (event) => {
+        const patch = rowPatchSchema.safeParse(JSON.parse(String(event.data)))
+        if (patch.success) onPatch(patch.data)
+      })
+      return () => socket.close()
+    },
+  }
+}
+```
+
+Rules the grid relies on:
+
+- **Declare only what you do.** The grid sends the parts of the view the capabilities allow and runs the rest over the rows it received. This source sorts and pages, so the grid never sends a filter and filters the loaded page itself.
+- **Honour every field you receive.** A request carries only the features you declared. Answer `total`, `matched`, `groups`, `aggregates` and `facets` for the ones you support.
+- **Respect the signal.** `query` receives an `AbortSignal` that fires when a newer query supersedes it.
+- **Return canonical rows.** `mutate` answers `{ accepted, rows?, errors? }`. The grid replaces its rows with `rows`, and rolls the mutation back when `accepted` is `false`.
+- **Patch by key.** `subscribe` delivers `{ upserts?, deletes? }`. Upserts replace the row with the same key or add it.
+
+### Passing the conformance suite
+
+`runConformance(handler, options)` runs every case in `tally-protocol` against `handler` and compares each answer with the in-memory executor over `conformanceRows`. Load those rows into your backend, under `conformanceSchema`, and resolve relative dates against `CONFORMANCE_TODAY`. The reference source passes, so the check below exits with `0`:
+
+{/* snippet: adapters/conformance.ts */}
+
+```ts conformance.ts
+import { createArraySource } from 'tally-core'
+import {
+  CONFORMANCE_TODAY,
+  conformanceRows,
+  conformanceSchema,
+  runConformance,
+} from 'tally-protocol'
+
+const source = createArraySource(conformanceRows, conformanceSchema, {
+  today: CONFORMANCE_TODAY,
+  pagination: 'cursor',
+})
+
+const report = await runConformance((request) => source.query(request), {
+  capabilities: source.capabilities,
+})
+
+for (const failure of report.failures) {
+  process.stderr.write(`${failure.name}\n  ${failure.diffs.join('\n  ')}\n`)
+}
+process.exitCode = report.passed ? 0 : 1
+```
+
+| Option         | Default            | Notes                                                        |
+| -------------- | ------------------ | ------------------------------------------------------------ |
+| `capabilities` | every capability   | Cases that need a capability you do not declare are skipped. |
+| `cases`        | `conformanceCases` | Run your own cases instead.                                  |
+| `tolerance`    | `1e-6`             | Allowed difference between numbers.                          |
+
+Offset sources also run the page cases. Cursor sources are walked page by page until the cursor runs out. The report has `passed`, `results` and `failures`, and every failure lists what differed, by path. Replace the array source with yours and run it in your test suite.

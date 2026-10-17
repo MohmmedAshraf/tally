@@ -1,0 +1,109 @@
+---
+title: 'Filtering'
+description: 'Filter rows from the filter bar, from code, or with flags your app defines.'
+icon: funnel
+---
+
+A filter is part of the view. It is a typed AST that the filter bar edits, the URL stores and the data source runs. Every filter can be written as [query language](/concepts/query-language) text.
+
+## The filter bar
+
+The default toolbar of `<Tally>` renders the filter bar. Type a query and press Enter.
+
+| Action                     | Result                                                                    |
+| -------------------------- | ------------------------------------------------------------------------- |
+| Type a query, press Enter  | The clauses are added to the current filter as chips.                     |
+| Click a chip               | A popover edits its operator and value, with value counts from facets.    |
+| Remove a chip              | Its clause is removed. Backspace in an empty input removes the last chip. |
+| Edit as text               | The whole query, with sort and group, becomes editable text.              |
+| `/`                        | Focuses the filter bar.                                                   |
+| Filter by in a column menu | Prefills the input with the column label.                                 |
+
+Suggestions come from `suggest` in `tally-core`: columns, the operators that fit the column, and the values present in the data. A query that does not parse shows its first error under the input and changes nothing.
+
+When the `ai` prop has an `ask` handler, text that does not parse or reads like a sentence goes to the handler instead. See [Ask](/ai/ask).
+
+## Filtering from code
+
+The view store sets the filter. Parse text with `parseQuery`, or build the AST with `condition`, `and`, `or`, `not` and `search`.
+
+{/* snippet: filtering/filter.ts */}
+
+```ts filter.ts
+import { and, condition, createArraySource, createGrid, createSchema, parseQuery } from 'tally-core'
+
+const schema = createSchema({
+  key: 'id',
+  columns: [
+    { id: 'account', label: 'Account' },
+    { id: 'plan', type: 'enum', options: [{ value: 'free' }, { value: 'pro' }, { value: 'team' }] },
+    { id: 'mrr', label: 'MRR', type: 'currency' },
+    { id: 'renewal', type: 'date' },
+  ],
+})
+
+const source = createArraySource(
+  [{ id: 1, account: 'Acme', plan: 'pro', mrr: 4200, renewal: '2026-11-02' }],
+  schema,
+)
+
+const grid = createGrid({
+  schema,
+  source,
+  flags: (name, row) => name === 'enterprise' && Number(row['mrr']) >= 10_000,
+})
+
+grid.view.setFilter(parseQuery('plan is pro or team, renewal next 30 days', schema).query.filter)
+
+grid.view.setFilter(and(condition('plan', 'in', ['pro', 'team']), condition('mrr', 'gt', 2000)))
+
+await grid.load()
+
+export const matched = grid.get().matched
+```
+
+`setFilter(undefined)` clears the filter. A change to the filter reloads the grid and returns to the first page.
+
+To show the current filter as text, print it with `printQuery`:
+
+{/* snippet: filtering/filter-text.tsx */}
+
+```tsx filter-text.tsx
+import type { ReactNode } from 'react'
+import { printQuery, type Grid } from 'tally-core'
+import { useView } from 'tally-react'
+
+export function FilterText({ grid }: { grid: Grid }): ReactNode {
+  const filter = useView(grid, (view) => view.filter)
+  return <code>{printQuery({ filter, sort: [] }, grid.schema)}</code>
+}
+```
+
+## Flags
+
+`is:name` is a flag. The grid resolves `is:changed` itself, for rows with cells changed by a live patch. Every other name goes to the `flags` option of the grid.
+
+| Option   | Type                                      | Notes                                                       |
+| -------- | ----------------------------------------- | ----------------------------------------------------------- |
+| `flags`  | `(name: string, row: RowData) => boolean` | Resolves `is:name`. A flag nobody resolves matches nothing. |
+| `today`  | `string`                                  | ISO date that relative ranges resolve against.              |
+| `format` | `FormatContext`                           | Locale and time zone used for search and `today`.           |
+
+These options go to `useGrid` or `createGrid`. On the server, flags are SQL expressions: see the `flags` option in [Node](/backends/node) and [Laravel](/backends/laravel).
+
+## Column options
+
+| Option       | Default | Notes                                                               |
+| ------------ | ------- | ------------------------------------------------------------------- |
+| `filterable` | `true`  | `false` hides the column menu entry and removes it from facets.     |
+| `searchable` | type    | Whether bare words search this column. Defaults to the column type. |
+| `aliases`    |         | Extra names the query language resolves to this column.             |
+
+## Where the filter runs
+
+The grid sends the filter to the source when the source has the `filter` capability. Otherwise it filters the rows the source returned. Search falls back to the grid when the source lacks the `search` capability. Flags always run in the grid.
+
+<Note>
+  A filter that runs in the grid only sees the loaded rows. With a paged source that cannot filter,
+  rows on other pages are not matched.
+</Note>

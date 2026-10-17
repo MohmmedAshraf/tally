@@ -1,0 +1,101 @@
+---
+title: 'Cards and detail sheet'
+description: 'How the grid turns into cards on narrow screens, and the sheet a tapped card opens.'
+icon: 'smartphone'
+---
+
+On a narrow viewport `<Tally>` renders each row as a card instead of a table row. Cards use the same view, the same rows and the same selection as the grid. Tapping a card title opens a sheet with every visible field.
+
+## When cards show
+
+| Prop         | Default | Notes                                                        |
+| ------------ | ------- | ------------------------------------------------------------ |
+| `layout`     | `auto`  | `auto`, `grid` or `cards`.                                   |
+| `cardsBelow` | `620`   | With `auto`, cards show when the root is narrower than this. |
+| `detail`     | `true`  | `false` disables the sheet. A function renders its body.     |
+
+The width is the width of the `<Tally>` root, not of the window. A grid in a narrow sidebar switches to cards on a wide screen. The viewport carries `data-layout="cards"` while cards show.
+
+## Card roles
+
+Every column has a card role. It decides where the column goes on the card.
+
+| Role     | Placement                                                | Default for                                               |
+| -------- | -------------------------------------------------------- | --------------------------------------------------------- |
+| `title`  | The card heading. The first title column wins.           | `text`                                                    |
+| `badge`  | A row of badges under the heading.                       | `enum`, `bool`                                            |
+| `metric` | A list of labelled values.                               | `number`, `int`, `currency`, `percent`, `bar`, `duration` |
+| `meta`   | A line of secondary values. Extra title columns go here. | `date`, `email`, `url`, `id`, `person`                    |
+| `hidden` | Not on the card. Still listed in the detail sheet.       |                                                           |
+
+The role comes from the column type. Set `card` on a column to override it. Without a title column, the first visible column is the title. Hidden columns of the view are left out of cards and of the sheet.
+
+{/* snippet: cards-and-detail-sheet/schema.ts */}
+
+```ts schema.ts
+import { createSchema } from 'tally-core'
+
+export const schema = createSchema({
+  key: 'id',
+  columns: [
+    { id: 'account', label: 'Account', avatar: true, subtitle: 'domain' },
+    { id: 'domain', card: 'hidden' },
+    {
+      id: 'plan',
+      type: 'enum',
+      options: [{ value: 'free' }, { value: 'pro' }, { value: 'team' }],
+    },
+    { id: 'mrr', label: 'MRR', type: 'currency' },
+    { id: 'seats', type: 'int', card: 'meta' },
+    { id: 'renewal', type: 'date', relative: true },
+    { id: 'notes', wrap: true, card: 'meta' },
+  ],
+})
+```
+
+`avatar` draws an initials tile before the title. `subtitle` names a field shown under the title. A `meta` column with `wrap` takes a full line.
+
+## Detail sheet
+
+The sheet is a drawer. Its heading is the card title. The first `metric` column is the hero value, and every other visible column follows as a label and value pair, drawn with the same renderers as the grid.
+
+Pass a function as `detail` to render the body yourself. It receives the grid, the row item and `close`. The heading and the close button stay.
+
+{/* snippet: cards-and-detail-sheet/detail.tsx */}
+
+```tsx accounts.tsx
+import type { ReactNode } from 'react'
+import type { Grid } from 'tally-core'
+import { Tally, type DetailRenderer } from 'tally-react'
+
+const detail: DetailRenderer = ({ grid, item, close }) => (
+  <section>
+    <p>{typeof item.row['notes'] === 'string' ? item.row['notes'] : ''}</p>
+    <button
+      type="button"
+      onClick={() => {
+        void grid.deleteRows([item.key])
+        close()
+      }}
+    >
+      Delete
+    </button>
+  </section>
+)
+
+export function Accounts({ grid }: { grid: Grid }): ReactNode {
+  return <Tally grid={grid} label="Accounts" layout="auto" cardsBelow={720} detail={detail} />
+}
+```
+
+| Field   | Type         | Notes                                         |
+| ------- | ------------ | --------------------------------------------- |
+| `grid`  | `Grid`       | The grid the card belongs to.                 |
+| `item`  | `RowItem`    | `key`, `row`, `index` and the row's position. |
+| `close` | `() => void` | Closes the sheet.                             |
+
+## Selection and groups
+
+Every card has a checkbox that toggles the row, so bulk actions work on phones. Groups render as group rows between cards and collapse the same way.
+
+See [Custom renderers and editors](/guides/custom-renderers-and-editors) to change how values look on cards and in the sheet.

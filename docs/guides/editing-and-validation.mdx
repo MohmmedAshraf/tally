@@ -1,0 +1,92 @@
+---
+title: 'Editing and validation'
+description: 'Edit cells, paste, fill and add rows, and reject invalid values in the client or the source.'
+icon: 'square-pen'
+---
+
+Every edit in `<Tally>` is a mutation. It applies at once, goes to the source's `mutate`, and undoes with Cmd/Ctrl + Z. See [Mutations and undo](/concepts/mutations-and-undo) for the model.
+
+## When cells are editable
+
+A cell is editable when the source has the `mutate` capability and the column does not set `editable: false`. A read-only source turns every editing affordance off, including paste, fill, clear, the new row and CSV import.
+
+| Input                          | Result                                                     |
+| ------------------------------ | ---------------------------------------------------------- |
+| Enter, F2 or typing            | Opens the editor on the active cell.                       |
+| Enter, Tab in an editor        | Commits and moves down or to the next cell.                |
+| Escape                         | Cancels the edit.                                          |
+| Click a boolean cell           | Toggles it without an editor.                              |
+| Delete, Backspace              | Clears the selected range. Label `Clear`.                  |
+| Cmd/Ctrl + V                   | Pastes TSV into the range. Label `Paste`.                  |
+| Drag the fill handle           | Extends the selection as a series. Label `Fill`.           |
+| The new row under the last row | A value entered in it creates a row from `grid.newRow()`.  |
+| Row menu, Delete               | Deletes the row or the selected rows after a confirmation. |
+
+The default editors are a text input for text and numbers, a date input for dates, and a combobox for enums. See [Custom renderers and editors](/guides/custom-renderers-and-editors) to replace them.
+
+## Parsing
+
+Every value goes through the column type's `parse`. A currency column accepts `$5k`, a date column accepts `2026-01-15`, and an enum column accepts a value or a label. An empty value becomes `null`. A value that does not parse is skipped, so the cell keeps its old value.
+
+## Validating in the source
+
+The source is where a business rule rejects a change. Return `accepted: false` with one error per problem, and the grid reverts the mutation and drops it from history.
+
+{/* snippet: editing-and-validation/validate.ts */}
+
+```ts validate.ts
+import { createArraySource, createGrid, createSchema, type DataSource } from 'tally-core'
+
+const schema = createSchema({
+  key: 'id',
+  columns: [
+    { id: 'account', label: 'Account', editable: false },
+    { id: 'mrr', label: 'MRR', type: 'currency' },
+  ],
+})
+
+const rows = createArraySource([{ id: 1, account: 'Acme', mrr: 4200 }], schema)
+
+const source: DataSource = {
+  ...rows,
+  mutate: async (mutations) => {
+    const negative = mutations
+      .flatMap((mutation) => mutation.changes)
+      .find((change) => change.column === 'mrr' && typeof change.to === 'number' && change.to < 0)
+    if (negative !== undefined) {
+      return {
+        accepted: false,
+        errors: [{ key: negative.key, column: 'mrr', message: 'MRR cannot be negative' }],
+      }
+    }
+    return (await rows.mutate?.(mutations)) ?? { accepted: true }
+  },
+}
+
+const grid = createGrid({ schema, source })
+await grid.load()
+
+const result = await grid.setCells([{ key: 1, column: 'mrr', value: '-500' }])
+
+export const message = result.accepted ? undefined : result.errors?.[0]?.message
+```
+
+| `MutationError` field | Notes                          |
+| --------------------- | ------------------------------ |
+| `key`                 | The row, when there is one.    |
+| `column`              | The column, when there is one. |
+| `message`             | What went wrong.               |
+
+A source that throws is treated the same way, with the error message. CSV import shows the first error in the status banner. A rejected cell edit reverts the cell, and `setCells` returns the result with its errors.
+
+## Validating on the server
+
+`tally-server` and `tally/laravel` validate every mutation request before it touches the database: unknown columns, columns with `editable: false`, values whose kind does not match the column, and rows without a key. A database error rejects the mutation with `Mutation failed`. `validateMutationRequest(body, schema)` in `tally-protocol` runs the same checks in your own handler. See [Protocol](/backends/protocol).
+
+## New rows
+
+`grid.newRow()` builds a blank row with a random UUID under the schema's key field. Pass `newRow` to `useGrid` or `createGrid` when the key is computed or the row needs default values.
+
+| Option   | Type            | Notes                                       |
+| -------- | --------------- | ------------------------------------------- |
+| `newRow` | `() => RowData` | Required when the schema key is a function. |

@@ -1,0 +1,91 @@
+---
+title: 'Performance'
+description: 'What Tally renders, where queries run, and the latency budgets the benchmarks enforce.'
+icon: 'gauge'
+---
+
+Tally renders only what is on screen, runs queries where the data lives, and patches rows in place. This page explains each part and the benchmarks that guard them.
+
+## Benchmarks
+
+`tally-core` ships two benchmarks. Each one fails when the mean latency of a case goes over its budget.
+
+```sh
+pnpm --filter tally-core bench
+```
+
+`packages/core/src/grid/stress.bench.ts` runs against 100,000 generated rows with 50 columns of every built-in type.
+
+| Case                         | What it measures                                                                                    | Budget |
+| ---------------------------- | --------------------------------------------------------------------------------------------------- | ------ |
+| full query                   | One `execute` call: a filter with `or` and `and`, a sort, a group, four aggregates and every facet. | 800 ms |
+| patch 1k rows with live sort | Upserting 1,000 changed rows into a sorted row store.                                               | 100 ms |
+| live patch through the grid  | The same 1,000 rows pushed through `source.patch` to a loaded grid.                                 | 100 ms |
+| row model with groups        | Building the flattened row model of 100,000 rows grouped by an enum.                                | 100 ms |
+
+`packages/core/src/execute/executor.bench.ts` runs the executor against 100,000 rows with five columns. Filter and sort, group with an aggregate, three facets and a search each stay under 250 ms.
+
+The numbers are budgets, not measurements. Run the benchmarks on your own hardware for real timings.
+
+## The stress dataset
+
+The playground has a developer dataset at [`#/stress`](https://play.tally.outhebox.dev/#/stress). It generates 100,000 rows with 50 columns in the browser and serves them from an in-memory array source: pinned and wide columns, enum pills, avatars, sparklines, meters, relative dates and footer aggregates. Use it to feel scrolling, sorting, grouping and filtering at that size.
+
+## Virtualization
+
+`tally-react` virtualizes rows and columns with TanStack Virtual. Only the visible rows, plus six above and below, and the visible columns, plus two on each side, are in the DOM. Pinned columns and pinned rows stay mounted. The cards layout is virtualized too.
+
+## Where queries run
+
+The grid sends each query to its data source and computes locally only what the source cannot do. Pick the source by where the rows live.
+
+| Source                 | Work                                                                                            |
+| ---------------------- | ----------------------------------------------------------------------------------------------- |
+| `createArraySource`    | Everything in memory, with the same executor the benchmarks measure.                            |
+| `connectHttpSource`    | Filter, sort, group, aggregates, facets and pages on the server.                                |
+| `createSupabaseSource` | Filter, search, sort and pages in Postgres. Groups, aggregates and facets over the loaded page. |
+
+<Note>
+  Work the grid does locally only sees loaded rows. For large tables, use a source that filters,
+  sorts and groups on the server.
+</Note>
+
+See [Data sources](/data-sources) and [Pagination](/guides/pagination).
+
+## Loading
+
+| Behavior     | Detail                                                                                                          |
+| ------------ | --------------------------------------------------------------------------------------------------------------- |
+| Page size    | `pageSize` on the grid options. Default `100`.                                                                  |
+| Cursor pages | The next page loads when the viewport is within 12 rows of the end.                                             |
+| Cancellation | A query superseded by a newer one is aborted through its `AbortSignal`. The HTTP source cancels it on the wire. |
+| Reloads      | Only a change to the filter, the sort, the group or the footer reloads. Widths, order and density do not.       |
+| Export       | CSV export fetches remote pages through the source, up to 100,000 rows.                                         |
+
+## Live updates
+
+Patches update rows in place. Under a sort, changed rows move to their new position without a reload. That is the `patch 1k rows with live sort` case above. See [Live updates](/guides/live-updates).
+
+## Rendering in React
+
+The hooks read the engine through `useSyncExternalStore`. `useGridState` and `useView` take a selector, and a component re-renders only when the selected value changes.
+
+{/* snippet: performance/status.tsx */}
+
+```tsx status.tsx
+import type { ReactNode } from 'react'
+import type { Grid } from 'tally-core'
+import { useGridState, useView } from 'tally-react'
+
+export function Status({ grid }: { grid: Grid }): ReactNode {
+  const matched = useGridState(grid, (state) => state.matched ?? state.total)
+  const sorted = useView(grid, (view) => view.sort.length > 0)
+  return (
+    <p>
+      {matched ?? '…'} rows{sorted ? ', sorted' : ''}
+    </p>
+  )
+}
+```
+
+Keep `renderers`, `editors` and `labels` stable across renders. Define them outside the component or memoize them, so cells do not re-render for nothing.

@@ -1,0 +1,253 @@
+---
+title: 'Node'
+description: 'Serve the Tally Query Protocol from SQLite, Postgres or MySQL with tally-server.'
+icon: 'server'
+---
+
+`tally-server` has two parts. `createKyselyAdapter` compiles grid queries into SQL through [Kysely](https://kysely.dev). `createTallyHandler` serves any `DataSource` over HTTP as a Fetch handler.
+
+```sh
+npm install tally-server tally-core tally-protocol kysely
+```
+
+Kysely is a peer dependency. Bring the driver for your database: `pg`, `mysql2`, `better-sqlite3`, or `node:sqlite` through the included `nodeSqlite` bridge.
+
+## Adapter
+
+{/* snippet: node/adapter.ts */}
+
+```ts adapter.ts
+import { DatabaseSync } from 'node:sqlite'
+import { Kysely, SqliteDialect, sql } from 'kysely'
+import { createSchema } from 'tally-core'
+import { createKyselyAdapter, nodeSqlite, sqliteDialect, type SqlDatabase } from 'tally-server'
+
+const db = new Kysely<SqlDatabase>({
+  dialect: new SqliteDialect({ database: nodeSqlite(new DatabaseSync('app.db')) }),
+})
+
+export const schema = createSchema({
+  key: 'id',
+  columns: [
+    { id: 'account', label: 'Account' },
+    { id: 'plan', type: 'enum', options: [{ value: 'free' }, { value: 'pro' }, { value: 'team' }] },
+    { id: 'mrr', label: 'MRR', type: 'currency', aggregate: 'sum' },
+    { id: 'renewal', type: 'date' },
+  ],
+})
+
+export const accounts = createKyselyAdapter({
+  db,
+  table: 'accounts',
+  schema,
+  dialect: sqliteDialect,
+  columns: { renewal: 'renews_on' },
+  flags: { paying: sql`${sql.ref('mrr')} > 0` },
+  pagination: 'cursor',
+})
+```
+
+| Option       | Default  | Notes                                                                                       |
+| ------------ | -------- | ------------------------------------------------------------------------------------------- |
+| `db`         |          | A `Kysely` instance.                                                                        |
+| `table`      |          | Table or view name.                                                                         |
+| `schema`     |          | From `createSchema`. The key must be a field name, not a function. It need not be a column. |
+| `dialect`    | `sqlite` | `sqliteDialect`, `postgresDialect`, `mysqlDialect` or your own `SqlDialect`.                |
+| `columns`    |          | Column id to SQL column name, such as `{ renewal: 'renews_on' }`.                           |
+| `flags`      |          | Named `sql` expressions that `is:name` filters compile to.                                  |
+| `pagination` | `offset` | `offset` or `cursor`. Cursors are opaque and encode the offset.                             |
+| `maxLimit`   | `1000`   | Page sizes above this are clamped. Requests without a page return at most this many rows.   |
+| `mutable`    | `true`   | `false` refuses `PATCH /rows`.                                                              |
+| `today`      | now      | ISO date that relative ranges such as `last 30 days` resolve against.                       |
+| `bins`       | `20`     | Histogram bins.                                                                             |
+| `maxTerms`   | `50`     | Terms facet size.                                                                           |
+| `maxGroups`  | `1000`   | Group summaries are cut to the first this many groups, and pages past them are empty.       |
+| `onError`    |          | Receives the database error behind a rejected mutation.                                     |
+
+The adapter filters, searches, sorts, groups, aggregates, facets and pages in SQL. Every request is validated with `tally-protocol` before any SQL runs.
+
+Mutations run in one transaction and return the canonical rows read back from the database. A database error rejects the whole batch with `Mutation failed` rather than the driver message, and `onError` receives the original error.
+
+<Warning>
+  Groups past `maxGroups` are dropped from the summaries, and their pages come back empty. Raise it
+  when a grouped column can have more distinct values.
+</Warning>
+
+## Dialects
+
+A `SqlDialect` supplies the functions SQL engines disagree on: `text`, `lower`, `float`, `floor`, `dayNumber`, `dateBucket`, plus `encode` and `decode` for values crossing the driver.
+
+<Tabs>
+  <Tab title="SQLite">
+    `sqliteDialect` works with `node:sqlite` through `nodeSqlite`, as in the adapter above, and with `better-sqlite3` passed straight to Kysely's `SqliteDialect`. Text comparisons fold ASCII case only.
+  </Tab>
+  <Tab title="Postgres">
+    Pass `postgresDialect` with Kysely's `PostgresDialect` and a `pg` pool. `date` columns come back as `Date` objects and are converted to ISO dates. Numeric aggregates arrive as strings and are converted to numbers.
+  </Tab>
+  <Tab title="MySQL">
+    {/* snippet: node/mysql.ts */}
+
+    ```ts mysql.ts
+    import { Kysely, MysqlDialect } from 'kysely'
+    import { createPool } from 'mysql2'
+    import { createKyselyAdapter, mysqlDialect, type SqlDatabase } from 'tally-server'
+    import { schema } from './adapter.ts'
+
+    const db = new Kysely<SqlDatabase>({
+      dialect: new MysqlDialect({ pool: createPool({ uri: process.env['DATABASE_URL'] ?? '' }) }),
+    })
+
+    export const accounts = createKyselyAdapter({
+      db,
+      table: 'accounts',
+      schema,
+      dialect: mysqlDialect,
+    })
+    ```
+
+    Dates and numeric aggregates are converted as on Postgres. Booleans are stored as `tinyint` and decoded back to `true` and `false`. Group queries are valid under the default `ONLY_FULL_GROUP_BY` mode.
+
+  </Tab>
+</Tabs>
+
+Implement `SqlDialect` for SQL Server or another engine and pass it as `dialect`.
+
+### Semantics
+
+The adapter passes the `tally-protocol` conformance suite on SQLite, Postgres and MySQL, so results match the in-memory engine:
+
+- Empty means `NULL`, and for text columns also `''`. Empty values sort last in both directions and never match comparisons, except `neq`, `notContains` and `notIn`, which keep them.
+- Text comparisons are case insensitive through `lower()`.
+- Enum columns sort and facet in option order.
+- Date groups bucket to `YYYY-MM-DD`, ISO Monday weeks, `YYYY-MM`, `YYYY-Qn` or `YYYY`.
+- Search matches the stored value of searchable columns, not the formatted text.
+- Group order follows the sort on the group column when there is one, otherwise option or natural order, newest dates first.
+- Empty values form one group, `NULL` and `''` alike, which sorts last and pages like any other group.
+
+## Handler
+
+`createTallyHandler` returns `(request: Request) => Promise<Response>`. It serves the four [protocol routes](/backends/protocol) for any `DataSource`, not only the Kysely adapter.
+
+| Option         | Default   | Notes                                                                |
+| -------------- | --------- | -------------------------------------------------------------------- |
+| `source`       |           | Any `DataSource`.                                                    |
+| `schema`       |           | From `createSchema`.                                                 |
+| `basePath`     |           | Prefix stripped before routing.                                      |
+| `heartbeatMs`  | `15000`   | Interval of keep-alive comments on event streams.                    |
+| `maxBodyBytes` | `1048576` | Larger request bodies are refused with `413`.                        |
+| `onError`      |           | Receives unexpected errors. The response only says `Internal error`. |
+
+Accepted mutations are broadcast to every open event stream, and patches from a source with the `live` capability are relayed. The schema route therefore always reports `live: true`. An event stream whose consumer falls more than 1024 events behind is closed, and the client reconnects.
+
+## Mounting
+
+The handler takes a Fetch `Request`, so it mounts anywhere Fetch is the interface. Set `basePath` to the path it is mounted under.
+
+<Tabs>
+  <Tab title="Hono">
+    {/* snippet: node/hono.ts */}
+
+    ```ts hono.ts
+    import { Hono } from 'hono'
+    import { createTallyHandler } from 'tally-server'
+    import { accounts, schema } from './adapter.ts'
+
+    const handler = createTallyHandler({ source: accounts, schema, basePath: '/api/accounts' })
+
+    export const app = new Hono().all('/api/accounts/*', (c) => handler(c.req.raw))
+    ```
+
+  </Tab>
+  <Tab title="Next.js">
+    A catch-all route handler serves every protocol route.
+
+    {/* snippet: node/route.ts */}
+
+    ```ts app/api/accounts/[...path]/route.ts
+    import { createTallyHandler } from 'tally-server'
+    import { accounts, schema } from './adapter.ts'
+
+    const handler = createTallyHandler({ source: accounts, schema, basePath: '/api/accounts' })
+
+    export { handler as GET, handler as PATCH, handler as POST }
+    ```
+
+  </Tab>
+  <Tab title="Node">
+    `getRequestListener` from `@hono/node-server` turns the handler into a `node:http` listener.
+
+    {/* snippet: node/node-http.ts */}
+
+    ```ts server.ts
+    import { createServer } from 'node:http'
+    import { getRequestListener } from '@hono/node-server'
+    import { createTallyHandler } from 'tally-server'
+    import { accounts, schema } from './adapter.ts'
+
+    const handler = createTallyHandler({ source: accounts, schema, basePath: '/api/accounts' })
+    const listener = getRequestListener(handler)
+
+    export const server = createServer((request, response) => {
+      void listener(request, response)
+    }).listen(3000)
+    ```
+
+  </Tab>
+</Tabs>
+
+The handler does no authentication. Put it in the framework's middleware, in front of the handler.
+
+## Conformance
+
+The conformance suite in `tally-protocol` runs every case against the adapter and compares the answer with the in-memory executor. Seed a table with `conformanceRows` and create the adapter with `CONFORMANCE_TODAY` as its `today`.
+
+{/* snippet: node/conformance.ts */}
+
+```ts conformance.ts
+import { DatabaseSync } from 'node:sqlite'
+import { Kysely, SqliteDialect, sql } from 'kysely'
+import {
+  CONFORMANCE_TODAY,
+  conformanceRows,
+  conformanceSchema,
+  runConformance,
+} from 'tally-protocol'
+import { createKyselyAdapter, nodeSqlite, sqliteDialect, type SqlDatabase } from 'tally-server'
+
+const db = new Kysely<SqlDatabase>({
+  dialect: new SqliteDialect({ database: nodeSqlite(new DatabaseSync(':memory:')) }),
+})
+
+await sql
+  .raw(
+    `create table accounts (
+      id text primary key, account text, owner text, plan text, mrr real, seats integer,
+      score real, growth real, health integer, renewal text, active integer, email text,
+      website text, tenure integer)`,
+  )
+  .execute(db)
+
+const rows = conformanceRows.map((row) =>
+  Object.fromEntries(
+    conformanceSchema.columns.map((column) => [
+      column.id,
+      sqliteDialect.encode(conformanceSchema.typeOf(column).kind, row[column.id]),
+    ]),
+  ),
+)
+await db.insertInto('accounts').values(rows).execute()
+
+const adapter = createKyselyAdapter({
+  db,
+  table: 'accounts',
+  schema: conformanceSchema,
+  dialect: sqliteDialect,
+  today: CONFORMANCE_TODAY,
+})
+
+export const report = await runConformance((request) => adapter.query(request), {
+  capabilities: adapter.capabilities,
+})
+```
+
+`report.failures` lists every case that differed, with one diff per path. Cases that need a capability the adapter does not declare are skipped. Run the same check against a custom `SqlDialect` before you rely on it.

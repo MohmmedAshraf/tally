@@ -1,0 +1,136 @@
+---
+title: 'Ask'
+description: 'Turn a question in plain words into a validated Tally query.'
+icon: message-circle-question-mark
+---
+
+`ask` from `tally-ai` turns a question into a Tally query. The model answers in query text, the text is parsed against your schema, and only a query that parses is returned. The model never applies free text to a view.
+
+It works with any model the [AI SDK](https://ai-sdk.dev) can call: a provider package, a gateway model id or your own provider.
+
+```sh
+npm install tally-ai ai
+```
+
+## How it works
+
+<Steps>
+  <Step title="Prompt">
+    `describeSchema(schema, options)` builds the system prompt: the query grammar, every visible
+    column with its type, operators, enum values, aliases and limits, the examples you pass, and
+    today's date.
+  </Step>
+  <Step title="Answer">
+    The model returns structured output with two fields: the query text and one short sentence
+    explaining it.
+  </Step>
+  <Step title="Parse">
+    The text is parsed with `parseQuery` against the schema. A query that parses is printed in its
+    canonical form and returned.
+  </Step>
+  <Step title="Repair">
+    Parse errors go back to the model with a request for a corrected query. After the last repair
+    round, `ask` throws.
+  </Step>
+</Steps>
+
+## Usage
+
+{/* snippet: ask/ask.ts */}
+
+```ts ask.ts
+import type { LanguageModel } from 'ai'
+import { createSchema } from 'tally-core'
+import { ask, type AskResult } from 'tally-ai'
+
+const schema = createSchema({
+  columns: [
+    { id: 'account', label: 'Account' },
+    { id: 'plan', type: 'enum', options: [{ value: 'pro' }, { value: 'team' }] },
+    { id: 'mrr', label: 'MRR', type: 'currency' },
+    { id: 'renewal', type: 'date' },
+  ],
+})
+
+export function teamRenewals(model: LanguageModel): Promise<AskResult> {
+  return ask('team plans renewing this quarter, biggest first', {
+    model,
+    schema,
+    examples: ['plan is pro, sort by mrr desc'],
+  })
+}
+```
+
+The result has three fields:
+
+| Field         | Type     | Content                                                                                      |
+| ------------- | -------- | -------------------------------------------------------------------------------------------- |
+| `query`       | `Query`  | The parsed filter, sort and group.                                                           |
+| `text`        | `string` | The canonical query text, such as `plan is team and renewal this quarter, sort by mrr desc`. |
+| `explanation` | `string` | One sentence telling the user what the query shows.                                          |
+
+## Options
+
+| Option     | Default        | Notes                                           |
+| ---------- | -------------- | ----------------------------------------------- |
+| `model`    |                | Any AI SDK `LanguageModel`.                     |
+| `schema`   |                | The grid schema the query is validated against. |
+| `examples` | `[]`           | Example queries shown to the model.             |
+| `context`  | `en-US`, `UTC` | Format context. Its time zone resolves today.   |
+| `now`      | `new Date()`   | Clock for relative dates.                       |
+| `repairs`  | `1`            | Repair rounds after a parse error.              |
+| `signal`   |                | Abort signal passed to the model call.          |
+
+Hidden columns are left out of the prompt. Columns with `filterable`, `sortable` or `groupable` set to `false` are described with those limits. A `description` on a column is passed to the model as is.
+
+## Errors
+
+When no attempt parses, `ask` throws an `AskError`. Its message is the first parse error of the last attempt. `question` holds the question and `attempts` holds every answer with its parse errors.
+
+{/* snippet: ask/errors.ts */}
+
+```ts errors.ts
+import { AskError, ask, type AskOptions } from 'tally-ai'
+
+export async function askOrExplain(question: string, options: AskOptions): Promise<string> {
+  try {
+    return (await ask(question, options)).text
+  } catch (error) {
+    if (error instanceof AskError) {
+      return error.attempts.flatMap((attempt) => attempt.errors).join('\n')
+    }
+    throw error
+  }
+}
+```
+
+Errors from the model call itself, such as a network failure or an abort, are not wrapped.
+
+## In the filter bar
+
+`createAskHandler` returns the handler for the `ai` prop of `<Tally>`. It takes the same options without `schema`, which comes from the grid.
+
+{/* snippet: ask/filter-bar.tsx */}
+
+```tsx accounts.tsx
+import type { LanguageModel } from 'ai'
+import type { ReactNode } from 'react'
+import type { Grid } from 'tally-core'
+import { createAskHandler } from 'tally-ai'
+import { Tally } from 'tally-react'
+
+export function Accounts({ grid, model }: { grid: Grid; model: LanguageModel }): ReactNode {
+  const ai = { ask: createAskHandler({ model }) }
+  return <Tally grid={grid} label="Accounts" ai={ai} />
+}
+```
+
+With a handler set, the placeholder of the filter bar changes to `askPlaceholder`. Text that does not parse as a query, or reads like a sentence, goes to the handler. The answer lands as filter chips. Rename the strings with the `askPlaceholder` and `asking` [labels](/guides/labels-and-localization).
+
+## Keys in the browser
+
+Model calls need an API key. Keep it on the server. Add a same-origin route that forwards model requests and adds the key, and point the provider's base URL at it. `ask`, `designColumn` and `withAiColumns` then run in the browser. The playground does this in `examples/playground/server`, with a body size limit and a rate limit per client.
+
+## Your own agent loop
+
+`describeSchema(schema, { examples, context, now })` returns the same system prompt `ask` uses. Use it when you drive the model yourself, then validate the answer with `parseQuery`.
