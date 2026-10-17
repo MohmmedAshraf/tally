@@ -6,7 +6,7 @@ import { createExecutionContext, type ExecutionContext, type ExecutionOptions } 
 import { computeFacets, type FacetOptions, type Facets } from './facets.ts'
 import { groupRows, type RowGroup } from './group.ts'
 import { compileFilter } from './predicate.ts'
-import { compileSort } from './sort.ts'
+import { sortRows } from './sort.ts'
 import { withAncestors } from './tree.ts'
 
 export interface Page {
@@ -36,11 +36,26 @@ export interface ExecutorOptions extends ExecutionOptions {
   readonly facetOptions?: FacetOptions | undefined
 }
 
+export interface Summaries {
+  readonly aggregates?: AggregateResults | undefined
+  readonly facets?: Facets | undefined
+}
+
 export function execute(
   rows: readonly RowData[],
   request: ExecuteRequest,
   schema: Schema,
   options: ExecutorOptions = {},
+): ExecuteResult {
+  return executeWith(rows, request, schema, options)
+}
+
+export function executeWith(
+  rows: readonly RowData[],
+  request: ExecuteRequest,
+  schema: Schema,
+  options: ExecutorOptions,
+  known?: Summaries,
 ): ExecuteResult {
   const context: ExecutionContext = createExecutionContext(options)
   const predicate = compileFilter(request.filter, schema, context)
@@ -50,8 +65,7 @@ export function execute(
       ? withAncestors(rows, filtered, schema)
       : filtered
   const sorts = request.sort ?? []
-  const comparator = compileSort(sorts, schema, context)
-  const sorted = comparator === undefined ? kept : kept.toSorted(comparator)
+  const sorted = sortRows(kept, sorts, schema, context)
   const aggregates = request.aggregates ?? []
   const page = request.page
   const slice = <T>(list: readonly T[]): readonly T[] =>
@@ -69,9 +83,15 @@ export function execute(
     ...(groups === undefined ? {} : { groups }),
     ...(aggregates.length === 0
       ? {}
-      : { aggregates: aggregateRows(filtered, aggregates, schema, context) }),
+      : {
+          aggregates: known?.aggregates ?? aggregateRows(filtered, aggregates, schema, context),
+        }),
     ...(request.facets === undefined
       ? {}
-      : { facets: computeFacets(filtered, request.facets, schema, context, options.facetOptions) }),
+      : {
+          facets:
+            known?.facets ??
+            computeFacets(filtered, request.facets, schema, context, options.facetOptions),
+        }),
   }
 }

@@ -1,5 +1,14 @@
 import { Sparkles } from 'lucide-react'
-import { useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from 'react'
+import {
+  memo,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type MouseEvent,
+  type NamedExoticComponent,
+  type ReactNode,
+} from 'react'
 import {
   columnLabel,
   type ColumnLayout,
@@ -49,7 +58,14 @@ interface HeaderCellProps {
   readonly filtered: boolean
 }
 
-function HeaderCell({ grid, entry, layout, offsets, sorts, filtered }: HeaderCellProps): ReactNode {
+const HeaderCell = memo(function HeaderCell({
+  grid,
+  entry,
+  layout,
+  offsets,
+  sorts,
+  filtered,
+}: HeaderCellProps): ReactNode {
   const { column } = entry
   const { entering } = useShell()
   const element = useRef<HTMLDivElement>(null)
@@ -137,9 +153,9 @@ function HeaderCell({ grid, entry, layout, offsets, sorts, filtered }: HeaderCel
       <ResizeHandle grid={grid} entry={entry} />
     </div>
   )
-}
+})
 
-export function Header({
+export const Header: NamedExoticComponent<HeaderProps> = memo(function Header({
   grid,
   layout,
   offsets,
@@ -153,7 +169,13 @@ export function Header({
   const filtered = new Set<string>()
   collectFiltered(filter, filtered)
   useColumnDropMonitor(grid)
-  const selectedCount = model.rows.filter((item) => selection.rows.has(item.key)).length
+  const selectedCount = useMemo(
+    () =>
+      selection.rows.size === 0
+        ? 0
+        : model.rows.reduce((count, item) => (selection.rows.has(item.key) ? count + 1 : count), 0),
+    [model.rows, selection.rows],
+  )
   const allSelected = model.rows.length > 0 && selectedCount === model.rows.length
   const toggleAll = (): void => {
     if (selectedCount > 0) grid.selection.dispatch({ type: 'clearRows' })
@@ -217,4 +239,4 @@ export function Header({
       </div>
     </div>
   )
-}
+})

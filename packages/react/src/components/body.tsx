@@ -80,19 +80,27 @@ export function Body({
   const scrollMargin = useOffsetTop(bodyElement)
   const treeColumn = grid.schema.hierarchical ? layout.columns[0]?.column.id : undefined
 
+  const estimateRow = useCallback(
+    (index: number) => (items[index]?.kind === 'group' ? GROUP_HEIGHT : rowHeight),
+    [items, rowHeight],
+  )
+  const rowKey = useCallback(
+    (index: number) => {
+      const item = items[index]
+      return item === undefined ? index : item.kind === 'group' ? `g:${item.key}` : item.key
+    },
+    [items],
+  )
   const rows = useVirtualizer({
     count: items.length,
     getScrollElement: () => viewport.current,
-    estimateSize: (index) => (items[index]?.kind === 'group' ? GROUP_HEIGHT : rowHeight),
+    estimateSize: estimateRow,
     overscan: 6,
     scrollMargin,
     scrollPaddingStart: scrollMargin,
     scrollPaddingEnd: 38,
     ...(initialSize === undefined ? {} : { initialRect: initialSize }),
-    getItemKey: (index) => {
-      const item = items[index]
-      return item === undefined ? index : item.kind === 'group' ? `g:${item.key}` : item.key
-    },
+    getItemKey: rowKey,
   })
   const rangeExtractor = useCallback((range: Range): number[] => {
     const start = Math.max(0, range.startIndex - range.overscan)
@@ -118,17 +126,17 @@ export function Body({
   const virtualColumns = columns.getVirtualItems()
   const firstColumn = virtualColumns[0]
   const lastColumn = virtualColumns.at(-1)
-  const window: ColumnWindow = {
-    columns: virtualColumns.flatMap((item) => {
-      const entry = layout.center[item.index]
-      return entry === undefined ? [] : [entry]
-    }),
-    before: firstColumn === undefined ? 0 : firstColumn.start - columns.options.scrollMargin,
-    after:
-      lastColumn === undefined
-        ? 0
-        : offsets.centerWidth - (lastColumn.end - columns.options.scrollMargin),
-  }
+  const from = firstColumn?.index ?? 0
+  const to = lastColumn?.index ?? -1
+  const before = firstColumn === undefined ? 0 : firstColumn.start - columns.options.scrollMargin
+  const after =
+    lastColumn === undefined
+      ? 0
+      : offsets.centerWidth - (lastColumn.end - columns.options.scrollMargin)
+  const window = useMemo<ColumnWindow>(
+    () => ({ columns: layout.center.slice(from, to + 1), before, after }),
+    [layout.center, from, to, before, after],
+  )
 
   const { editors, filterInput } = useShell()
   const edit = useEditing({ grid, viewport, layout, model, editors })
@@ -253,9 +261,6 @@ export function Body({
           {virtualRows.map((virtual) => {
             const item = items[virtual.index]
             if (item === undefined) return null
-            const style = {
-              transform: `translateY(${virtual.start - rows.options.scrollMargin}px)`,
-            }
             if (item.kind === 'group') {
               return (
                 <GroupRow
@@ -264,7 +269,9 @@ export function Body({
                   grid={grid}
                   item={item}
                   columns={{ layout, offsets, window }}
-                  style={style}
+                  style={{
+                    transform: `translateY(${virtual.start - rows.options.scrollMargin}px)`,
+                  }}
                 />
               )
             }
@@ -286,7 +293,7 @@ export function Body({
                 fill={filling.fill}
                 editing={editingFor(item.index)}
                 cellId={cellId}
-                style={style}
+                top={virtual.start - rows.options.scrollMargin}
               />
             )
           })}

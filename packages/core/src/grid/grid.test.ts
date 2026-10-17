@@ -48,6 +48,19 @@ function remoteSource(overrides: Partial<DataSource> = {}): DataSource & {
 }
 
 describe('createGrid', () => {
+  it('keeps the row model across view changes that do not affect rows', async () => {
+    const grid = createGrid({ schema, source: createArraySource(rows, schema) })
+    await grid.load()
+    const model = grid.model()
+    grid.view.setDensity('compact')
+    grid.view.resizeColumn('name', 240)
+    expect(grid.model()).toBe(model)
+    grid.view.update((view) => ({ ...view, pinnedRows: [1] }))
+    expect(grid.model()).not.toBe(model)
+    expect(grid.model().pinned.map((item) => item.key)).toEqual([1])
+    grid.dispose()
+  })
+
   it('loads through the source and exposes the row model', async () => {
     const grid = createGrid({ schema, source: createArraySource(rows, schema) })
     expect(grid.get().status).toBe('idle')

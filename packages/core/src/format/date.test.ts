@@ -1,3 +1,4 @@
+import { Temporal } from 'temporal-polyfill'
 import { describe, expect, it } from 'vitest'
 import { createFormatContext } from './context.ts'
 import {
@@ -18,6 +19,28 @@ describe('isIsoDate', () => {
     expect(isIsoDate('2026-02-28')).toBe(true)
     expect(isIsoDate('2026-02-30')).toBe(false)
     expect(isIsoDate('2026-2-3')).toBe(false)
+  })
+
+  it('agrees with Temporal on leap years, month lengths and bounds', () => {
+    const samples = ['2024-02-29', '2100-02-29', '2000-02-29', '2026-04-31', '2026-13-01']
+    for (const sample of [
+      ...samples,
+      '2026-00-10',
+      '2026-01-00',
+      '0000-01-01',
+      '9999-12-31',
+      '2026-1a-01',
+      'abcd-01-01',
+      '2026/01/01',
+    ]) {
+      let valid = true
+      try {
+        Temporal.PlainDate.from(sample)
+      } catch {
+        valid = false
+      }
+      expect({ sample, valid: isIsoDate(sample) }).toEqual({ sample, valid })
+    }
   })
 })
 
@@ -43,6 +66,17 @@ describe('day arithmetic', () => {
     expect(dateFromDayNumber(dayNumber('2026-10-13'))).toBe('2026-10-13')
   })
 
+  it('counts days like Temporal across eras and leap days', () => {
+    const epoch = Temporal.PlainDate.from('1970-01-01')
+    for (let day = -800_000; day <= 2_200_000; day += 997) {
+      const iso = epoch.add({ days: day }).toString()
+      if (iso.length !== 10) continue
+      expect(dayNumber(iso)).toBe(day)
+    }
+    expect(dayNumber('0000-01-01')).toBe(-719_528)
+    expect(() => dayNumber('2026-02-30')).toThrow(RangeError)
+  })
+
   it('adds days across month ends', () => {
     expect(addDays('2026-01-31', 1)).toBe('2026-02-01')
     expect(addDays('2026-03-01', -1)).toBe('2026-02-28')
@@ -51,6 +85,7 @@ describe('day arithmetic', () => {
   it('compares dates', () => {
     expect(compareIsoDates('2026-01-01', '2026-01-02')).toBe(-1)
     expect(compareIsoDates('2026-01-02', '2026-01-02')).toBe(0)
+    expect(compareIsoDates('2026-12-01', '2026-02-01')).toBe(1)
   })
 
   it('returns an iso date for today', () => {

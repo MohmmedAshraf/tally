@@ -1,16 +1,42 @@
 import { Temporal } from 'temporal-polyfill'
 import type { FormatContext } from './context.ts'
 
-const ISO_DATE = /^(\d{4})-(\d{2})-(\d{2})$/
+function digits(input: string, start: number, end: number): number {
+  let value = 0
+  for (let index = start; index < end; index += 1) {
+    const code = input.charCodeAt(index) - 48
+    if (code < 0 || code > 9) return Number.NaN
+    value = value * 10 + code
+  }
+  return value
+}
+
+function epochDay(input: string): number | undefined {
+  if (input.length !== 10 || input[4] !== '-' || input[7] !== '-') return undefined
+  const year = digits(input, 0, 4)
+  const month = digits(input, 5, 7)
+  const day = digits(input, 8, 10)
+  const leap = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0)
+  const length =
+    month === 2
+      ? leap
+        ? 29
+        : 28
+      : month === 4 || month === 6 || month === 9 || month === 11
+        ? 30
+        : 31
+  if (!(year >= 0 && month >= 1 && month <= 12 && day >= 1 && day <= length)) return undefined
+  const shifted = month <= 2 ? year - 1 : year
+  const era = Math.floor(shifted / 400)
+  const yearOfEra = shifted - era * 400
+  const dayOfYear = Math.floor((153 * (month + (month > 2 ? -3 : 9)) + 2) / 5) + day - 1
+  const dayOfEra =
+    yearOfEra * 365 + Math.floor(yearOfEra / 4) - Math.floor(yearOfEra / 100) + dayOfYear
+  return era * 146_097 + dayOfEra - 719_468
+}
 
 export function isIsoDate(input: string): boolean {
-  if (!ISO_DATE.test(input)) return false
-  try {
-    Temporal.PlainDate.from(input)
-    return true
-  } catch {
-    return false
-  }
+  return epochDay(input) !== undefined
 }
 
 export function parseIsoDate(input: unknown): string | undefined {
@@ -40,11 +66,13 @@ export function addDays(isoDate: string, days: number): string {
 }
 
 export function compareIsoDates(a: string, b: string): number {
-  return Temporal.PlainDate.compare(a, b)
+  return a < b ? -1 : a > b ? 1 : 0
 }
 
 export function dayNumber(isoDate: string): number {
-  return Temporal.PlainDate.from(isoDate).since('1970-01-01', { largestUnit: 'day' }).days
+  const day = epochDay(isoDate)
+  if (day === undefined) throw new RangeError(isoDate)
+  return day
 }
 
 export function dateFromDayNumber(day: number): string {

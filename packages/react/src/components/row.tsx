@@ -1,4 +1,4 @@
-import type { CSSProperties, MouseEvent, ReactNode, Ref } from 'react'
+import { memo, type MouseEvent, type NamedExoticComponent, type ReactNode, type Ref } from 'react'
 import {
   normalizeRange,
   type ColumnLayout,
@@ -33,13 +33,13 @@ export interface RowViewProps {
   readonly fill: NormalizedRange | undefined
   readonly editing: { readonly column: number; readonly node: ReactNode } | undefined
   readonly cellId: (row: number, column: number) => string
-  readonly style?: CSSProperties | undefined
+  readonly top?: number | undefined
   readonly ref?: Ref<HTMLDivElement> | undefined
   readonly index?: number | undefined
   readonly rowIndex: number
 }
 
-export function RowView({
+export const RowView: NamedExoticComponent<RowViewProps> = memo(function RowView({
   grid,
   item,
   layout,
@@ -52,7 +52,7 @@ export function RowView({
   fill,
   editing,
   cellId,
-  style,
+  top,
   ref,
   index,
   rowIndex,
@@ -106,7 +106,11 @@ export function RowView({
       aria-selected={selected}
       data-key={String(item.key)}
       data-index={index}
-      style={index === undefined ? style : { ...style, '--tally-i': Math.min(index, 24) }}
+      style={
+        top === undefined
+          ? undefined
+          : { transform: `translateY(${top}px)`, '--tally-i': Math.min(index ?? 0, 24) }
+      }
       {...(wrap ? { 'data-wrap': '' } : {})}
       {...(selected ? { 'data-selected': '' } : {})}
       {...(item.pinned ? { 'data-pinned': '' } : {})}
@@ -141,4 +145,4 @@ export function RowView({
       {layout.right.map(cell)}
     </div>
   )
-}
+})

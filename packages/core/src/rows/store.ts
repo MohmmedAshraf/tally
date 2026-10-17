@@ -41,24 +41,52 @@ export interface RowStore {
 function markChanged(
   current: ChangedCells,
   schema: Schema,
-  previous: Map<RowKey, RowData>,
-  rows: readonly RowData[],
+  replaced: readonly (readonly [RowData, RowData])[],
 ): ChangedCells {
-  const next = new Map<RowKey, Set<string>>()
-  for (const [key, columns] of current) next.set(key, new Set(columns))
-  for (const row of rows) {
+  let next: Map<RowKey, ReadonlySet<string>> | undefined
+  for (const [before, row] of replaced) {
+    const columns = schema.columns.filter((column) => before[column.id] !== row[column.id])
+    if (columns.length === 0) continue
     const key = schema.keyOf(row)
-    const before = previous.get(key)
-    if (before === undefined) continue
-    for (const column of schema.columns) {
-      if (before[column.id] !== row[column.id]) {
-        const set = next.get(key) ?? new Set<string>()
-        set.add(column.id)
-        next.set(key, set)
-      }
-    }
+    next ??= new Map(current)
+    next.set(key, new Set([...(current.get(key) ?? []), ...columns.map((column) => column.id)]))
   }
-  return next
+  return next ?? current
+}
+
+interface Positioned {
+  readonly row: RowData
+  readonly index: number
+}
+
+function insertSorted(
+  rows: readonly RowData[],
+  dirty: ReadonlySet<number>,
+  order: Comparator,
+): readonly RowData[] {
+  if (dirty.size === 0) return rows
+  const clean: Positioned[] = []
+  const pending: Positioned[] = []
+  for (const [index, row] of rows.entries())
+    (dirty.has(index) ? pending : clean).push({ row, index })
+  const compare = (a: Positioned, b: Positioned): number => order(a.row, b.row) || a.index - b.index
+  const output: RowData[] = []
+  let cursor = 0
+  for (const entry of pending.toSorted(compare)) {
+    let low = cursor
+    let high = clean.length
+    while (low < high) {
+      const middle = (low + high) >>> 1
+      const candidate = clean[middle]
+      if (candidate !== undefined && compare(candidate, entry) < 0) low = middle + 1
+      else high = middle
+    }
+    for (const kept of clean.slice(cursor, low)) output.push(kept.row)
+    output.push(entry.row)
+    cursor = low
+  }
+  for (const kept of clean.slice(cursor)) output.push(kept.row)
+  return output
 }
 
 export function createRowStore(schema: Schema, initial: readonly RowData[] = []): RowStore {
@@ -66,6 +94,7 @@ export function createRowStore(schema: Schema, initial: readonly RowData[] = [])
   let entries: Mutation[] = []
   let pointer = 0
   let basePointer = 0
+  let sortedBy: Comparator | undefined
   const store = new Store<RowState>({ rows: initial, version: 0, changed: new Map() })
   let index: Map<RowKey, RowData> | undefined
 
@@ -108,6 +137,7 @@ export function createRowStore(schema: Schema, initial: readonly RowData[] = [])
     },
     replace: (rows) => {
       base = rows
+      sortedBy = undefined
       entries = []
       pointer = 0
       basePointer = 0
@@ -115,22 +145,43 @@ export function createRowStore(schema: Schema, initial: readonly RowData[] = [])
     },
     reload: (rows) => {
       base = rows
+      sortedBy = undefined
       basePointer = pointer
       publish(rows)
     },
     patch: (patch, order) => {
       const deletes = new Set(patch.deletes ?? [])
       const upserts = new Map((patch.upserts ?? []).map((row) => [schema.keyOf(row), row] as const))
-      const previous = new Map(base.map((row) => [schema.keyOf(row), row] as const))
-      const kept = base
-        .filter((row) => !deletes.has(schema.keyOf(row)))
-        .map((row) => upserts.get(schema.keyOf(row)) ?? row)
-      const known = new Set(kept.map((row) => schema.keyOf(row)))
-      const added = [...upserts.values()].filter((row) => !known.has(schema.keyOf(row)))
-      const merged = [...kept, ...added]
-      base = order === undefined ? merged : merged.toSorted(order)
-      const changed = markChanged(store.state.changed, schema, previous, base)
-      publish(rebuild(), changed)
+      const merged: RowData[] = []
+      const dirty = new Set<number>()
+      const replaced: (readonly [RowData, RowData])[] = []
+      const seen = new Set<RowKey>()
+      for (const row of base) {
+        const key = schema.keyOf(row)
+        if (deletes.has(key)) continue
+        const next = upserts.get(key)
+        if (next === undefined) {
+          merged.push(row)
+          continue
+        }
+        seen.add(key)
+        replaced.push([row, next])
+        dirty.add(merged.length)
+        merged.push(next)
+      }
+      for (const [key, row] of upserts) {
+        if (seen.has(key)) continue
+        dirty.add(merged.length)
+        merged.push(row)
+      }
+      base =
+        order === undefined
+          ? merged
+          : order === sortedBy
+            ? insertSorted(merged, dirty, order)
+            : merged.toSorted(order)
+      sortedBy = order
+      publish(rebuild(), markChanged(store.state.changed, schema, replaced))
     },
     commit: (mutation) => {
       if (isEmptyMutation(mutation)) return false
@@ -167,6 +218,7 @@ export function createRowStore(schema: Schema, initial: readonly RowData[] = [])
       if (at < pointer) pointer -= 1
       if (entry !== undefined && at < basePointer) {
         base = applyMutation(base, entry, schema, 'backward')
+        sortedBy = undefined
         basePointer -= 1
       }
       publish(rebuild())

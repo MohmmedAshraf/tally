@@ -1,6 +1,7 @@
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createArraySource, createSchema, type DataSource, type RowData } from 'tally-core'
+import type { CellProps } from './cells/renderers.tsx'
 import { gridReady, renderTally, settle } from '../test/harness.tsx'
 
 const columns = [
@@ -58,6 +59,35 @@ async function emptyCell(title: string): Promise<HTMLElement> {
 describe('Tally viewport', () => {
   afterEach(() => {
     vi.unstubAllGlobals()
+  })
+
+  it('re-renders only the rows that scroll into view', async () => {
+    const rendered: unknown[] = []
+    const many = Array.from({ length: 400 }, (_, index) => ({ id: index, name: `Row ${index}` }))
+    renderTally({
+      columns: [{ id: 'name', label: 'Name' }],
+      rows: many,
+      props: {
+        renderers: {
+          text: ({ text, row }: CellProps) => {
+            rendered.push(row['id'])
+            return text
+          },
+        },
+      },
+    })
+    await gridReady('Row 0')
+    const viewport = screen.getByRole('grid')
+    const before = rendered.length
+    await act(async () => {
+      viewport.scrollTop = 96
+      fireEvent.scroll(viewport)
+      await new Promise((resolve) => setTimeout(resolve, 0))
+    })
+    const fresh = rendered.slice(before)
+    expect(fresh.length).toBeGreaterThan(0)
+    expect(new Set(fresh).size).toBe(fresh.length)
+    expect(fresh.length).toBeLessThan(6)
   })
 
   it('shows the error with a retry that reloads', async () => {

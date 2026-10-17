@@ -1,5 +1,11 @@
 import { ChevronRight } from 'lucide-react'
-import { createElement, type CSSProperties, type ReactNode } from 'react'
+import {
+  createElement,
+  memo,
+  type CSSProperties,
+  type NamedExoticComponent,
+  type ReactNode,
+} from 'react'
 import {
   isEmptyValue,
   type FormatRule,
@@ -28,7 +34,7 @@ export interface CellViewProps {
   readonly editor: ReactNode
 }
 
-export function CellView({
+export const CellView: NamedExoticComponent<CellViewProps> = memo(function CellView({
   id,
   grid,
   item,
@@ -124,4 +130,4 @@ export function CellView({
       {handle ? <span className="tally-fill-handle" data-fill-handle aria-hidden /> : null}
     </div>
   )
-}
+})

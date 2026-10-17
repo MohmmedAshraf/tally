@@ -8,7 +8,7 @@ import {
 } from '../execute/context.ts'
 import { execute, type ExecuteRequest, type ExecutorOptions } from '../execute/executor.ts'
 import type { Facets } from '../execute/facets.ts'
-import { compileSort, type Comparator } from '../execute/sort.ts'
+import { compileSort } from '../execute/sort.ts'
 import { createMutation, invertMutation, type CellChange, type Mutation } from '../rows/mutation.ts'
 import type { RowData, RowKey } from '../rows/row.ts'
 import { createRowStore, type RowStore } from '../rows/store.ts'
@@ -206,11 +206,22 @@ export function createGrid(options: GridOptions): Grid {
     return cached
   }
   const model = memo(
-    () => [rows.get().rows, view.get(), store.state.groups, store.state.page] as const,
-    ([data, current, groups, page]) =>
+    () => {
+      const current = view.get()
+      return [
+        rows.get().rows,
+        current.group,
+        current.collapsedGroups,
+        current.pinnedRows,
+        current.expanded,
+        store.state.groups,
+        store.state.page,
+      ] as const
+    },
+    ([data, , , , , groups, page]) =>
       buildRowModel({
         rows: data,
-        view: current,
+        view: view.get(),
         schema,
         groups,
         offset: capabilities.pagination === 'offset' ? page.index * page.size : 0,
@@ -240,10 +251,10 @@ export function createGrid(options: GridOptions): Grid {
     }
   }
 
-  const liveOrder = (): Comparator | undefined => {
-    const current = view.get()
-    return current.group === undefined ? compileSort(current.sort, schema, context) : undefined
-  }
+  const liveOrder = memo(
+    () => [view.get().sort, view.get().group] as const,
+    ([sort, group]) => (group === undefined ? compileSort(sort, schema, context) : undefined),
+  )
 
   const run = async (
     page: OffsetPage | CursorPage | undefined,

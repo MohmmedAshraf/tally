@@ -1,6 +1,9 @@
-import { execute, type ExecutorOptions } from '../execute/executor.ts'
+import { executeWith, type ExecutorOptions, type Summaries } from '../execute/executor.ts'
+import { createFormatContext } from '../format/context.ts'
+import { today } from '../format/date.ts'
+import type { Filter } from '../query/ast.ts'
 import { applyMutation, type Mutation } from '../rows/mutation.ts'
-import type { RowData } from '../rows/row.ts'
+import type { RowData, RowKey } from '../rows/row.ts'
 import type { RowPatch } from '../rows/store.ts'
 import type { Schema } from '../schema/schema.ts'
 import type {
@@ -49,6 +52,10 @@ export function createArraySource(
   options: ArraySourceOptions = {},
 ): ArraySource {
   let rows = initial
+  let cache: {
+    rows: readonly RowData[]
+    entries: readonly (readonly [Filter | undefined, string, Summaries])[]
+  } = { rows, entries: [] }
   const listeners = new Set<(patch: RowPatch) => void>()
   const pagination = options.pagination ?? 'none'
   const capabilities: Capabilities = {
@@ -59,11 +66,17 @@ export function createArraySource(
   const applyPatch = (patch: RowPatch): void => {
     const deletes = new Set(patch.deletes ?? [])
     const upserts = new Map((patch.upserts ?? []).map((row) => [schema.keyOf(row), row] as const))
-    const kept = rows
-      .filter((row) => !deletes.has(schema.keyOf(row)))
-      .map((row) => upserts.get(schema.keyOf(row)) ?? row)
-    const known = new Set(kept.map((row) => schema.keyOf(row)))
-    rows = [...kept, ...[...upserts.values()].filter((row) => !known.has(schema.keyOf(row)))]
+    const next: RowData[] = []
+    const seen = new Set<RowKey>()
+    for (const row of rows) {
+      const key = schema.keyOf(row)
+      if (deletes.has(key)) continue
+      const upsert = upserts.get(key)
+      if (upsert !== undefined) seen.add(key)
+      next.push(upsert ?? row)
+    }
+    for (const [key, row] of upserts) if (!seen.has(key)) next.push(row)
+    rows = next
     for (const listener of listeners) listener(patch)
   }
   return {
@@ -76,7 +89,17 @@ export function createArraySource(
     schema: () => Promise.resolve(schema.columns),
     query: (request: QueryRequest): Promise<QueryResponse> => {
       const page = offsetPage(request.page, pagination)
-      const result = execute(rows, { ...request, page }, schema, options)
+      const day = options.today ?? today(options.format ?? createFormatContext())
+      const key = JSON.stringify([request.facets, request.aggregates, day])
+      if (cache.rows !== rows) cache = { rows, entries: [] }
+      const hit = cache.entries.find(
+        ([filter, known]) => filter === request.filter && known === key,
+      )
+      const result = executeWith(rows, { ...request, page }, schema, options, hit?.[2])
+      if (hit === undefined) {
+        const summaries = { aggregates: result.aggregates, facets: result.facets }
+        cache.entries = [[request.filter, key, summaries], ...cache.entries.slice(0, 7)]
+      }
       const next = page === undefined ? undefined : page.offset + page.limit
       const pageable = result.groups === undefined ? result.matched : result.groups.length
       return Promise.resolve({

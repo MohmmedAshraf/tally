@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest'
+import { compileSort } from '../execute/sort.ts'
+import { createExecutionContext } from '../execute/context.ts'
+import { createStressRows, createStressSchema, seeded, stressRow } from '../test/stress.ts'
 import { createSchema } from '../schema/schema.ts'
 import { applyMutation, createMutation, invertMutation, isEmptyMutation } from './mutation.ts'
+import type { RowData, RowKey } from './row.ts'
 import { createRowStore } from './store.ts'
 
 const schema = createSchema({
@@ -184,5 +188,47 @@ describe('createRowStore', () => {
     expect(store.byKey('a')?.['mrr']).toBe(100)
     expect(store.rows().map((row) => row['id'])).toEqual(['a', 'n'])
     expect(store.history()).toEqual([insert])
+  })
+})
+
+describe('sorted live patches', () => {
+  const stress = createStressSchema()
+  const order = compileSort(
+    [{ column: 'enum1', direction: 'asc' }],
+    stress,
+    createExecutionContext(),
+  )!
+  const reference = (
+    base: readonly RowData[],
+    upserts: readonly RowData[],
+    deletes: readonly RowKey[],
+  ): readonly RowData[] => {
+    const byKey = new Map(upserts.map((row) => [row['id'], row] as const))
+    const kept = base
+      .filter((row) => !deletes.includes(stress.keyOf(row)))
+      .map((row) => byKey.get(row['id']) ?? row)
+    const known = new Set(kept.map((row) => row['id']))
+    return [...kept, ...upserts.filter((row) => !known.has(row['id']))].toSorted(order)
+  }
+
+  it('matches a stable full re-sort while patching rows in place', () => {
+    const initial = createStressRows(600, 3)
+    const store = createRowStore(stress, initial)
+    const random = seeded(11)
+    let expected = initial
+    for (let round = 0; round < 25; round += 1) {
+      const current = store.rows()
+      const upserts = Array.from({ length: 12 }, (): RowData => {
+        const row = current[Math.floor(random() * current.length)]!
+        return random() < 0.5 ? { ...row, int1: round } : { ...row, enum1: `e1-${round % 4}` }
+      })
+      const added = stressRow(random, 10_000 + round)
+      const deletes = [stress.keyOf(current[Math.floor(random() * current.length)]!)]
+      const unique = [...new Map([...upserts, added].map((row) => [row['id'], row])).values()]
+      store.patch({ upserts: unique, deletes }, order)
+      expected = reference(expected, unique, deletes)
+      expect(store.rows().map((row) => row['id'])).toEqual(expected.map((row) => row['id']))
+    }
+    expect(store.get().changed.size).toBeGreaterThan(0)
   })
 })

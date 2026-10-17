@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import type { Filter } from '../query/ast.ts'
 import { createMutation } from '../rows/mutation.ts'
 import { createSchema } from '../schema/schema.ts'
 import { createArraySource } from './array-source.ts'
@@ -96,5 +97,45 @@ describe('createArraySource', () => {
     expect(seen).toHaveLength(1)
     source.replace([])
     expect(source.rows()).toEqual([])
+  })
+
+  it('reuses facets and aggregates while only the sort changes and recomputes after a patch', async () => {
+    const source = createArraySource(rows, schema)
+    const filter: Filter = { type: 'condition', column: 'mrr', op: 'gt', value: 5 }
+    const ask = (sort: 'asc' | 'desc', where = filter) =>
+      source.query({
+        version: 1,
+        filter: where,
+        sort: [{ column: 'mrr', direction: sort }],
+        facets: ['plan'],
+        aggregates: [{ column: 'mrr', fn: 'sum' }],
+      })
+    const first = await ask('asc')
+    await source.query({ version: 1, filter, sort: [], page: { offset: 0, limit: 1 } })
+    const resorted = await ask('desc')
+    expect(resorted.facets).toBe(first.facets)
+    expect(resorted.aggregates).toBe(first.aggregates)
+    expect(resorted.aggregates).toEqual({ 'mrr:sum': 60 })
+    expect(resorted.rows.map((row) => row['id'])).toEqual([3, 2, 1])
+    source.patch({ upserts: [{ id: 4, name: 'Four', plan: 'b', mrr: 40 }] })
+    const patched = await ask('desc')
+    expect(patched.facets).not.toBe(first.facets)
+    expect(patched.facets?.['plan']).toEqual({
+      kind: 'terms',
+      terms: [
+        { value: 'a', count: 2 },
+        { value: 'b', count: 2 },
+      ],
+      distinct: 2,
+    })
+    const narrowed = await ask('desc', { type: 'condition', column: 'mrr', op: 'gt', value: 25 })
+    expect(narrowed.facets?.['plan']).toMatchObject({
+      distinct: 2,
+      terms: [
+        { value: 'a', count: 1 },
+        { value: 'b', count: 1 },
+      ],
+    })
+    expect((await ask('asc')).facets).toBe(patched.facets)
   })
 })

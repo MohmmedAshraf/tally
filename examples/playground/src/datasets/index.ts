@@ -2,6 +2,7 @@ import { accounts } from './accounts.ts'
 import { deployments } from './deployments.ts'
 import { ledger } from './ledger.ts'
 import { roadmap } from './roadmap.ts'
+import { stress } from './stress.ts'
 import type { Dataset } from './dataset.ts'
 
 export type { Dataset, SavedView } from './dataset.ts'
@@ -14,6 +15,8 @@ export function sectionOf(dataset: Dataset): string {
   return workspaceDatasets.includes(dataset) ? 'Workspace' : 'Data'
 }
 
+const developerDatasets: readonly Dataset[] = [stress]
+
 export function datasetById(id: string | undefined): Dataset {
-  return datasets.find((dataset) => dataset.id === id) ?? accounts
+  return [...datasets, ...developerDatasets].find((dataset) => dataset.id === id) ?? accounts
 }
