@@ -95,4 +95,15 @@ describe('ask', () => {
     const result = await handler('renewed recently', { schema })
     expect(result.query.filter).toMatchObject({ column: 'renewal', op: 'within' })
   })
+
+  it('forwards the abort signal to the model', async () => {
+    const scripted = scriptedModel([{ query: 'plan is pro', explanation: '' }])
+    const controller = new AbortController()
+    await ask('pro', { model: scripted.model, schema, signal: controller.signal })
+    expect(scripted.calls[0]?.abortSignal).toBe(controller.signal)
+  })
+
+  it('names the failure when no attempt was recorded', () => {
+    expect(new AskError('q', []).message).toBe('The model returned no query')
+  })
 })

@@ -165,3 +165,71 @@ describe('mutationIssues', () => {
     })
   })
 })
+
+describe('queryIssues accepted values', () => {
+  it('accepts well formed conditions of every arity', () => {
+    expect(
+      queryIssues(
+        {
+          version: 1,
+          filter: {
+            type: 'and',
+            filters: [
+              { type: 'condition', column: 'account', op: 'eq', value: 3 },
+              { type: 'condition', column: 'account', op: 'contains', value: 'a' },
+              { type: 'condition', column: 'mrr', op: 'empty' },
+              { type: 'condition', column: 'mrr', op: 'between', value: [1, 2] },
+              { type: 'condition', column: 'plan', op: 'in', value: ['pro'] },
+              {
+                type: 'condition',
+                column: 'renewal',
+                op: 'within',
+                value: { amount: 30, unit: 'day', direction: 'last' },
+              },
+              { type: 'not', filter: { type: 'search', text: 'acme' } },
+            ],
+          },
+          sort: [{ column: 'mrr', direction: 'desc' }],
+          group: { column: 'renewal', granularity: 'month' },
+          aggregates: [{ column: 'mrr', fn: 'sum' }],
+          facets: ['plan'],
+        },
+        conformanceSchema,
+      ),
+    ).toEqual([])
+  })
+
+  it('reports unknown columns in group, aggregates and facets', () => {
+    expect(
+      queryIssues(
+        {
+          version: 1,
+          filter: { type: 'condition', column: 'account', op: 'contains', value: 1 },
+          sort: [],
+          group: { column: 'ghost' },
+          aggregates: [{ column: 'ghost', fn: 'sum' }],
+          facets: ['ghost'],
+        },
+        conformanceSchema,
+      ),
+    ).toEqual([
+      'filter.value: expected a text value for "account"',
+      'group.column: unknown column "ghost"',
+      'aggregates.0.column: unknown column "ghost"',
+      'facets.0: unknown column "ghost"',
+    ])
+  })
+})
+
+describe('mutationIssues deletions', () => {
+  it('requires a key on deleted rows', () => {
+    const schema = createSchema({ columns: [{ id: 'name' }] })
+    const mutation = createMutation({
+      label: 'Remove',
+      deleted: [{ row: { name: 'x' }, index: 0 }],
+    })
+    expect(mutationIssues({ version: 1, mutations: [mutation] }, schema)).toEqual([
+      'mutations.0.deleted.0.row: Row key must be a string or a number',
+    ])
+  })
+})

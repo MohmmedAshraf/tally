@@ -14,3 +14,4 @@ composer.lock
 .phpunit.cache
 .phpunit.result.cache
 .pint.cache
+*.tgz

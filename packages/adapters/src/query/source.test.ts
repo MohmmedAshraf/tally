@@ -75,4 +75,30 @@ describe('createQuerySource', () => {
     })
     stop()
   })
+
+  it('exposes only what the wrapped source supports', async () => {
+    const client = new QueryClient()
+    const inner = createArraySource(conformanceRows, conformanceSchema, { mutable: false })
+    const source = createQuerySource({
+      client,
+      source: { capabilities: inner.capabilities, query: (request) => inner.query(request) },
+      gcTime: 1000,
+    })
+    expect(source.queryKey).toEqual(['tally'])
+    expect(source).not.toHaveProperty('schema')
+    expect(source).not.toHaveProperty('mutate')
+    expect(source).not.toHaveProperty('subscribe')
+    await source.query({ version: 1, sort: [] })
+    expect(client.getQueryCache().findAll({ queryKey: ['tally', 'query'] })[0]?.gcTime).toBe(1000)
+  })
+
+  it('does not invalidate after a rejected mutation', async () => {
+    const { client, inner, source } = setup()
+    vi.spyOn(inner, 'mutate').mockResolvedValue({ accepted: false, errors: [{ message: 'no' }] })
+    const request = { version: 1 as const, sort: [] }
+    await source.query(request)
+    const result = await source.mutate!([createMutation({ label: 'x' })])
+    expect(result.accepted).toBe(false)
+    expect(client.getQueryState(['accounts', 'query', request])?.isInvalidated).toBe(false)
+  })
 })

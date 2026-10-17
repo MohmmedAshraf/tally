@@ -143,4 +143,36 @@ describe('tally-mcp-server', () => {
     })
     expect(json(inferredSchema, fromCsv).columns[1]?.type).toBe('date')
   })
+
+  it('rejects unknown guides and schemas', async () => {
+    const client = await connect()
+    await expect(client.readResource({ uri: 'tally://guide/missing' })).rejects.toThrow(
+      'No guide named missing',
+    )
+    await expect(client.readResource({ uri: 'tally://schema/missing' })).rejects.toThrow(
+      'No schema named missing',
+    )
+  })
+
+  it('says when no guide section matches', async () => {
+    const client = await connect()
+    const result = await client.callTool({ name: 'tally_search', arguments: { query: 'xyzzy' } })
+    expect(textOf(result)).toBe('No section matched.')
+  })
+
+  it('requires rows or csv to infer a schema', async () => {
+    const client = await connect()
+    const result = await client.callTool({ name: 'tally_infer_schema', arguments: { rows: [] } })
+    expect(result.isError).toBe(true)
+    expect(textOf(result)).toContain('Pass rows or csv')
+  })
+
+  it('reports its version', async () => {
+    const server = createTallyServer({ guides: {}, version: '1.2.3' })
+    const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair()
+    await server.connect(serverTransport)
+    const client = new Client({ name: 'test', version: '0.0.0' })
+    await client.connect(clientTransport)
+    expect(client.getServerVersion()).toMatchObject({ name: 'tally', version: '1.2.3' })
+  })
 })

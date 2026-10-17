@@ -40,7 +40,8 @@ export function CardDetail({
   const { root, detail } = useShell()
   const labels = useLabels()
   const heading = item === undefined || title === undefined ? '' : textOf(item, title)
-  const subtitle = item === undefined || title === undefined ? undefined : subtitleOf(item.row, title)
+  const subtitle =
+    item === undefined || title === undefined ? undefined : subtitleOf(item.row, title)
   return (
     <Drawer.Root
       open={item !== undefined}
@@ -59,7 +60,9 @@ export function CardDetail({
                     {title?.avatar === true && heading !== '' ? <Tile text={heading} /> : null}
                     <Drawer.Title className="tally-detail-title">
                       <span className="tally-text">{heading}</span>
-                      {subtitle === undefined ? null : <span className="tally-sub">{subtitle}</span>}
+                      {subtitle === undefined ? null : (
+                        <span className="tally-sub">{subtitle}</span>
+                      )}
                     </Drawer.Title>
                     <Drawer.Close className="tally-icon-button" aria-label={labels.close}>
                       <X size={16} aria-hidden />

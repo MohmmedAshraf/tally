@@ -109,4 +109,103 @@ describe('withAiColumns', () => {
       ]),
     ).toThrow('must set filterable, sortable and groupable to false')
   })
+
+  it('refuses columns missing from the schema', () => {
+    expect(() =>
+      withAiColumns(createArraySource([], schema), schema, [
+        { column: 'ghost', model: scriptedModel([]).model, instruction: 'x' },
+      ]),
+    ).toThrow('Column "ghost" is not in the schema')
+  })
+
+  it.each([
+    ['number', 'a plain number'],
+    ['bool', 'true or false'],
+    ['date', 'an ISO date'],
+    ['text', 'short plain text'],
+  ])('hints the expected %s answer', async (type, hint) => {
+    const typed = createSchema({
+      columns: [
+        { id: 'account' },
+        { id: 'guess', type, filterable: false, sortable: false, groupable: false },
+      ],
+    })
+    const scripted = scriptedModel([{ results: [] }])
+    const source = withAiColumns(createArraySource([{ id: 1, account: 'Acme' }], typed), typed, [
+      { column: 'guess', model: scripted.model, instruction: 'Guess.' },
+    ])
+    await source.query({ version: 1, sort: [] })
+    await source.idle()
+    expect(promptText(scripted.calls[0]!)).toContain(hint)
+  })
+
+  it('ignores unknown keys and parses values with the column type', async () => {
+    const typed = createSchema({
+      columns: [
+        { id: 'account' },
+        { id: 'score', type: 'number', filterable: false, sortable: false, groupable: false },
+      ],
+    })
+    const scripted = scriptedModel([
+      {
+        results: [
+          { key: '1', value: '42' },
+          { key: '9', value: '7' },
+        ],
+      },
+    ])
+    const source = withAiColumns(createArraySource([{ id: 1, account: 'Acme' }], typed), typed, [
+      { column: 'score', model: scripted.model, instruction: 'Score.' },
+    ])
+    const patches: RowPatch[] = []
+    source.subscribe((patch) => patches.push(patch))
+    await source.query({ version: 1, sort: [] })
+    await source.idle()
+    expect(patches).toEqual([{ upserts: [{ id: 1, account: 'Acme', score: 42 }] }])
+  })
+
+  it('settles when the model fails and stops patching after unsubscribe', async () => {
+    const scripted = scriptedModel([{ wrong: true }])
+    const source = withAiColumns(createArraySource(rows, schema), schema, [
+      { column: 'mood', model: scripted.model, instruction: 'x' },
+    ])
+    const patches: RowPatch[] = []
+    const stop = source.subscribe((patch) => patches.push(patch))
+    stop()
+    await source.query({ version: 1, sort: [] })
+    await source.idle()
+    expect(patches).toEqual([])
+    expect(source.pending()).toEqual(new Set())
+    await expect(source.idle()).resolves.toBeUndefined()
+  })
+
+  it('reports pending keys per column', async () => {
+    const scripted = scriptedModel([{ results: [] }])
+    const source = withAiColumns(createArraySource(rows, schema), schema, [
+      { column: 'mood', model: scripted.model, instruction: 'x' },
+    ])
+    await source.query({ version: 1, sort: [] })
+    expect(source.pending('account')).toEqual(new Set())
+    expect(source.pending('mood').size).toBe(3)
+    await source.idle()
+  })
+
+  it('forwards schema and mutate from the inner source and marks it live', async () => {
+    const inner = createArraySource(rows, schema)
+    const source = withAiColumns(inner, schema, [
+      { column: 'mood', model: scriptedModel([{ results: [] }]).model, instruction: 'x' },
+    ])
+    expect(source.capabilities.live).toBe(true)
+    expect('mutate' in source).toBe(true)
+    expect('schema' in source).toBe('schema' in inner)
+    const bare = withAiColumns(
+      { capabilities: inner.capabilities, query: (request) => inner.query(request) },
+      schema,
+      [{ column: 'mood', model: scriptedModel([{ results: [] }]).model, instruction: 'x' }],
+    )
+    expect('mutate' in bare).toBe(false)
+    expect('schema' in bare).toBe(false)
+    const stop = bare.subscribe(() => undefined)
+    stop()
+  })
 })

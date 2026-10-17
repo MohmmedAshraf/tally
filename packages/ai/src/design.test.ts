@@ -39,4 +39,27 @@ describe('designColumn', () => {
     expect(design.instruction).toBe('Rate the churn risk from growth and health.')
     expect(promptText(scripted.calls[0]!)).toContain('- account (text): Account')
   })
+
+  it('drops options for plain types and forwards the abort signal', async () => {
+    const scripted = scriptedModel([
+      { id: 'summary', label: 'Summary', type: 'text', options: null, instruction: 'Summarize.' },
+    ])
+    const controller = new AbortController()
+    const design = await designColumn('A summary', {
+      model: scripted.model,
+      schema,
+      signal: controller.signal,
+    })
+    expect(design.column.id).toBe('summary')
+    expect(design.column).not.toHaveProperty('options')
+    expect(scripted.calls[0]?.abortSignal).toBe(controller.signal)
+  })
+
+  it('drops an empty option list on enum columns', async () => {
+    const scripted = scriptedModel([
+      { id: 'tier', label: 'Tier', type: 'enum', options: [], instruction: 'Tier.' },
+    ])
+    const design = await designColumn('Tier', { model: scripted.model, schema })
+    expect(design.column).not.toHaveProperty('options')
+  })
 })

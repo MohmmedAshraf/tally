@@ -90,4 +90,53 @@ describe('createCollectionSource', () => {
       errors: [{ message: 'Source is read only' }],
     })
   })
+
+  it('maps inserted rows through the item option and reports persistence failures', async () => {
+    const { collection } = setup()
+    const source = createCollectionSource(collection, conformanceSchema, {
+      item: (row) => ({ ...row, account: String(row['account']).toUpperCase() }),
+    })
+    const result = await source.mutate!([
+      createMutation({ label: 'add', inserted: [{ row: { id: 'acc_up', account: 'up' } }] }),
+    ])
+    expect(result.rows).toEqual([expect.objectContaining({ id: 'acc_up', account: 'UP' })])
+    const persisted = { isPersisted: { promise: Promise.resolve() } }
+    const failing = createCollectionSource(
+      {
+        toArray: [],
+        get: () => undefined,
+        preload: () => Promise.resolve(),
+        subscribeChanges: () => ({ unsubscribe: () => undefined }),
+        insert: () => ({ isPersisted: { promise: Promise.reject(new Error('offline')) } }),
+        update: () => ({ isPersisted: { promise: Promise.reject('nope') } }),
+        delete: () => persisted,
+      },
+      conformanceSchema,
+    )
+    await expect(
+      failing.mutate!([
+        createMutation({ label: 'add', inserted: [{ row: { id: 'acc_x', account: 'x' } }] }),
+      ]),
+    ).resolves.toEqual({ accepted: false, errors: [{ message: 'offline' }] })
+    await expect(
+      failing.mutate!([
+        createMutation({
+          label: 'edit',
+          changes: [{ key: 'acc_001', column: 'account', from: 'acme', to: 'y' }],
+        }),
+      ]),
+    ).resolves.toEqual({ accepted: false, errors: [{ message: 'Mutation failed' }] })
+  })
+
+  it('reports updates to rows the collection does not hold', async () => {
+    const { source } = setup()
+    const result = await source.mutate!([
+      createMutation({
+        label: 'edit',
+        changes: [{ key: 'acc_404', column: 'account', from: 'a', to: 'b' }],
+      }),
+    ])
+    expect(result.accepted).toBe(false)
+    expect(result.errors?.[0]?.message).toContain('acc_404')
+  })
 })

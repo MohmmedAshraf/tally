@@ -38,7 +38,7 @@
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run --passWithNoTests --coverage.enabled=false",
     "publint": "publint",
-    "attw": "attw --pack . --profile esm-only",
+    "attw": "attw --pack . --profile esm-only --exclude-entrypoints ./styles.css ./fonts.css",
     "size": "size-limit"
   },
   "dependencies": {

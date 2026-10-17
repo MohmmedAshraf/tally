@@ -22,7 +22,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm format:check
       - run: pnpm lint
-      - run: pnpm turbo run typecheck test build
+      - run: pnpm turbo run typecheck build
+      - run: pnpm coverage
       - run: pnpm check:packages
       - run: pnpm knip
       - run: pnpm --filter tally-core bench
