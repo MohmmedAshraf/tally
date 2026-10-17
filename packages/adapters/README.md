@@ -63,7 +63,8 @@ Queries are keyed `[...queryKey, 'query', request]` and the schema `[...queryKey
 Runs the grid over a collection: filters, sorts, groups, aggregates and facets execute locally with the reference engine, collection changes arrive as live patches, and edits go through `insert`, `update` and `delete` so the collection's own persistence handlers and optimistic state apply. Import from `tally-adapters/db`.
 
 ```ts
-import { createCollection, queryCollectionOptions } from '@tanstack/db'
+import { createCollection } from '@tanstack/db'
+import { queryCollectionOptions } from '@tanstack/query-db-collection'
 import { createCollectionSource } from 'tally-adapters/db'
 
 const accounts = createCollection(
