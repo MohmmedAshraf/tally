@@ -1,6 +1,6 @@
 {
   "name": "tally-react",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "React hooks and component for Tally.",
   "license": "MIT",
   "author": "Mohamed Ashraf <cupo.ashraf@gmail.com>",
