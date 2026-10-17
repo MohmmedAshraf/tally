@@ -557,30 +557,6 @@ importers:
         specifier: 'catalog:'
         version: 5.0.3(@types/node@26.6.5)(@vitest/coverage-v8@5.0.3)(happy-dom@21.0.1)(vite@8.3.4(@types/node@26.6.5)(jiti@2.7.0)(yaml@2.9.1))
 
-  packages/cli:
-    devDependencies:
-      '@arethetypeswrong/cli':
-        specifier: 'catalog:'
-        version: 0.18.5
-      '@size-limit/preset-small-lib':
-        specifier: 'catalog:'
-        version: 14.2.0(size-limit@14.2.0)
-      publint:
-        specifier: 'catalog:'
-        version: 0.3.25
-      size-limit:
-        specifier: 'catalog:'
-        version: 14.2.0
-      tsdown:
-        specifier: 'catalog:'
-        version: 0.23.1(@arethetypeswrong/core@0.18.5)(oxc-resolver@11.24.2)(publint@0.3.25)(typescript@7.0.2)
-      typescript:
-        specifier: 'catalog:'
-        version: 7.0.2
-      vitest:
-        specifier: 'catalog:'
-        version: 5.0.3(@types/node@26.6.5)(@vitest/coverage-v8@5.0.3)(happy-dom@21.0.1)(vite@8.3.4(@types/node@26.6.5)(jiti@2.7.0)(yaml@2.9.1))
-
   packages/core:
     dependencies:
       '@tanstack/store':
