@@ -274,15 +274,26 @@ final readonly class Adapter
 
             return;
         }
-        $match = $this->groupMatch($bucket->expression);
-        $page = $this->groupBy($this->ordered($this->select($this->from($where), Sql::of('{} as g', $match)), $bucket->order), $bucket->expression)
+        $page = $this->bucketed($bucket, [], $where)
             ->offset($slice['offset'])
             ->limit(max(0, min($slice['limit'], $this->grid->maxGroups() - $slice['offset'])));
         $this->where($rows, Sql::of(
-            '{} in (select g from ({}) as tally_groups)',
-            $match,
+            '{} in (select {} from ({}) as tally_page)',
+            $this->groupMatch($bucket->expression),
+            $this->groupMatch(new Sql(Bucket::ALIAS)),
             new Sql($page->toSql(), $page->getBindings()),
         ));
+    }
+
+    /**
+     * @param  list<Sql>  $columns
+     */
+    private function bucketed(Bucket $bucket, array $columns, ?Sql $where): Builder
+    {
+        $select = Sql::join([Sql::of('{} as '.Bucket::ALIAS, $bucket->expression), ...$columns], ', ');
+        $grouped = $this->groupBy($this->select($this->from($where), $select), $bucket->expression);
+
+        return $this->ordered($this->base->newQuery()->fromSub($grouped, 'tally_groups'), $bucket->groupOrder);
     }
 
     private function groupMatch(Sql $bucket): Sql
@@ -359,17 +370,12 @@ final readonly class Adapter
      */
     private function groups(Bucket $bucket, array $aggregates, ?Sql $where): array
     {
-        $select = Sql::join([
-            Sql::of('{} as g', $bucket->expression),
-            new Sql('count(*) as n'),
-            ...$this->aggregateParts($aggregates),
-        ], ', ');
-        $query = $this->ordered($this->groupBy($this->select($this->from($where), $select), $bucket->expression), $bucket->order)
+        $query = $this->bucketed($bucket, [new Sql('count(*) as n'), ...$this->aggregateParts($aggregates)], $where)
             ->limit($this->grid->maxGroups());
         $kind = $bucket->target->type->kind;
 
         return array_map(function (array $row) use ($aggregates, $kind): array {
-            $value = $kind === Kind::Date ? ($row['g'] ?? null) : $this->dialect->decode($kind, $row['g'] ?? null);
+            $value = $kind === Kind::Date ? ($row[Bucket::ALIAS] ?? null) : $this->dialect->decode($kind, $row[Bucket::ALIAS] ?? null);
 
             return [
                 'key' => self::groupKey($value),

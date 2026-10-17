@@ -30,7 +30,7 @@ final class MysqlDialect extends Dialect
             Granularity::Week => Sql::of("date_format(date_sub({}, interval weekday({}) day), '%Y-%m-%d')", $expression, $expression),
             Granularity::Month => Sql::of("date_format({}, '%Y-%m')", $expression),
             Granularity::Quarter => Sql::of("concat(year({}), '-Q', quarter({}))", $expression, $expression),
-            Granularity::Year => Sql::of('cast(year({}) as char)', $expression),
+            Granularity::Year => Sql::of("date_format({}, '%Y')", $expression),
         };
     }
 }

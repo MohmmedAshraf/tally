@@ -29,6 +29,7 @@ abstract class TestCase extends Orchestra
                 'password' => getenv('DB_PASSWORD') ?: '',
                 'charset' => $driver === 'pgsql' ? 'utf8' : 'utf8mb4',
                 'prefix' => '',
+                'strict' => true,
             ]);
     }
 }

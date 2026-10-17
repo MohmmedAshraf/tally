@@ -143,12 +143,24 @@ final readonly class Compiler
                 break;
             }
         }
-        $bucketed = $target->with($expression);
 
-        return new Bucket($target, $expression, [
+        return new Bucket(
+            $target,
+            $expression,
+            $this->bucketOrder($target->with($expression), $direction),
+            $this->bucketOrder($target->with(new Sql(Bucket::ALIAS)), $direction),
+        );
+    }
+
+    /**
+     * @return list<Order>
+     */
+    private function bucketOrder(Target $bucketed, Direction $direction): array
+    {
+        return [
             new Order($this->isEmpty($bucketed), Direction::Asc),
             new Order($this->rank($bucketed), $direction),
-        ]);
+        ];
     }
 
     private function condition(Condition $node): Sql
