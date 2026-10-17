@@ -31,6 +31,20 @@ describe('runConformance', () => {
     expect(report.results.filter((result) => result.name.endsWith('via cursor'))).toHaveLength(12)
   })
 
+  it('pages the empty group with null and blank values together', async () => {
+    const source = createArraySource(conformanceRows, conformanceSchema, {
+      today: CONFORMANCE_TODAY,
+      pagination: 'offset',
+    })
+    const entry = conformancePageCases.find(
+      (candidate) => candidate.name === 'page grouped with the empty group last',
+    )
+    const response = await source.query(entry?.request ?? { version: 1, sort: [] })
+    expect(response.groups?.at(-1)?.key).toBe('')
+    const owners = new Set(response.rows.map((row) => row['owner']))
+    expect(owners).toEqual(new Set(['Yusuf', null, '']))
+  })
+
   it('skips cases the adapter does not support', async () => {
     const source = createArraySource(conformanceRows, conformanceSchema, {
       today: CONFORMANCE_TODAY,

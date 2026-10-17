@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Tally\Laravel\Protocol\JsonSchema;
 use Tally\Laravel\Tests\Fixtures\AccountsGrid;
+use Tally\Laravel\Tests\Fixtures\CappedAccountsGrid;
 use Tally\Laravel\Tests\Fixtures\CursorAccountsGrid;
 use Tally\Laravel\Tests\Fixtures\FlaggedAccountsGrid;
 use Tally\Laravel\Tests\Support\Conformance;
@@ -97,14 +99,48 @@ it('rejects a body that is not JSON', function (): void {
 
 it('clamps the page size and compiles flags', function (): void {
     $page = $this->postJson('/api/flagged/query', ['version' => 1, 'sort' => [], 'page' => ['offset' => 0, 'limit' => 100]]);
+    $unpaged = $this->postJson('/api/flagged/query', ['version' => 1, 'sort' => []]);
     $paying = $this->postJson('/api/flagged/query', ['version' => 1, 'sort' => [], 'filter' => ['type' => 'flag', 'name' => 'paying']]);
     $everyone = $this->postJson('/api/flagged/query', ['version' => 1, 'sort' => [], 'filter' => ['type' => 'not', 'filter' => ['type' => 'flag', 'name' => 'everyone']]]);
     $unknown = $this->postJson('/api/flagged/query', ['version' => 1, 'sort' => [], 'filter' => ['type' => 'flag', 'name' => 'x']]);
 
     expect($page->json('rows'))->toHaveCount(3)
+        ->and($unpaged->json('rows'))->toHaveCount(3)
+        ->and($unpaged->json('matched'))->toBe(count(Conformance::rows()))
         ->and($paying->json('matched'))->toBe(count(array_filter(Conformance::rows(), fn (array $row): bool => ($row['mrr'] ?? 0) > 0)))
         ->and($everyone->json('matched'))->toBe(0)
         ->and($unknown->json('matched'))->toBe(0);
+});
+
+it('caps group summaries and the group pages behind them', function (): void {
+    Route::tally('/api/capped', CappedAccountsGrid::class);
+    $request = ['version' => 1, 'sort' => [], 'group' => ['column' => 'owner']];
+    $first = $this->postJson('/api/capped/query', [...$request, 'page' => ['limit' => 2]])->json();
+    $beyond = $this->postJson('/api/capped/query', [...$request, 'page' => ['offset' => 2, 'limit' => 2]])->json();
+    $owners = array_values(array_unique(array_column($first['rows'], 'owner')));
+
+    expect(array_column($first['groups'], 'key'))->toBe(['Lena', 'Mona'])
+        ->and($owners)->toBe(['Lena', 'Mona'])
+        ->and($first)->not->toHaveKey('cursor')
+        ->and($beyond['rows'])->toBe([]);
+});
+
+it('runs each requested facet and aggregate once', function (): void {
+    $count = function (array $request): int {
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+        $this->postJson('/api/accounts/query', ['version' => 1, 'sort' => [], ...$request])->assertOk();
+        DB::disableQueryLog();
+
+        return count(DB::getQueryLog());
+    };
+    $single = $count(['facets' => ['mrr']]);
+    $repeated = $count([
+        'facets' => array_fill(0, 50, 'mrr'),
+        'aggregates' => array_fill(0, 50, ['column' => 'mrr', 'fn' => 'sum']),
+    ]);
+
+    expect($repeated)->toBe($single + 1);
 });
 
 it('issues opaque cursors that tolerate tampering', function (): void {

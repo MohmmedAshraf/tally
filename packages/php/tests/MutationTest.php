@@ -74,6 +74,7 @@ it('returns rejections from the adapter itself', function (): void {
 });
 
 it('maps column ids to SQL columns and keeps a key that is not a column', function (): void {
+    Schema::dropIfExists('people');
     Schema::create('people', function ($table): void {
         $table->integer('pk')->primary();
         $table->string('full_name');

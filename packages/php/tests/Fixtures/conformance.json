@@ -155,7 +155,7 @@
     {
       "id": "acc_006",
       "account": "Fjord",
-      "owner": "Mona",
+      "owner": "",
       "plan": "team",
       "mrr": 875,
       "seats": 36,
@@ -171,7 +171,7 @@
     {
       "id": "acc_007",
       "account": "gamma",
-      "owner": "Omar",
+      "owner": "Mona",
       "plan": null,
       "mrr": 550,
       "seats": 3,
@@ -187,7 +187,7 @@
     {
       "id": "acc_008",
       "account": "Helix",
-      "owner": "Lena",
+      "owner": "Omar",
       "plan": "free",
       "mrr": 225,
       "seats": 10,
@@ -203,7 +203,7 @@
     {
       "id": "acc_009",
       "account": "ion",
-      "owner": null,
+      "owner": "Lena",
       "plan": "pro",
       "mrr": 1150,
       "seats": 17,
@@ -219,7 +219,7 @@
     {
       "id": "acc_010",
       "account": "Juno",
-      "owner": "Yusuf",
+      "owner": null,
       "plan": "team",
       "mrr": null,
       "seats": 24,
@@ -235,7 +235,7 @@
     {
       "id": "acc_011",
       "account": "kilo",
-      "owner": "Mona",
+      "owner": "Yusuf",
       "plan": "pro",
       "mrr": 500,
       "seats": 31,
@@ -251,7 +251,7 @@
     {
       "id": "acc_012",
       "account": "Lumen",
-      "owner": "Omar",
+      "owner": "",
       "plan": "free",
       "mrr": 175,
       "seats": null,
@@ -267,7 +267,7 @@
     {
       "id": "acc_013",
       "account": "acme",
-      "owner": "Lena",
+      "owner": "Mona",
       "plan": "team",
       "mrr": 1100,
       "seats": 5,
@@ -283,7 +283,7 @@
     {
       "id": "acc_014",
       "account": "Beacon",
-      "owner": null,
+      "owner": "Omar",
       "plan": null,
       "mrr": 775,
       "seats": 12,
@@ -299,7 +299,7 @@
     {
       "id": "acc_015",
       "account": "cobalt",
-      "owner": "Yusuf",
+      "owner": "Lena",
       "plan": "free",
       "mrr": 450,
       "seats": 19,
@@ -315,7 +315,7 @@
     {
       "id": "acc_016",
       "account": "Delta",
-      "owner": "Mona",
+      "owner": null,
       "plan": "pro",
       "mrr": 125,
       "seats": 26,
@@ -331,7 +331,7 @@
     {
       "id": "acc_017",
       "account": "echo",
-      "owner": "Omar",
+      "owner": "Yusuf",
       "plan": "team",
       "mrr": 1050,
       "seats": 33,
@@ -347,7 +347,7 @@
     {
       "id": "acc_018",
       "account": "Fjord",
-      "owner": "Lena",
+      "owner": "",
       "plan": "pro",
       "mrr": 725,
       "seats": 40,
@@ -363,7 +363,7 @@
     {
       "id": "acc_019",
       "account": "gamma",
-      "owner": null,
+      "owner": "Mona",
       "plan": "free",
       "mrr": null,
       "seats": 7,
@@ -379,7 +379,7 @@
     {
       "id": "acc_020",
       "account": "Helix",
-      "owner": "Yusuf",
+      "owner": "Omar",
       "plan": "team",
       "mrr": 75,
       "seats": 14,
@@ -395,7 +395,7 @@
     {
       "id": "acc_021",
       "account": "ion",
-      "owner": "Mona",
+      "owner": "Lena",
       "plan": null,
       "mrr": 1000,
       "seats": 21,
@@ -411,7 +411,7 @@
     {
       "id": "acc_022",
       "account": "Juno",
-      "owner": "Omar",
+      "owner": null,
       "plan": "free",
       "mrr": 675,
       "seats": 28,
@@ -427,7 +427,7 @@
     {
       "id": "acc_023",
       "account": "kilo",
-      "owner": "Lena",
+      "owner": "Yusuf",
       "plan": "pro",
       "mrr": 350,
       "seats": null,
@@ -443,7 +443,7 @@
     {
       "id": "acc_024",
       "account": "Lumen",
-      "owner": null,
+      "owner": "",
       "plan": "team",
       "mrr": 25,
       "seats": 2,
@@ -459,7 +459,7 @@
     {
       "id": "acc_025",
       "account": "acme",
-      "owner": "Yusuf",
+      "owner": "Mona",
       "plan": "pro",
       "mrr": 950,
       "seats": 9,
@@ -475,7 +475,7 @@
     {
       "id": "acc_026",
       "account": "Beacon",
-      "owner": "Mona",
+      "owner": "Omar",
       "plan": "free",
       "mrr": 625,
       "seats": 16,
@@ -491,7 +491,7 @@
     {
       "id": "acc_027",
       "account": "cobalt",
-      "owner": "Omar",
+      "owner": "Lena",
       "plan": "team",
       "mrr": 300,
       "seats": 23,
@@ -507,7 +507,7 @@
     {
       "id": "acc_028",
       "account": "Delta",
-      "owner": "Lena",
+      "owner": null,
       "plan": null,
       "mrr": null,
       "seats": 30,
@@ -523,7 +523,7 @@
     {
       "id": "acc_029",
       "account": "echo",
-      "owner": null,
+      "owner": "Yusuf",
       "plan": "free",
       "mrr": 900,
       "seats": 37,
@@ -539,7 +539,7 @@
     {
       "id": "acc_030",
       "account": "Fjord",
-      "owner": "Yusuf",
+      "owner": "",
       "plan": "pro",
       "mrr": 575,
       "seats": 4,
@@ -635,7 +635,7 @@
     {
       "id": "acc_036",
       "account": "Lumen",
-      "owner": "Mona",
+      "owner": "",
       "plan": "free",
       "mrr": 1125,
       "seats": 6,
@@ -651,7 +651,7 @@
     {
       "id": "acc_037",
       "account": "acme",
-      "owner": "Omar",
+      "owner": "Mona",
       "plan": "pro",
       "mrr": null,
       "seats": 13,
@@ -667,7 +667,7 @@
     {
       "id": "acc_038",
       "account": "Beacon",
-      "owner": "Lena",
+      "owner": "Omar",
       "plan": "team",
       "mrr": 475,
       "seats": 20,
@@ -683,7 +683,7 @@
     {
       "id": "acc_039",
       "account": "cobalt",
-      "owner": null,
+      "owner": "Lena",
       "plan": "pro",
       "mrr": 150,
       "seats": 27,
@@ -699,7 +699,7 @@
     {
       "id": "acc_040",
       "account": "Delta",
-      "owner": "Yusuf",
+      "owner": null,
       "plan": "free",
       "mrr": 1075,
       "seats": 34,
@@ -715,7 +715,7 @@
     {
       "id": "acc_041",
       "account": "echo",
-      "owner": "Mona",
+      "owner": "Yusuf",
       "plan": "team",
       "mrr": 750,
       "seats": 1,
@@ -731,7 +731,7 @@
     {
       "id": "acc_042",
       "account": "Fjord",
-      "owner": "Omar",
+      "owner": "",
       "plan": null,
       "mrr": 425,
       "seats": 8,
@@ -747,7 +747,7 @@
     {
       "id": "acc_043",
       "account": "gamma",
-      "owner": "Lena",
+      "owner": "Mona",
       "plan": "free",
       "mrr": 100,
       "seats": 15,
@@ -763,7 +763,7 @@
     {
       "id": "acc_044",
       "account": "Helix",
-      "owner": null,
+      "owner": "Omar",
       "plan": "pro",
       "mrr": 1025,
       "seats": 22,
@@ -779,7 +779,7 @@
     {
       "id": "acc_045",
       "account": "ion",
-      "owner": "Yusuf",
+      "owner": "Lena",
       "plan": "team",
       "mrr": 700,
       "seats": null,
@@ -795,7 +795,7 @@
     {
       "id": "acc_046",
       "account": "Juno",
-      "owner": "Mona",
+      "owner": null,
       "plan": "pro",
       "mrr": null,
       "seats": 36,
@@ -811,7 +811,7 @@
     {
       "id": "acc_047",
       "account": "kilo",
-      "owner": "Omar",
+      "owner": "Yusuf",
       "plan": "free",
       "mrr": 50,
       "seats": 3,
@@ -827,7 +827,7 @@
     {
       "id": "acc_048",
       "account": "Lumen",
-      "owner": "Lena",
+      "owner": "",
       "plan": "team",
       "mrr": 975,
       "seats": 10,
@@ -843,7 +843,7 @@
     {
       "id": "acc_049",
       "account": "acme",
-      "owner": null,
+      "owner": "Mona",
       "plan": null,
       "mrr": 650,
       "seats": 17,
@@ -859,7 +859,7 @@
     {
       "id": "acc_050",
       "account": "Beacon",
-      "owner": "Yusuf",
+      "owner": "Omar",
       "plan": "free",
       "mrr": 325,
       "seats": 24,
@@ -875,7 +875,7 @@
     {
       "id": "acc_051",
       "account": "cobalt",
-      "owner": "Mona",
+      "owner": "Lena",
       "plan": "pro",
       "mrr": 0,
       "seats": 31,
@@ -891,7 +891,7 @@
     {
       "id": "acc_052",
       "account": "Delta",
-      "owner": "Omar",
+      "owner": null,
       "plan": "team",
       "mrr": 925,
       "seats": 38,
@@ -907,7 +907,7 @@
     {
       "id": "acc_053",
       "account": "echo",
-      "owner": "Lena",
+      "owner": "Yusuf",
       "plan": "pro",
       "mrr": 600,
       "seats": 5,
@@ -923,7 +923,7 @@
     {
       "id": "acc_054",
       "account": "Fjord",
-      "owner": null,
+      "owner": "",
       "plan": "free",
       "mrr": 275,
       "seats": 12,
@@ -939,7 +939,7 @@
     {
       "id": "acc_055",
       "account": "gamma",
-      "owner": "Yusuf",
+      "owner": "Mona",
       "plan": "team",
       "mrr": null,
       "seats": 19,
@@ -955,7 +955,7 @@
     {
       "id": "acc_056",
       "account": "Helix",
-      "owner": "Mona",
+      "owner": "Omar",
       "plan": null,
       "mrr": 875,
       "seats": null,
@@ -971,7 +971,7 @@
     {
       "id": "acc_057",
       "account": "ion",
-      "owner": "Omar",
+      "owner": "Lena",
       "plan": "free",
       "mrr": 550,
       "seats": 33,
@@ -987,7 +987,7 @@
     {
       "id": "acc_058",
       "account": "Juno",
-      "owner": "Lena",
+      "owner": null,
       "plan": "pro",
       "mrr": 225,
       "seats": 40,
@@ -1003,7 +1003,7 @@
     {
       "id": "acc_059",
       "account": "kilo",
-      "owner": null,
+      "owner": "Yusuf",
       "plan": "team",
       "mrr": 1150,
       "seats": 7,
@@ -1019,7 +1019,7 @@
     {
       "id": "acc_060",
       "account": "Lumen",
-      "owner": "Yusuf",
+      "owner": "",
       "plan": "pro",
       "mrr": 825,
       "seats": 14,
@@ -1665,20 +1665,18 @@
       "expected": {
         "rows": [
           "acc_001",
-          "acc_006",
-          "acc_011",
-          "acc_016",
-          "acc_021",
-          "acc_026",
+          "acc_007",
+          "acc_013",
+          "acc_019",
+          "acc_025",
           "acc_031",
-          "acc_036",
-          "acc_041",
-          "acc_046",
-          "acc_051",
-          "acc_056"
+          "acc_037",
+          "acc_043",
+          "acc_049",
+          "acc_055"
         ],
         "total": 60,
-        "matched": 12
+        "matched": 10
       }
     },
     {
@@ -4173,6 +4171,176 @@
       }
     },
     {
+      "name": "sort person asc empties tie",
+      "requires": [
+        "sort"
+      ],
+      "request": {
+        "version": 1,
+        "sort": [
+          {
+            "column": "owner",
+            "direction": "asc"
+          },
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_003",
+          "acc_009",
+          "acc_015",
+          "acc_021",
+          "acc_027",
+          "acc_033",
+          "acc_039",
+          "acc_045",
+          "acc_051",
+          "acc_057",
+          "acc_001",
+          "acc_007",
+          "acc_013",
+          "acc_019",
+          "acc_025",
+          "acc_031",
+          "acc_037",
+          "acc_043",
+          "acc_049",
+          "acc_055",
+          "acc_002",
+          "acc_008",
+          "acc_014",
+          "acc_020",
+          "acc_026",
+          "acc_032",
+          "acc_038",
+          "acc_044",
+          "acc_050",
+          "acc_056",
+          "acc_005",
+          "acc_011",
+          "acc_017",
+          "acc_023",
+          "acc_029",
+          "acc_035",
+          "acc_041",
+          "acc_047",
+          "acc_053",
+          "acc_059",
+          "acc_004",
+          "acc_006",
+          "acc_010",
+          "acc_012",
+          "acc_016",
+          "acc_018",
+          "acc_022",
+          "acc_024",
+          "acc_028",
+          "acc_030",
+          "acc_034",
+          "acc_036",
+          "acc_040",
+          "acc_042",
+          "acc_046",
+          "acc_048",
+          "acc_052",
+          "acc_054",
+          "acc_058",
+          "acc_060"
+        ],
+        "total": 60,
+        "matched": 60
+      }
+    },
+    {
+      "name": "sort person desc empties tie",
+      "requires": [
+        "sort"
+      ],
+      "request": {
+        "version": 1,
+        "sort": [
+          {
+            "column": "owner",
+            "direction": "desc"
+          },
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_005",
+          "acc_011",
+          "acc_017",
+          "acc_023",
+          "acc_029",
+          "acc_035",
+          "acc_041",
+          "acc_047",
+          "acc_053",
+          "acc_059",
+          "acc_002",
+          "acc_008",
+          "acc_014",
+          "acc_020",
+          "acc_026",
+          "acc_032",
+          "acc_038",
+          "acc_044",
+          "acc_050",
+          "acc_056",
+          "acc_001",
+          "acc_007",
+          "acc_013",
+          "acc_019",
+          "acc_025",
+          "acc_031",
+          "acc_037",
+          "acc_043",
+          "acc_049",
+          "acc_055",
+          "acc_003",
+          "acc_009",
+          "acc_015",
+          "acc_021",
+          "acc_027",
+          "acc_033",
+          "acc_039",
+          "acc_045",
+          "acc_051",
+          "acc_057",
+          "acc_004",
+          "acc_006",
+          "acc_010",
+          "acc_012",
+          "acc_016",
+          "acc_018",
+          "acc_022",
+          "acc_024",
+          "acc_028",
+          "acc_030",
+          "acc_034",
+          "acc_036",
+          "acc_040",
+          "acc_042",
+          "acc_046",
+          "acc_048",
+          "acc_052",
+          "acc_054",
+          "acc_058",
+          "acc_060"
+        ],
+        "total": 60,
+        "matched": 60
+      }
+    },
+    {
       "name": "sort multi",
       "requires": [
         "sort"
@@ -4653,65 +4821,65 @@
       "expected": {
         "rows": [
           "acc_003",
-          "acc_008",
-          "acc_013",
-          "acc_018",
-          "acc_023",
-          "acc_028",
-          "acc_033",
-          "acc_038",
-          "acc_043",
-          "acc_048",
-          "acc_053",
-          "acc_058",
-          "acc_001",
-          "acc_006",
-          "acc_011",
-          "acc_016",
-          "acc_021",
-          "acc_026",
-          "acc_031",
-          "acc_036",
-          "acc_041",
-          "acc_046",
-          "acc_051",
-          "acc_056",
-          "acc_002",
-          "acc_007",
-          "acc_012",
-          "acc_017",
-          "acc_022",
-          "acc_027",
-          "acc_032",
-          "acc_037",
-          "acc_042",
-          "acc_047",
-          "acc_052",
-          "acc_057",
-          "acc_005",
-          "acc_010",
-          "acc_015",
-          "acc_020",
-          "acc_025",
-          "acc_030",
-          "acc_035",
-          "acc_040",
-          "acc_045",
-          "acc_050",
-          "acc_055",
-          "acc_060",
-          "acc_004",
           "acc_009",
-          "acc_014",
-          "acc_019",
-          "acc_024",
-          "acc_029",
-          "acc_034",
+          "acc_015",
+          "acc_021",
+          "acc_027",
+          "acc_033",
           "acc_039",
-          "acc_044",
+          "acc_045",
+          "acc_051",
+          "acc_057",
+          "acc_001",
+          "acc_007",
+          "acc_013",
+          "acc_019",
+          "acc_025",
+          "acc_031",
+          "acc_037",
+          "acc_043",
           "acc_049",
+          "acc_055",
+          "acc_002",
+          "acc_008",
+          "acc_014",
+          "acc_020",
+          "acc_026",
+          "acc_032",
+          "acc_038",
+          "acc_044",
+          "acc_050",
+          "acc_056",
+          "acc_005",
+          "acc_011",
+          "acc_017",
+          "acc_023",
+          "acc_029",
+          "acc_035",
+          "acc_041",
+          "acc_047",
+          "acc_053",
+          "acc_059",
+          "acc_004",
+          "acc_006",
+          "acc_010",
+          "acc_012",
+          "acc_016",
+          "acc_018",
+          "acc_022",
+          "acc_024",
+          "acc_028",
+          "acc_030",
+          "acc_034",
+          "acc_036",
+          "acc_040",
+          "acc_042",
+          "acc_046",
+          "acc_048",
+          "acc_052",
           "acc_054",
-          "acc_059"
+          "acc_058",
+          "acc_060"
         ],
         "total": 60,
         "matched": 60,
@@ -4719,31 +4887,31 @@
           {
             "key": "Lena",
             "value": "Lena",
-            "count": 12,
+            "count": 10,
             "aggregates": {}
           },
           {
             "key": "Mona",
             "value": "Mona",
-            "count": 12,
+            "count": 10,
             "aggregates": {}
           },
           {
             "key": "Omar",
             "value": "Omar",
-            "count": 12,
+            "count": 10,
             "aggregates": {}
           },
           {
             "key": "Yusuf",
             "value": "Yusuf",
-            "count": 12,
+            "count": 10,
             "aggregates": {}
           },
           {
             "key": "",
             "value": null,
-            "count": 12,
+            "count": 20,
             "aggregates": {}
           }
         ]
@@ -6061,6 +6229,291 @@
       }
     },
     {
+      "name": "group person merges empty values",
+      "requires": [
+        "group",
+        "aggregates"
+      ],
+      "request": {
+        "version": 1,
+        "sort": [
+          {
+            "column": "owner",
+            "direction": "desc"
+          },
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ],
+        "group": {
+          "column": "owner"
+        },
+        "aggregates": [
+          {
+            "column": "mrr",
+            "fn": "sum"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_005",
+          "acc_011",
+          "acc_017",
+          "acc_023",
+          "acc_029",
+          "acc_035",
+          "acc_041",
+          "acc_047",
+          "acc_053",
+          "acc_059",
+          "acc_002",
+          "acc_008",
+          "acc_014",
+          "acc_020",
+          "acc_026",
+          "acc_032",
+          "acc_038",
+          "acc_044",
+          "acc_050",
+          "acc_056",
+          "acc_001",
+          "acc_007",
+          "acc_013",
+          "acc_019",
+          "acc_025",
+          "acc_031",
+          "acc_037",
+          "acc_043",
+          "acc_049",
+          "acc_055",
+          "acc_003",
+          "acc_009",
+          "acc_015",
+          "acc_021",
+          "acc_027",
+          "acc_033",
+          "acc_039",
+          "acc_045",
+          "acc_051",
+          "acc_057",
+          "acc_004",
+          "acc_006",
+          "acc_010",
+          "acc_012",
+          "acc_016",
+          "acc_018",
+          "acc_022",
+          "acc_024",
+          "acc_028",
+          "acc_030",
+          "acc_034",
+          "acc_036",
+          "acc_040",
+          "acc_042",
+          "acc_046",
+          "acc_048",
+          "acc_052",
+          "acc_054",
+          "acc_058",
+          "acc_060"
+        ],
+        "total": 60,
+        "matched": 60,
+        "groups": [
+          {
+            "key": "Yusuf",
+            "value": "Yusuf",
+            "count": 10,
+            "aggregates": {
+              "mrr:sum": 6750
+            }
+          },
+          {
+            "key": "Omar",
+            "value": "Omar",
+            "count": 10,
+            "aggregates": {
+              "mrr:sum": 6500
+            }
+          },
+          {
+            "key": "Mona",
+            "value": "Mona",
+            "count": 10,
+            "aggregates": {
+              "mrr:sum": 3600
+            }
+          },
+          {
+            "key": "Lena",
+            "value": "Lena",
+            "count": 10,
+            "aggregates": {
+              "mrr:sum": 5750
+            }
+          },
+          {
+            "key": "",
+            "value": null,
+            "count": 20,
+            "aggregates": {
+              "mrr:sum": 9825
+            }
+          }
+        ],
+        "aggregates": {
+          "mrr:sum": 32425
+        }
+      }
+    },
+    {
+      "name": "group with repeated aggregates",
+      "requires": [
+        "group",
+        "aggregates"
+      ],
+      "request": {
+        "version": 1,
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ],
+        "group": {
+          "column": "plan"
+        },
+        "aggregates": [
+          {
+            "column": "mrr",
+            "fn": "sum"
+          },
+          {
+            "column": "mrr",
+            "fn": "sum"
+          },
+          {
+            "column": "seats",
+            "fn": "max"
+          },
+          {
+            "column": "seats",
+            "fn": "max"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_001",
+          "acc_005",
+          "acc_008",
+          "acc_012",
+          "acc_015",
+          "acc_019",
+          "acc_022",
+          "acc_026",
+          "acc_029",
+          "acc_033",
+          "acc_036",
+          "acc_040",
+          "acc_043",
+          "acc_047",
+          "acc_050",
+          "acc_054",
+          "acc_057",
+          "acc_002",
+          "acc_004",
+          "acc_009",
+          "acc_011",
+          "acc_016",
+          "acc_018",
+          "acc_023",
+          "acc_025",
+          "acc_030",
+          "acc_032",
+          "acc_037",
+          "acc_039",
+          "acc_044",
+          "acc_046",
+          "acc_051",
+          "acc_053",
+          "acc_058",
+          "acc_060",
+          "acc_003",
+          "acc_006",
+          "acc_010",
+          "acc_013",
+          "acc_017",
+          "acc_020",
+          "acc_024",
+          "acc_027",
+          "acc_031",
+          "acc_034",
+          "acc_038",
+          "acc_041",
+          "acc_045",
+          "acc_048",
+          "acc_052",
+          "acc_055",
+          "acc_059",
+          "acc_007",
+          "acc_014",
+          "acc_021",
+          "acc_028",
+          "acc_035",
+          "acc_042",
+          "acc_049",
+          "acc_056"
+        ],
+        "total": 60,
+        "matched": 60,
+        "groups": [
+          {
+            "key": "free",
+            "value": "free",
+            "count": 17,
+            "aggregates": {
+              "mrr:sum": 8600,
+              "seats:max": 37
+            }
+          },
+          {
+            "key": "pro",
+            "value": "pro",
+            "count": 18,
+            "aggregates": {
+              "mrr:sum": 9575,
+              "seats:max": 40
+            }
+          },
+          {
+            "key": "team",
+            "value": "team",
+            "count": 17,
+            "aggregates": {
+              "mrr:sum": 9775,
+              "seats:max": 38
+            }
+          },
+          {
+            "key": "",
+            "value": null,
+            "count": 8,
+            "aggregates": {
+              "mrr:sum": 4475,
+              "seats:max": 39
+            }
+          }
+        ],
+        "aggregates": {
+          "mrr:sum": 32425,
+          "seats:max": 40
+        }
+      }
+    },
+    {
       "name": "aggregates number",
       "requires": [
         "aggregates"
@@ -6476,19 +6929,19 @@
             "terms": [
               {
                 "value": "Mona",
-                "count": 12
+                "count": 10
               },
               {
                 "value": "Omar",
-                "count": 12
+                "count": 10
               },
               {
                 "value": "Lena",
-                "count": 12
+                "count": 10
               },
               {
                 "value": "Yusuf",
-                "count": 12
+                "count": 10
               }
             ],
             "distinct": 4
@@ -6906,6 +7359,234 @@
       }
     },
     {
+      "name": "repeated facets and aggregates",
+      "requires": [
+        "facets",
+        "aggregates"
+      ],
+      "request": {
+        "version": 1,
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ],
+        "facets": [
+          "plan",
+          "mrr",
+          "plan",
+          "mrr"
+        ],
+        "aggregates": [
+          {
+            "column": "mrr",
+            "fn": "sum"
+          },
+          {
+            "column": "mrr",
+            "fn": "sum"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_001",
+          "acc_002",
+          "acc_003",
+          "acc_004",
+          "acc_005",
+          "acc_006",
+          "acc_007",
+          "acc_008",
+          "acc_009",
+          "acc_010",
+          "acc_011",
+          "acc_012",
+          "acc_013",
+          "acc_014",
+          "acc_015",
+          "acc_016",
+          "acc_017",
+          "acc_018",
+          "acc_019",
+          "acc_020",
+          "acc_021",
+          "acc_022",
+          "acc_023",
+          "acc_024",
+          "acc_025",
+          "acc_026",
+          "acc_027",
+          "acc_028",
+          "acc_029",
+          "acc_030",
+          "acc_031",
+          "acc_032",
+          "acc_033",
+          "acc_034",
+          "acc_035",
+          "acc_036",
+          "acc_037",
+          "acc_038",
+          "acc_039",
+          "acc_040",
+          "acc_041",
+          "acc_042",
+          "acc_043",
+          "acc_044",
+          "acc_045",
+          "acc_046",
+          "acc_047",
+          "acc_048",
+          "acc_049",
+          "acc_050",
+          "acc_051",
+          "acc_052",
+          "acc_053",
+          "acc_054",
+          "acc_055",
+          "acc_056",
+          "acc_057",
+          "acc_058",
+          "acc_059",
+          "acc_060"
+        ],
+        "total": 60,
+        "matched": 60,
+        "aggregates": {
+          "mrr:sum": 32425
+        },
+        "facets": {
+          "plan": {
+            "kind": "terms",
+            "terms": [
+              {
+                "value": "free",
+                "count": 17
+              },
+              {
+                "value": "pro",
+                "count": 18
+              },
+              {
+                "value": "team",
+                "count": 17
+              }
+            ],
+            "distinct": 3
+          },
+          "mrr": {
+            "kind": "histogram",
+            "min": 0,
+            "max": 1200,
+            "bins": [
+              {
+                "start": 0,
+                "end": 60,
+                "count": 3
+              },
+              {
+                "start": 60,
+                "end": 120,
+                "count": 2
+              },
+              {
+                "start": 120,
+                "end": 180,
+                "count": 3
+              },
+              {
+                "start": 180,
+                "end": 240,
+                "count": 3
+              },
+              {
+                "start": 240,
+                "end": 300,
+                "count": 3
+              },
+              {
+                "start": 300,
+                "end": 360,
+                "count": 3
+              },
+              {
+                "start": 360,
+                "end": 420,
+                "count": 0
+              },
+              {
+                "start": 420,
+                "end": 480,
+                "count": 3
+              },
+              {
+                "start": 480,
+                "end": 540,
+                "count": 2
+              },
+              {
+                "start": 540,
+                "end": 600,
+                "count": 3
+              },
+              {
+                "start": 600,
+                "end": 660,
+                "count": 4
+              },
+              {
+                "start": 660,
+                "end": 720,
+                "count": 2
+              },
+              {
+                "start": 720,
+                "end": 780,
+                "count": 3
+              },
+              {
+                "start": 780,
+                "end": 840,
+                "count": 1
+              },
+              {
+                "start": 840,
+                "end": 900,
+                "count": 3
+              },
+              {
+                "start": 900,
+                "end": 960,
+                "count": 4
+              },
+              {
+                "start": 960,
+                "end": 1020,
+                "count": 2
+              },
+              {
+                "start": 1020,
+                "end": 1080,
+                "count": 3
+              },
+              {
+                "start": 1080,
+                "end": 1140,
+                "count": 2
+              },
+              {
+                "start": 1140,
+                "end": 1200,
+                "count": 4
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
       "name": "facets over filtered rows",
       "requires": [
         "filter",
@@ -7312,6 +7993,221 @@
             "aggregates": {}
           }
         ]
+      }
+    },
+    {
+      "name": "page grouped with the empty group last",
+      "requires": [
+        "group"
+      ],
+      "request": {
+        "version": 1,
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ],
+        "group": {
+          "column": "owner"
+        },
+        "page": {
+          "offset": 3,
+          "limit": 2
+        }
+      },
+      "expected": {
+        "rows": [
+          "acc_005",
+          "acc_011",
+          "acc_017",
+          "acc_023",
+          "acc_029",
+          "acc_035",
+          "acc_041",
+          "acc_047",
+          "acc_053",
+          "acc_059",
+          "acc_004",
+          "acc_006",
+          "acc_010",
+          "acc_012",
+          "acc_016",
+          "acc_018",
+          "acc_022",
+          "acc_024",
+          "acc_028",
+          "acc_030",
+          "acc_034",
+          "acc_036",
+          "acc_040",
+          "acc_042",
+          "acc_046",
+          "acc_048",
+          "acc_052",
+          "acc_054",
+          "acc_058",
+          "acc_060"
+        ],
+        "total": 60,
+        "matched": 60,
+        "groups": [
+          {
+            "key": "Lena",
+            "value": "Lena",
+            "count": 10,
+            "aggregates": {}
+          },
+          {
+            "key": "Mona",
+            "value": "Mona",
+            "count": 10,
+            "aggregates": {}
+          },
+          {
+            "key": "Omar",
+            "value": "Omar",
+            "count": 10,
+            "aggregates": {}
+          },
+          {
+            "key": "Yusuf",
+            "value": "Yusuf",
+            "count": 10,
+            "aggregates": {}
+          },
+          {
+            "key": "",
+            "value": null,
+            "count": 20,
+            "aggregates": {}
+          }
+        ]
+      }
+    },
+    {
+      "name": "page grouped desc with the empty group last",
+      "requires": [
+        "group",
+        "aggregates",
+        "sort"
+      ],
+      "request": {
+        "version": 1,
+        "sort": [
+          {
+            "column": "owner",
+            "direction": "desc"
+          },
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ],
+        "group": {
+          "column": "owner"
+        },
+        "aggregates": [
+          {
+            "column": "mrr",
+            "fn": "sum"
+          }
+        ],
+        "page": {
+          "offset": 2,
+          "limit": 3
+        }
+      },
+      "expected": {
+        "rows": [
+          "acc_001",
+          "acc_007",
+          "acc_013",
+          "acc_019",
+          "acc_025",
+          "acc_031",
+          "acc_037",
+          "acc_043",
+          "acc_049",
+          "acc_055",
+          "acc_003",
+          "acc_009",
+          "acc_015",
+          "acc_021",
+          "acc_027",
+          "acc_033",
+          "acc_039",
+          "acc_045",
+          "acc_051",
+          "acc_057",
+          "acc_004",
+          "acc_006",
+          "acc_010",
+          "acc_012",
+          "acc_016",
+          "acc_018",
+          "acc_022",
+          "acc_024",
+          "acc_028",
+          "acc_030",
+          "acc_034",
+          "acc_036",
+          "acc_040",
+          "acc_042",
+          "acc_046",
+          "acc_048",
+          "acc_052",
+          "acc_054",
+          "acc_058",
+          "acc_060"
+        ],
+        "total": 60,
+        "matched": 60,
+        "groups": [
+          {
+            "key": "Yusuf",
+            "value": "Yusuf",
+            "count": 10,
+            "aggregates": {
+              "mrr:sum": 6750
+            }
+          },
+          {
+            "key": "Omar",
+            "value": "Omar",
+            "count": 10,
+            "aggregates": {
+              "mrr:sum": 6500
+            }
+          },
+          {
+            "key": "Mona",
+            "value": "Mona",
+            "count": 10,
+            "aggregates": {
+              "mrr:sum": 3600
+            }
+          },
+          {
+            "key": "Lena",
+            "value": "Lena",
+            "count": 10,
+            "aggregates": {
+              "mrr:sum": 5750
+            }
+          },
+          {
+            "key": "",
+            "value": null,
+            "count": 20,
+            "aggregates": {
+              "mrr:sum": 9825
+            }
+          }
+        ],
+        "aggregates": {
+          "mrr:sum": 32425
+        }
       }
     }
   ]

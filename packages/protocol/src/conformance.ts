@@ -153,6 +153,8 @@ export const conformanceCases: readonly ConformanceCase[] = [
   ordered('sort bool asc', { column: 'active', direction: 'asc' }),
   ordered('sort enum by option order', { column: 'plan', direction: 'asc' }),
   ordered('sort enum desc', { column: 'plan', direction: 'desc' }),
+  ordered('sort person asc empties tie', { column: 'owner', direction: 'asc' }),
+  ordered('sort person desc empties tie', { column: 'owner', direction: 'desc' }),
   ordered('sort multi', { column: 'plan', direction: 'asc' }, { column: 'mrr', direction: 'desc' }),
   grouped('group enum', { group: { column: 'plan' } }),
   grouped('group enum with aggregates', {
@@ -176,6 +178,20 @@ export const conformanceCases: readonly ConformanceCase[] = [
     sort: sorted({ column: 'plan', direction: 'desc' }),
   }),
   grouped('group with filter', { group: { column: 'plan' }, filter: is('mrr', 'gte', 500) }),
+  grouped('group person merges empty values', {
+    group: { column: 'owner' },
+    sort: sorted({ column: 'owner', direction: 'desc' }),
+    aggregates: [{ column: 'mrr', fn: 'sum' }],
+  }),
+  grouped('group with repeated aggregates', {
+    group: { column: 'plan' },
+    aggregates: [
+      { column: 'mrr', fn: 'sum' },
+      { column: 'mrr', fn: 'sum' },
+      { column: 'seats', fn: 'max' },
+      { column: 'seats', fn: 'max' },
+    ],
+  }),
   {
     name: 'aggregates number',
     request: {
@@ -233,6 +249,19 @@ export const conformanceCases: readonly ConformanceCase[] = [
     requires: ['facets'],
   },
   {
+    name: 'repeated facets and aggregates',
+    request: {
+      version: 1,
+      sort: sorted(),
+      facets: ['plan', 'mrr', 'plan', 'mrr'],
+      aggregates: [
+        { column: 'mrr', fn: 'sum' },
+        { column: 'mrr', fn: 'sum' },
+      ],
+    },
+    requires: ['facets', 'aggregates'],
+  },
+  {
     name: 'facets over filtered rows',
     request: {
       version: 1,
@@ -274,6 +303,27 @@ export const conformancePageCases: readonly ConformanceCase[] = [
       page: { offset: 10, limit: 10 },
     },
     requires: ['group'],
+  },
+  {
+    name: 'page grouped with the empty group last',
+    request: {
+      version: 1,
+      sort: sorted(),
+      group: { column: 'owner' },
+      page: { offset: 3, limit: 2 },
+    },
+    requires: ['group'],
+  },
+  {
+    name: 'page grouped desc with the empty group last',
+    request: {
+      version: 1,
+      sort: sorted({ column: 'owner', direction: 'desc' }),
+      group: { column: 'owner' },
+      aggregates: [{ column: 'mrr', fn: 'sum' }],
+      page: { offset: 2, limit: 3 },
+    },
+    requires: ['group', 'aggregates', 'sort'],
   },
 ]
 

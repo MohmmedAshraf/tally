@@ -114,12 +114,15 @@ final readonly class Adapter
             new Order($this->keyRef, Direction::Asc),
         ]);
         $slice = $this->slice($request);
-        if ($slice !== null) {
+        if ($slice === null) {
+            $rows->limit($this->grid->maxLimit());
+        } else {
             $this->paginate($rows, $slice, $bucket, $where);
         }
+        $aggregates = self::uniqueAggregates($request->aggregates);
         $total = $this->from(null)->count();
         $matched = $where === null ? $total : $this->from($where)->count();
-        $groups = $bucket === null ? null : $this->groups($bucket, $request->aggregates, $where);
+        $groups = $bucket === null ? null : $this->groups($bucket, $aggregates, $where);
         $response = [
             'rows' => array_map($this->hydrate(...), self::records($rows)),
             'total' => $total,
@@ -132,9 +135,9 @@ final readonly class Adapter
         if ($groups !== null) {
             $response['groups'] = $groups;
         }
-        if ($request->aggregates !== []) {
-            $select = Sql::join($this->aggregateParts($request->aggregates), ', ');
-            $response['aggregates'] = $this->readAggregates($request->aggregates, self::records($this->select($this->from($where), $select))[0] ?? []);
+        if ($aggregates !== []) {
+            $select = Sql::join($this->aggregateParts($aggregates), ', ');
+            $response['aggregates'] = $this->readAggregates($aggregates, self::records($this->select($this->from($where), $select))[0] ?? []);
         }
         if ($request->facets !== null) {
             $response['facets'] = $this->facets($request->facets, $where);
@@ -271,14 +274,34 @@ final readonly class Adapter
 
             return;
         }
-        $page = $this->groupBy($this->ordered($this->select($this->from($where), Sql::of('{} as g', $bucket->expression)), $bucket->order), $bucket->expression)
+        $match = $this->groupMatch($bucket->expression);
+        $page = $this->groupBy($this->ordered($this->select($this->from($where), Sql::of('{} as g', $match)), $bucket->order), $bucket->expression)
             ->offset($slice['offset'])
-            ->limit($slice['limit']);
+            ->limit(max(0, min($slice['limit'], $this->grid->maxGroups() - $slice['offset'])));
         $this->where($rows, Sql::of(
             '{} in (select g from ({}) as tally_groups)',
-            $bucket->expression,
+            $match,
             new Sql($page->toSql(), $page->getBindings()),
         ));
+    }
+
+    private function groupMatch(Sql $bucket): Sql
+    {
+        return Sql::of("coalesce({}, '')", $this->dialect->text($bucket));
+    }
+
+    /**
+     * @param  list<Aggregate>  $aggregates
+     * @return list<Aggregate>
+     */
+    private static function uniqueAggregates(array $aggregates): array
+    {
+        $unique = [];
+        foreach ($aggregates as $aggregate) {
+            $unique[$aggregate->key()] = $aggregate;
+        }
+
+        return array_values($unique);
     }
 
     /**
@@ -341,7 +364,8 @@ final readonly class Adapter
             new Sql('count(*) as n'),
             ...$this->aggregateParts($aggregates),
         ], ', ');
-        $query = $this->ordered($this->groupBy($this->select($this->from($where), $select), $bucket->expression), $bucket->order);
+        $query = $this->ordered($this->groupBy($this->select($this->from($where), $select), $bucket->expression), $bucket->order)
+            ->limit($this->grid->maxGroups());
         $kind = $bucket->target->type->kind;
 
         return array_map(function (array $row) use ($aggregates, $kind): array {
@@ -401,7 +425,7 @@ final readonly class Adapter
     private function facets(array $ids, ?Sql $where): stdClass
     {
         $out = new stdClass;
-        foreach ($ids as $id) {
+        foreach (array_unique($ids) as $id) {
             $target = $this->compiler->target($id);
             $kind = $target?->type->kind;
             if ($target?->type->facet === FacetKind::Histogram && ($kind === Kind::Number || $kind === Kind::Date)) {

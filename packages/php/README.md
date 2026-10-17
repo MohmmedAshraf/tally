@@ -50,11 +50,12 @@ Columns use the same shape as `createSchema` in `tally-core` and are sent to the
 | `types()`      | `[]`                 | Extra `ColumnType` instances for custom column types.                                          |
 | `dialect()`    | from the driver      | `SqliteDialect`, `PostgresDialect`, `MysqlDialect` or your own `Dialect`.                      |
 | `pagination()` | `Pagination::Offset` | `Offset` or `Cursor`. Cursors are opaque and encode the offset.                                |
-| `maxLimit()`   | `1000`               | Page sizes above this are clamped.                                                             |
+| `maxLimit()`   | `1000`               | Page sizes above this are clamped. Requests without a page return at most this many rows.      |
 | `mutable()`    | `true`               | `false` refuses `PATCH /rows`.                                                                 |
 | `today()`      | today                | ISO date that relative ranges such as `last 30 days` resolve against.                          |
 | `bins()`       | `20`                 | Histogram bins.                                                                                |
 | `maxTerms()`   | `50`                 | Terms facet size.                                                                              |
+| `maxGroups()`  | `1000`               | Group summaries are cut to the first this many groups, and pages past them are empty.          |
 
 Every request is validated against the `tally-protocol` JSON Schema and then against the grid's columns before any SQL runs.
 
@@ -68,6 +69,7 @@ The adapter passes the `tally-protocol` conformance suite on SQLite, Postgres an
 - Date groups bucket to `YYYY-MM-DD`, ISO Monday weeks, `YYYY-MM`, `YYYY-Qn` or `YYYY`.
 - Search matches the stored value of searchable columns, not the formatted text.
 - Group order follows the sort on the group column when there is one, otherwise option or natural order, newest dates first.
+- Empty values form one group, `NULL` and `''` alike, which sorts last and pages like any other group.
 
 ### Dialects
 

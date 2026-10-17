@@ -84,6 +84,11 @@ abstract class Grid
         return 50;
     }
 
+    public function maxGroups(): int
+    {
+        return 1000;
+    }
+
     public function today(): string
     {
         return Date::today()->toDateString();

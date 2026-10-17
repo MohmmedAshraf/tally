@@ -115,10 +115,11 @@ final readonly class Compiler
             if ($target === null) {
                 continue;
             }
+            $value = $target->with($this->present($target));
             $parts[] = new Order($this->isEmpty($target), Direction::Asc);
-            $parts[] = new Order($this->rank($target), $sort->direction);
+            $parts[] = new Order($this->rank($value), $sort->direction);
             if ($target->type->kind === Kind::Enum) {
-                $parts[] = new Order($target->ref, $sort->direction);
+                $parts[] = new Order($value->ref, $sort->direction);
             }
         }
 
@@ -134,7 +135,7 @@ final readonly class Compiler
         $isDate = $target->type->kind === Kind::Date;
         $expression = $isDate
             ? $this->dialect->dateBucket($target->ref, $group->granularity ?? Granularity::Month)
-            : $target->ref;
+            : $this->present($target);
         $direction = $isDate ? Direction::Desc : Direction::Asc;
         foreach ($sorts as $sort) {
             if ($sort->column === $target->column->id) {

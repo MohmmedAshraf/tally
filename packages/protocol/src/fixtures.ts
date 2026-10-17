@@ -38,7 +38,7 @@ const ACCOUNTS = [
   'Lumen',
 ]
 
-const OWNERS = ['Mona', 'Omar', 'Lena', null, 'Yusuf']
+const OWNERS = ['Mona', 'Omar', 'Lena', null, 'Yusuf', '']
 
 const PLANS = ['free', 'pro', 'team', 'pro', 'free', 'team', null]
 
