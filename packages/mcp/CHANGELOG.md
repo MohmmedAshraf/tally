@@ -1,1 +1,1 @@
-# tally-mcp
+# tally-mcp-server

@@ -1,4 +1,4 @@
-# tally-mcp
+# tally-mcp-server
 
 An MCP server that teaches coding agents Tally. It serves every package guide as a resource, maps a change in plain words to the extension point that owns it, parses query text, validates protocol requests and infers a schema from data. Add it once and an agent working in your codebase knows where each change goes.
 
@@ -7,7 +7,7 @@ Not published yet.
 ## Install
 
 ```sh
-claude mcp add tally -- npx tally-mcp
+claude mcp add tally -- npx tally-mcp-server
 ```
 
 Any MCP client works. The server speaks stdio:
@@ -15,7 +15,7 @@ Any MCP client works. The server speaks stdio:
 ```json
 {
   "mcpServers": {
-    "tally": { "command": "npx", "args": ["tally-mcp"] }
+    "tally": { "command": "npx", "args": ["tally-mcp-server"] }
   }
 }
 ```
@@ -51,7 +51,7 @@ The guides are the package READMEs, copied at build time, so they never drift fr
 ## Embedding
 
 ```ts
-import { createTallyServer } from 'tally-mcp'
+import { createTallyServer } from 'tally-mcp-server'
 
 const server = createTallyServer({ guides: { core: coreReadme, react: reactReadme } })
 await server.connect(transport)

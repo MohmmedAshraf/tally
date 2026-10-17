@@ -213,6 +213,9 @@
         },
         "rollup": {
           "type": "boolean"
+        },
+        "ai": {
+          "type": "boolean"
         }
       },
       "required": [

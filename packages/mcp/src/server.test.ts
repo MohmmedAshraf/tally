@@ -51,7 +51,7 @@ function contentOf(result: { contents: readonly ({ text: string } | { blob: stri
   return first !== undefined && 'text' in first ? first.text : ''
 }
 
-describe('tally-mcp', () => {
+describe('tally-mcp-server', () => {
   it('lists guides and schemas as resources', async () => {
     const client = await connect()
     const listed = await client.listResources()

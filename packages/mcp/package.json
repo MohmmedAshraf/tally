@@ -1,5 +1,5 @@
 {
-  "name": "tally-mcp",
+  "name": "tally-mcp-server",
   "version": "0.0.0",
   "description": "MCP server that teaches coding agents Tally: guides, extension points, query parsing, request validation and schema inference.",
   "license": "MIT",
@@ -28,7 +28,7 @@
     "./package.json": "./package.json"
   },
   "bin": {
-    "tally-mcp": "./dist/bin.js"
+    "tally-mcp-server": "./dist/bin.js"
   },
   "files": [
     "dist"
@@ -67,7 +67,7 @@
   },
   "size-limit": [
     {
-      "name": "tally-mcp",
+      "name": "tally-mcp-server",
       "path": "dist/index.js",
       "limit": "12 kB",
       "ignore": [
