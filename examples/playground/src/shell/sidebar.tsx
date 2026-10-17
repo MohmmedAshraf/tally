@@ -1,4 +1,4 @@
-import { ChevronsUpDown, RotateCcw, Search, Settings2, Trash2 } from 'lucide-react'
+import { ChevronDown, RotateCcw, Search, Settings, Trash2 } from 'lucide-react'
 import type { ReactNode } from 'react'
 import {
   ContextMenu,
@@ -19,6 +19,7 @@ import {
   SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarSeparator,
 } from '@/components/ui/sidebar'
 import { datasets, type Dataset, type SavedView } from '@/datasets'
 import { PEOPLE } from '@/datasets/shared'
@@ -70,11 +71,9 @@ function ViewItem({
 }): ReactNode {
   const button = (
     <SidebarMenuButton isActive={active} tooltip={view.name} onClick={() => onPickView(view)}>
-      <span
-        className="size-2 shrink-0 rounded-[3px]"
-        style={{ background: viewColor(index) }}
-        aria-hidden
-      />
+      <span className="flex size-4 shrink-0 items-center justify-center" aria-hidden>
+        <span className="size-2 rounded-full" style={{ background: viewColor(index) }} />
+      </span>
       <span>{view.name}</span>
     </SidebarMenuButton>
   )
@@ -115,13 +114,16 @@ export function AppSidebar(props: AppSidebarProps): ReactNode {
                 <span className="truncate font-semibold">Meridian</span>
                 <span className="truncate text-xs text-muted-foreground">Revenue workspace</span>
               </div>
-              <ChevronsUpDown className="ml-auto" />
+              <ChevronDown className="ml-auto" />
             </SidebarMenuButton>
           </SidebarMenuItem>
+        </SidebarMenu>
+        <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
+              variant="outline"
               tooltip="Search"
-              className="bg-background shadow-[0_0_0_1px_var(--border)] hover:bg-background"
+              className="h-9 text-muted-foreground"
               onClick={onSearch}
             >
               <Search />
@@ -145,7 +147,7 @@ export function AppSidebar(props: AppSidebarProps): ReactNode {
                     <dataset.icon />
                     <span>{dataset.title}</span>
                   </SidebarMenuButton>
-                  <SidebarMenuBadge className="font-mono">
+                  <SidebarMenuBadge className="font-mono text-muted-foreground">
                     {compact(dataset.rows.length, locale)}
                   </SidebarMenuBadge>
                 </SidebarMenuItem>
@@ -176,13 +178,16 @@ export function AppSidebar(props: AppSidebarProps): ReactNode {
           <SidebarMenuItem>
             <SettingsMenu {...props}>
               <SidebarMenuButton tooltip="Settings">
-                <Settings2 />
+                <Settings />
                 <span>Settings</span>
               </SidebarMenuButton>
             </SettingsMenu>
           </SidebarMenuItem>
+        </SidebarMenu>
+        <SidebarSeparator />
+        <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" className="border-t border-sidebar-border pt-3">
+            <SidebarMenuButton size="lg">
               <Photo id="amara" />
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{PEOPLE.amara}</span>

@@ -23,9 +23,9 @@ const PAGINATIONS: readonly Pagination[] = ['none', 'offset', 'cursor']
 
 function Row({ label, children }: { readonly label: string; readonly children: ReactNode }) {
   return (
-    <div className="flex items-center justify-between gap-4">
-      <Label>{label}</Label>
-      {children}
+    <div className="flex h-9 items-center justify-between gap-3 px-2">
+      <Label className="shrink-0 font-normal">{label}</Label>
+      <div className="flex min-w-0 flex-1 justify-end">{children}</div>
     </div>
   )
 }
@@ -39,19 +39,30 @@ export function SettingsMenu({
   return (
     <Popover>
       <PopoverTrigger render={children} />
-      <PopoverContent align="end">
+      <PopoverContent
+        side="top"
+        align="start"
+        sideOffset={6}
+        className="w-(--anchor-width) gap-0.5 p-1.5"
+      >
         <Row label="Direction">
           <ToggleGroup
             variant="outline"
             size="sm"
+            spacing={0}
+            className="w-full"
             value={[settings.dir]}
             onValueChange={(value) => {
               const next = value[0]
               if (next === 'ltr' || next === 'rtl') onSettings({ dir: next satisfies Direction })
             }}
           >
-            <ToggleGroupItem value="ltr">LTR</ToggleGroupItem>
-            <ToggleGroupItem value="rtl">RTL</ToggleGroupItem>
+            <ToggleGroupItem value="ltr" className="flex-1">
+              LTR
+            </ToggleGroupItem>
+            <ToggleGroupItem value="rtl" className="flex-1">
+              RTL
+            </ToggleGroupItem>
           </ToggleGroup>
         </Row>
         <Row label="Locale">
@@ -62,7 +73,7 @@ export function SettingsMenu({
               if (next !== undefined) onSettings({ locale: next })
             }}
           >
-            <SelectTrigger size="sm">
+            <SelectTrigger size="sm" className="w-full">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -78,6 +89,8 @@ export function SettingsMenu({
           <ToggleGroup
             variant="outline"
             size="sm"
+            spacing={0}
+            className="w-full"
             value={[remote ? settings.transport : 'array']}
             onValueChange={(value) => {
               const next = value[0]
@@ -86,29 +99,34 @@ export function SettingsMenu({
               }
             }}
           >
-            <ToggleGroupItem value="array">Array</ToggleGroupItem>
-            <ToggleGroupItem value="http" disabled={!remote}>
+            <ToggleGroupItem value="array" className="flex-1">
+              Array
+            </ToggleGroupItem>
+            <ToggleGroupItem value="http" disabled={!remote} className="flex-1">
               HTTP
             </ToggleGroupItem>
           </ToggleGroup>
         </Row>
         <Row label="Pagination">
-          <ToggleGroup
-            variant="outline"
-            size="sm"
-            value={[settings.pagination]}
+          <Select
+            value={settings.pagination}
             disabled={settings.transport === 'http' && remote}
             onValueChange={(value) => {
-              const next = PAGINATIONS.find((entry) => entry === value[0])
+              const next = PAGINATIONS.find((entry) => entry === value)
               if (next !== undefined) onSettings({ pagination: next })
             }}
           >
-            {PAGINATIONS.map((pagination) => (
-              <ToggleGroupItem key={pagination} value={pagination} className="capitalize">
-                {pagination}
-              </ToggleGroupItem>
-            ))}
-          </ToggleGroup>
+            <SelectTrigger size="sm" className="w-full capitalize">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {PAGINATIONS.map((pagination) => (
+                <SelectItem key={pagination} value={pagination} className="capitalize">
+                  {pagination}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </Row>
         <Row label="Phone frame">
           <Switch
