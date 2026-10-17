@@ -38,14 +38,15 @@
     "provenance": true
   },
   "scripts": {
-    "build": "tsdown && node scripts/emit-schemas.ts",
+    "build": "tsdown && node scripts/emit-schemas.ts && node scripts/export-php.ts",
     "dev": "tsdown --watch",
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run --passWithNoTests --coverage.enabled=false",
     "publint": "publint",
     "attw": "attw --pack . --profile esm-only",
     "size": "size-limit",
-    "schemas": "node scripts/emit-schemas.ts"
+    "schemas": "node scripts/emit-schemas.ts",
+    "php": "node scripts/export-php.ts"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "catalog:",

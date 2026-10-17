@@ -1,0 +1,94 @@
+name: PHP
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: packages/php
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.4', '8.5']
+    steps:
+      - uses: actions/checkout@v7
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: pdo_sqlite
+          coverage: none
+      - uses: ramsey/composer-install@v4
+        with:
+          working-directory: packages/php
+      - run: composer check
+
+  databases:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - connection: pgsql
+            port: 5432
+            username: postgres
+          - connection: mysql
+            port: 3306
+            username: root
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: tally
+          POSTGRES_DB: tally
+        ports: ['5432:5432']
+        options: --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: tally
+          MYSQL_DATABASE: tally
+        ports: ['3306:3306']
+        options: --health-cmd "mysqladmin ping -ptally" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DB_CONNECTION: ${{ matrix.connection }}
+      DB_PORT: ${{ matrix.port }}
+      DB_USERNAME: ${{ matrix.username }}
+      DB_PASSWORD: tally
+      DB_DATABASE: tally
+    steps:
+      - uses: actions/checkout@v7
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: pdo_pgsql, pdo_mysql
+          coverage: none
+      - uses: ramsey/composer-install@v4
+        with:
+          working-directory: packages/php
+      - run: vendor/bin/pest
+
+  generated:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+        working-directory: .
+      - run: pnpm turbo run build --filter tally-protocol
+        working-directory: .
+      - run: git add --intent-to-add packages/php && git diff --exit-code -- packages/php/resources packages/php/tests/Fixtures
+        working-directory: .

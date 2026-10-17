@@ -1,0 +1,13 @@
+includes:
+  - vendor/larastan/larastan/extension.neon
+
+parameters:
+  level: max
+  paths:
+    - src
+  ignoreErrors:
+    -
+      identifier: argument.type
+      message: '#^Parameter \#1 \$value of class Illuminate\\Database\\Query\\Expression constructor expects#'
+      path: src/Sql/Sql.php
+      count: 1

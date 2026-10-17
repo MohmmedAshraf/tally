@@ -1,0 +1,75 @@
+{
+  "name": "tally/laravel",
+  "description": "Serves the Tally Query Protocol from Eloquent and the Laravel query builder.",
+  "keywords": [
+    "tally",
+    "laravel",
+    "eloquent",
+    "data grid",
+    "table"
+  ],
+  "homepage": "https://github.com/MohmmedAshraf/tally",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Mohamed Ashraf",
+      "email": "cupo.ashraf@gmail.com",
+      "homepage": "https://outhebox.dev"
+    }
+  ],
+  "support": {
+    "issues": "https://github.com/MohmmedAshraf/tally/issues",
+    "source": "https://github.com/MohmmedAshraf/tally"
+  },
+  "require": {
+    "php": "^8.4",
+    "illuminate/contracts": "^13.37",
+    "illuminate/database": "^13.37",
+    "illuminate/http": "^13.37",
+    "illuminate/routing": "^13.37",
+    "illuminate/support": "^13.37",
+    "opis/json-schema": "^2.6"
+  },
+  "require-dev": {
+    "larastan/larastan": "^3.13",
+    "laravel/pint": "^1.32",
+    "orchestra/testbench": "^11.3",
+    "pestphp/pest": "^5.3"
+  },
+  "autoload": {
+    "psr-4": {
+      "Tally\\Laravel\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tally\\Laravel\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "format": "pint",
+    "lint": "pint --test",
+    "analyse": "phpstan analyse --memory-limit=1G",
+    "test": "pest",
+    "check": [
+      "@lint",
+      "@analyse",
+      "@test"
+    ]
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Tally\\Laravel\\TallyServiceProvider"
+      ]
+    }
+  },
+  "config": {
+    "sort-packages": true,
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true
+}

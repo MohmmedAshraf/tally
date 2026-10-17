@@ -1,0 +1,7318 @@
+{
+  "today": "2026-03-15",
+  "key": "id",
+  "columns": [
+    {
+      "id": "id",
+      "type": "id"
+    },
+    {
+      "id": "account",
+      "type": "text"
+    },
+    {
+      "id": "owner",
+      "type": "person"
+    },
+    {
+      "id": "plan",
+      "type": "enum",
+      "options": [
+        {
+          "value": "free"
+        },
+        {
+          "value": "pro"
+        },
+        {
+          "value": "team"
+        }
+      ]
+    },
+    {
+      "id": "mrr",
+      "type": "currency",
+      "aggregate": "sum"
+    },
+    {
+      "id": "seats",
+      "type": "int"
+    },
+    {
+      "id": "score",
+      "type": "number"
+    },
+    {
+      "id": "growth",
+      "type": "percent"
+    },
+    {
+      "id": "health",
+      "type": "bar"
+    },
+    {
+      "id": "renewal",
+      "type": "date"
+    },
+    {
+      "id": "active",
+      "type": "bool"
+    },
+    {
+      "id": "email",
+      "type": "email"
+    },
+    {
+      "id": "website",
+      "type": "url"
+    },
+    {
+      "id": "tenure",
+      "type": "duration"
+    }
+  ],
+  "rows": [
+    {
+      "id": "acc_001",
+      "account": "acme",
+      "owner": "Mona",
+      "plan": "free",
+      "mrr": null,
+      "seats": null,
+      "score": null,
+      "growth": null,
+      "health": null,
+      "renewal": null,
+      "active": null,
+      "email": "",
+      "website": null,
+      "tenure": null
+    },
+    {
+      "id": "acc_002",
+      "account": "Beacon",
+      "owner": "Omar",
+      "plan": "pro",
+      "mrr": 925,
+      "seats": 8,
+      "score": 5.3,
+      "growth": -0.071,
+      "health": 13,
+      "renewal": "2025-06-24",
+      "active": true,
+      "email": "beacon1@example.com",
+      "website": "https://beacon.example",
+      "tenure": 97
+    },
+    {
+      "id": "acc_003",
+      "account": "cobalt",
+      "owner": "Lena",
+      "plan": "team",
+      "mrr": 600,
+      "seats": 15,
+      "score": 10.6,
+      "growth": -0.042,
+      "health": 26,
+      "renewal": "2025-07-17",
+      "active": true,
+      "email": "cobalt2@example.com",
+      "website": "https://cobalt.example",
+      "tenure": 194
+    },
+    {
+      "id": "acc_004",
+      "account": "Delta",
+      "owner": null,
+      "plan": "pro",
+      "mrr": 275,
+      "seats": 22,
+      "score": 15.9,
+      "growth": -0.013,
+      "health": 39,
+      "renewal": "2025-08-09",
+      "active": false,
+      "email": "delta3@example.com",
+      "website": "https://delta.example",
+      "tenure": 291
+    },
+    {
+      "id": "acc_005",
+      "account": "echo",
+      "owner": "Yusuf",
+      "plan": "free",
+      "mrr": 1200,
+      "seats": 29,
+      "score": 21.2,
+      "growth": 0.016,
+      "health": 52,
+      "renewal": "2025-09-01",
+      "active": true,
+      "email": "echo4@example.com",
+      "website": "https://echo.example",
+      "tenure": 388
+    },
+    {
+      "id": "acc_006",
+      "account": "Fjord",
+      "owner": "Mona",
+      "plan": "team",
+      "mrr": 875,
+      "seats": 36,
+      "score": 26.5,
+      "growth": 0.045,
+      "health": 65,
+      "renewal": "2025-09-24",
+      "active": true,
+      "email": "fjord5@example.com",
+      "website": null,
+      "tenure": 485
+    },
+    {
+      "id": "acc_007",
+      "account": "gamma",
+      "owner": "Omar",
+      "plan": null,
+      "mrr": 550,
+      "seats": 3,
+      "score": null,
+      "growth": 0.074,
+      "health": 78,
+      "renewal": "2025-10-17",
+      "active": false,
+      "email": "gamma6@example.com",
+      "website": "https://gamma.example",
+      "tenure": 582
+    },
+    {
+      "id": "acc_008",
+      "account": "Helix",
+      "owner": "Lena",
+      "plan": "free",
+      "mrr": 225,
+      "seats": 10,
+      "score": 37.1,
+      "growth": -0.097,
+      "health": 91,
+      "renewal": null,
+      "active": true,
+      "email": "helix7@example.com",
+      "website": "https://helix.example",
+      "tenure": 679
+    },
+    {
+      "id": "acc_009",
+      "account": "ion",
+      "owner": null,
+      "plan": "pro",
+      "mrr": 1150,
+      "seats": 17,
+      "score": 42.4,
+      "growth": null,
+      "health": 3,
+      "renewal": "2025-12-02",
+      "active": true,
+      "email": "ion8@example.com",
+      "website": "https://ion.example",
+      "tenure": 776
+    },
+    {
+      "id": "acc_010",
+      "account": "Juno",
+      "owner": "Yusuf",
+      "plan": "team",
+      "mrr": null,
+      "seats": 24,
+      "score": 47.7,
+      "growth": -0.039,
+      "health": 16,
+      "renewal": "2025-12-25",
+      "active": null,
+      "email": "juno9@example.com",
+      "website": "https://juno.example",
+      "tenure": 873
+    },
+    {
+      "id": "acc_011",
+      "account": "kilo",
+      "owner": "Mona",
+      "plan": "pro",
+      "mrr": 500,
+      "seats": 31,
+      "score": 53,
+      "growth": -0.01,
+      "health": null,
+      "renewal": "2026-01-17",
+      "active": true,
+      "email": "kilo10@example.com",
+      "website": null,
+      "tenure": 970
+    },
+    {
+      "id": "acc_012",
+      "account": "Lumen",
+      "owner": "Omar",
+      "plan": "free",
+      "mrr": 175,
+      "seats": null,
+      "score": 58.3,
+      "growth": 0.019,
+      "health": 42,
+      "renewal": "2026-02-09",
+      "active": true,
+      "email": "lumen11@example.com",
+      "website": "https://lumen.example",
+      "tenure": 1067
+    },
+    {
+      "id": "acc_013",
+      "account": "acme",
+      "owner": "Lena",
+      "plan": "team",
+      "mrr": 1100,
+      "seats": 5,
+      "score": null,
+      "growth": 0.048,
+      "health": 55,
+      "renewal": "2026-03-04",
+      "active": false,
+      "email": "acme12@example.com",
+      "website": "https://acme.example",
+      "tenure": null
+    },
+    {
+      "id": "acc_014",
+      "account": "Beacon",
+      "owner": null,
+      "plan": null,
+      "mrr": 775,
+      "seats": 12,
+      "score": 68.9,
+      "growth": 0.077,
+      "health": 68,
+      "renewal": "2026-03-27",
+      "active": true,
+      "email": "",
+      "website": "https://beacon.example",
+      "tenure": 1261
+    },
+    {
+      "id": "acc_015",
+      "account": "cobalt",
+      "owner": "Yusuf",
+      "plan": "free",
+      "mrr": 450,
+      "seats": 19,
+      "score": 74.2,
+      "growth": -0.094,
+      "health": 81,
+      "renewal": null,
+      "active": true,
+      "email": "cobalt14@example.com",
+      "website": "https://cobalt.example",
+      "tenure": 1358
+    },
+    {
+      "id": "acc_016",
+      "account": "Delta",
+      "owner": "Mona",
+      "plan": "pro",
+      "mrr": 125,
+      "seats": 26,
+      "score": 79.5,
+      "growth": -0.065,
+      "health": 94,
+      "renewal": "2026-05-12",
+      "active": false,
+      "email": "delta15@example.com",
+      "website": null,
+      "tenure": 1455
+    },
+    {
+      "id": "acc_017",
+      "account": "echo",
+      "owner": "Omar",
+      "plan": "team",
+      "mrr": 1050,
+      "seats": 33,
+      "score": 84.8,
+      "growth": null,
+      "health": 6,
+      "renewal": "2026-06-04",
+      "active": true,
+      "email": "echo16@example.com",
+      "website": "https://echo.example",
+      "tenure": 1552
+    },
+    {
+      "id": "acc_018",
+      "account": "Fjord",
+      "owner": "Lena",
+      "plan": "pro",
+      "mrr": 725,
+      "seats": 40,
+      "score": 90.1,
+      "growth": -0.007,
+      "health": 19,
+      "renewal": "2026-06-27",
+      "active": true,
+      "email": "fjord17@example.com",
+      "website": "https://fjord.example",
+      "tenure": 1649
+    },
+    {
+      "id": "acc_019",
+      "account": "gamma",
+      "owner": null,
+      "plan": "free",
+      "mrr": null,
+      "seats": 7,
+      "score": null,
+      "growth": 0.022,
+      "health": 32,
+      "renewal": "2026-07-20",
+      "active": null,
+      "email": "gamma18@example.com",
+      "website": "https://gamma.example",
+      "tenure": 1746
+    },
+    {
+      "id": "acc_020",
+      "account": "Helix",
+      "owner": "Yusuf",
+      "plan": "team",
+      "mrr": 75,
+      "seats": 14,
+      "score": 0.7,
+      "growth": 0.051,
+      "health": 45,
+      "renewal": "2026-08-12",
+      "active": true,
+      "email": "helix19@example.com",
+      "website": "https://helix.example",
+      "tenure": 1843
+    },
+    {
+      "id": "acc_021",
+      "account": "ion",
+      "owner": "Mona",
+      "plan": null,
+      "mrr": 1000,
+      "seats": 21,
+      "score": 6,
+      "growth": 0.08,
+      "health": null,
+      "renewal": "2026-09-04",
+      "active": true,
+      "email": "ion20@example.com",
+      "website": null,
+      "tenure": 1940
+    },
+    {
+      "id": "acc_022",
+      "account": "Juno",
+      "owner": "Omar",
+      "plan": "free",
+      "mrr": 675,
+      "seats": 28,
+      "score": 11.3,
+      "growth": -0.091,
+      "health": 71,
+      "renewal": null,
+      "active": false,
+      "email": "juno21@example.com",
+      "website": "https://juno.example",
+      "tenure": 2037
+    },
+    {
+      "id": "acc_023",
+      "account": "kilo",
+      "owner": "Lena",
+      "plan": "pro",
+      "mrr": 350,
+      "seats": null,
+      "score": 16.6,
+      "growth": -0.062,
+      "health": 84,
+      "renewal": "2025-06-27",
+      "active": true,
+      "email": "kilo22@example.com",
+      "website": "https://kilo.example",
+      "tenure": 2134
+    },
+    {
+      "id": "acc_024",
+      "account": "Lumen",
+      "owner": null,
+      "plan": "team",
+      "mrr": 25,
+      "seats": 2,
+      "score": 21.9,
+      "growth": -0.033,
+      "health": 97,
+      "renewal": "2025-07-20",
+      "active": true,
+      "email": "lumen23@example.com",
+      "website": "https://lumen.example",
+      "tenure": 2231
+    },
+    {
+      "id": "acc_025",
+      "account": "acme",
+      "owner": "Yusuf",
+      "plan": "pro",
+      "mrr": 950,
+      "seats": 9,
+      "score": null,
+      "growth": null,
+      "health": 9,
+      "renewal": "2025-08-12",
+      "active": false,
+      "email": "acme24@example.com",
+      "website": "https://acme.example",
+      "tenure": null
+    },
+    {
+      "id": "acc_026",
+      "account": "Beacon",
+      "owner": "Mona",
+      "plan": "free",
+      "mrr": 625,
+      "seats": 16,
+      "score": 32.5,
+      "growth": 0.025,
+      "health": 22,
+      "renewal": "2025-09-04",
+      "active": true,
+      "email": "beacon25@example.com",
+      "website": null,
+      "tenure": 2425
+    },
+    {
+      "id": "acc_027",
+      "account": "cobalt",
+      "owner": "Omar",
+      "plan": "team",
+      "mrr": 300,
+      "seats": 23,
+      "score": 37.8,
+      "growth": 0.054,
+      "health": 35,
+      "renewal": "2025-09-27",
+      "active": true,
+      "email": "",
+      "website": "https://cobalt.example",
+      "tenure": 2522
+    },
+    {
+      "id": "acc_028",
+      "account": "Delta",
+      "owner": "Lena",
+      "plan": null,
+      "mrr": null,
+      "seats": 30,
+      "score": 43.1,
+      "growth": 0.083,
+      "health": 48,
+      "renewal": "2025-10-20",
+      "active": null,
+      "email": "delta27@example.com",
+      "website": "https://delta.example",
+      "tenure": 2619
+    },
+    {
+      "id": "acc_029",
+      "account": "echo",
+      "owner": null,
+      "plan": "free",
+      "mrr": 900,
+      "seats": 37,
+      "score": 48.4,
+      "growth": -0.088,
+      "health": 61,
+      "renewal": null,
+      "active": true,
+      "email": "echo28@example.com",
+      "website": "https://echo.example",
+      "tenure": 2716
+    },
+    {
+      "id": "acc_030",
+      "account": "Fjord",
+      "owner": "Yusuf",
+      "plan": "pro",
+      "mrr": 575,
+      "seats": 4,
+      "score": 53.7,
+      "growth": -0.059,
+      "health": 74,
+      "renewal": "2025-12-05",
+      "active": true,
+      "email": "fjord29@example.com",
+      "website": "https://fjord.example",
+      "tenure": 2813
+    },
+    {
+      "id": "acc_031",
+      "account": "gamma",
+      "owner": "Mona",
+      "plan": "team",
+      "mrr": 250,
+      "seats": 11,
+      "score": null,
+      "growth": -0.03,
+      "health": null,
+      "renewal": "2025-12-28",
+      "active": false,
+      "email": "gamma30@example.com",
+      "website": null,
+      "tenure": 2910
+    },
+    {
+      "id": "acc_032",
+      "account": "Helix",
+      "owner": "Omar",
+      "plan": "pro",
+      "mrr": 1175,
+      "seats": 18,
+      "score": 64.3,
+      "growth": -0.001,
+      "health": 100,
+      "renewal": "2026-01-20",
+      "active": true,
+      "email": "helix31@example.com",
+      "website": "https://helix.example",
+      "tenure": 3007
+    },
+    {
+      "id": "acc_033",
+      "account": "ion",
+      "owner": "Lena",
+      "plan": "free",
+      "mrr": 850,
+      "seats": 25,
+      "score": 69.6,
+      "growth": null,
+      "health": 12,
+      "renewal": "2026-02-12",
+      "active": true,
+      "email": "ion32@example.com",
+      "website": "https://ion.example",
+      "tenure": 3104
+    },
+    {
+      "id": "acc_034",
+      "account": "Juno",
+      "owner": null,
+      "plan": "team",
+      "mrr": 525,
+      "seats": null,
+      "score": 74.9,
+      "growth": 0.057,
+      "health": 25,
+      "renewal": "2026-03-07",
+      "active": false,
+      "email": "juno33@example.com",
+      "website": "https://juno.example",
+      "tenure": 3201
+    },
+    {
+      "id": "acc_035",
+      "account": "kilo",
+      "owner": "Yusuf",
+      "plan": null,
+      "mrr": 200,
+      "seats": 39,
+      "score": 80.2,
+      "growth": 0.086,
+      "health": 38,
+      "renewal": "2026-03-30",
+      "active": true,
+      "email": "kilo34@example.com",
+      "website": "https://kilo.example",
+      "tenure": 3298
+    },
+    {
+      "id": "acc_036",
+      "account": "Lumen",
+      "owner": "Mona",
+      "plan": "free",
+      "mrr": 1125,
+      "seats": 6,
+      "score": 85.5,
+      "growth": -0.085,
+      "health": 51,
+      "renewal": null,
+      "active": true,
+      "email": "lumen35@example.com",
+      "website": null,
+      "tenure": 3395
+    },
+    {
+      "id": "acc_037",
+      "account": "acme",
+      "owner": "Omar",
+      "plan": "pro",
+      "mrr": null,
+      "seats": 13,
+      "score": null,
+      "growth": -0.056,
+      "health": 64,
+      "renewal": "2026-05-15",
+      "active": null,
+      "email": "acme36@example.com",
+      "website": "https://acme.example",
+      "tenure": null
+    },
+    {
+      "id": "acc_038",
+      "account": "Beacon",
+      "owner": "Lena",
+      "plan": "team",
+      "mrr": 475,
+      "seats": 20,
+      "score": 96.1,
+      "growth": -0.027,
+      "health": 77,
+      "renewal": "2026-06-07",
+      "active": true,
+      "email": "beacon37@example.com",
+      "website": "https://beacon.example",
+      "tenure": 3589
+    },
+    {
+      "id": "acc_039",
+      "account": "cobalt",
+      "owner": null,
+      "plan": "pro",
+      "mrr": 150,
+      "seats": 27,
+      "score": 1.4,
+      "growth": 0.002,
+      "health": 90,
+      "renewal": "2026-06-30",
+      "active": true,
+      "email": "cobalt38@example.com",
+      "website": "https://cobalt.example",
+      "tenure": 3686
+    },
+    {
+      "id": "acc_040",
+      "account": "Delta",
+      "owner": "Yusuf",
+      "plan": "free",
+      "mrr": 1075,
+      "seats": 34,
+      "score": 6.7,
+      "growth": 0.031,
+      "health": 2,
+      "renewal": "2026-07-23",
+      "active": false,
+      "email": "",
+      "website": "https://delta.example",
+      "tenure": 3783
+    },
+    {
+      "id": "acc_041",
+      "account": "echo",
+      "owner": "Mona",
+      "plan": "team",
+      "mrr": 750,
+      "seats": 1,
+      "score": 12,
+      "growth": null,
+      "health": null,
+      "renewal": "2026-08-15",
+      "active": true,
+      "email": "echo40@example.com",
+      "website": null,
+      "tenure": 3880
+    },
+    {
+      "id": "acc_042",
+      "account": "Fjord",
+      "owner": "Omar",
+      "plan": null,
+      "mrr": 425,
+      "seats": 8,
+      "score": 17.3,
+      "growth": 0.089,
+      "health": 28,
+      "renewal": "2026-09-07",
+      "active": true,
+      "email": "fjord41@example.com",
+      "website": "https://fjord.example",
+      "tenure": 3977
+    },
+    {
+      "id": "acc_043",
+      "account": "gamma",
+      "owner": "Lena",
+      "plan": "free",
+      "mrr": 100,
+      "seats": 15,
+      "score": null,
+      "growth": -0.082,
+      "health": 41,
+      "renewal": null,
+      "active": false,
+      "email": "gamma42@example.com",
+      "website": "https://gamma.example",
+      "tenure": 4074
+    },
+    {
+      "id": "acc_044",
+      "account": "Helix",
+      "owner": null,
+      "plan": "pro",
+      "mrr": 1025,
+      "seats": 22,
+      "score": 27.9,
+      "growth": -0.053,
+      "health": 54,
+      "renewal": "2025-06-30",
+      "active": true,
+      "email": "helix43@example.com",
+      "website": "https://helix.example",
+      "tenure": 4171
+    },
+    {
+      "id": "acc_045",
+      "account": "ion",
+      "owner": "Yusuf",
+      "plan": "team",
+      "mrr": 700,
+      "seats": null,
+      "score": 33.2,
+      "growth": -0.024,
+      "health": 67,
+      "renewal": "2025-07-23",
+      "active": true,
+      "email": "ion44@example.com",
+      "website": "https://ion.example",
+      "tenure": 4268
+    },
+    {
+      "id": "acc_046",
+      "account": "Juno",
+      "owner": "Mona",
+      "plan": "pro",
+      "mrr": null,
+      "seats": 36,
+      "score": 38.5,
+      "growth": 0.005,
+      "health": 80,
+      "renewal": "2025-08-15",
+      "active": null,
+      "email": "juno45@example.com",
+      "website": null,
+      "tenure": 4365
+    },
+    {
+      "id": "acc_047",
+      "account": "kilo",
+      "owner": "Omar",
+      "plan": "free",
+      "mrr": 50,
+      "seats": 3,
+      "score": 43.8,
+      "growth": 0.034,
+      "health": 93,
+      "renewal": "2025-09-07",
+      "active": true,
+      "email": "kilo46@example.com",
+      "website": "https://kilo.example",
+      "tenure": 4462
+    },
+    {
+      "id": "acc_048",
+      "account": "Lumen",
+      "owner": "Lena",
+      "plan": "team",
+      "mrr": 975,
+      "seats": 10,
+      "score": 49.1,
+      "growth": 0.063,
+      "health": 5,
+      "renewal": "2025-09-30",
+      "active": true,
+      "email": "lumen47@example.com",
+      "website": "https://lumen.example",
+      "tenure": 4559
+    },
+    {
+      "id": "acc_049",
+      "account": "acme",
+      "owner": null,
+      "plan": null,
+      "mrr": 650,
+      "seats": 17,
+      "score": null,
+      "growth": null,
+      "health": 18,
+      "renewal": "2025-10-23",
+      "active": false,
+      "email": "acme48@example.com",
+      "website": "https://acme.example",
+      "tenure": null
+    },
+    {
+      "id": "acc_050",
+      "account": "Beacon",
+      "owner": "Yusuf",
+      "plan": "free",
+      "mrr": 325,
+      "seats": 24,
+      "score": 59.7,
+      "growth": -0.079,
+      "health": 31,
+      "renewal": null,
+      "active": true,
+      "email": "beacon49@example.com",
+      "website": "https://beacon.example",
+      "tenure": 4753
+    },
+    {
+      "id": "acc_051",
+      "account": "cobalt",
+      "owner": "Mona",
+      "plan": "pro",
+      "mrr": 0,
+      "seats": 31,
+      "score": 65,
+      "growth": -0.05,
+      "health": null,
+      "renewal": "2025-12-08",
+      "active": true,
+      "email": "cobalt50@example.com",
+      "website": null,
+      "tenure": 4850
+    },
+    {
+      "id": "acc_052",
+      "account": "Delta",
+      "owner": "Omar",
+      "plan": "team",
+      "mrr": 925,
+      "seats": 38,
+      "score": 70.3,
+      "growth": -0.021,
+      "health": 57,
+      "renewal": "2025-12-31",
+      "active": false,
+      "email": "delta51@example.com",
+      "website": "https://delta.example",
+      "tenure": 4947
+    },
+    {
+      "id": "acc_053",
+      "account": "echo",
+      "owner": "Lena",
+      "plan": "pro",
+      "mrr": 600,
+      "seats": 5,
+      "score": 75.6,
+      "growth": 0.008,
+      "health": 70,
+      "renewal": "2026-01-23",
+      "active": true,
+      "email": "",
+      "website": "https://echo.example",
+      "tenure": 44
+    },
+    {
+      "id": "acc_054",
+      "account": "Fjord",
+      "owner": null,
+      "plan": "free",
+      "mrr": 275,
+      "seats": 12,
+      "score": 80.9,
+      "growth": 0.037,
+      "health": 83,
+      "renewal": "2026-02-15",
+      "active": true,
+      "email": "fjord53@example.com",
+      "website": "https://fjord.example",
+      "tenure": 141
+    },
+    {
+      "id": "acc_055",
+      "account": "gamma",
+      "owner": "Yusuf",
+      "plan": "team",
+      "mrr": null,
+      "seats": 19,
+      "score": null,
+      "growth": 0.066,
+      "health": 96,
+      "renewal": "2026-03-10",
+      "active": null,
+      "email": "gamma54@example.com",
+      "website": "https://gamma.example",
+      "tenure": 238
+    },
+    {
+      "id": "acc_056",
+      "account": "Helix",
+      "owner": "Mona",
+      "plan": null,
+      "mrr": 875,
+      "seats": null,
+      "score": 91.5,
+      "growth": 0.095,
+      "health": 8,
+      "renewal": "2026-04-02",
+      "active": true,
+      "email": "helix55@example.com",
+      "website": null,
+      "tenure": 335
+    },
+    {
+      "id": "acc_057",
+      "account": "ion",
+      "owner": "Omar",
+      "plan": "free",
+      "mrr": 550,
+      "seats": 33,
+      "score": 96.8,
+      "growth": null,
+      "health": 21,
+      "renewal": null,
+      "active": true,
+      "email": "ion56@example.com",
+      "website": "https://ion.example",
+      "tenure": 432
+    },
+    {
+      "id": "acc_058",
+      "account": "Juno",
+      "owner": "Lena",
+      "plan": "pro",
+      "mrr": 225,
+      "seats": 40,
+      "score": 2.1,
+      "growth": -0.047,
+      "health": 34,
+      "renewal": "2026-05-18",
+      "active": false,
+      "email": "juno57@example.com",
+      "website": "https://juno.example",
+      "tenure": 529
+    },
+    {
+      "id": "acc_059",
+      "account": "kilo",
+      "owner": null,
+      "plan": "team",
+      "mrr": 1150,
+      "seats": 7,
+      "score": 7.4,
+      "growth": -0.018,
+      "health": 47,
+      "renewal": "2026-06-10",
+      "active": true,
+      "email": "kilo58@example.com",
+      "website": "https://kilo.example",
+      "tenure": 626
+    },
+    {
+      "id": "acc_060",
+      "account": "Lumen",
+      "owner": "Yusuf",
+      "plan": "pro",
+      "mrr": 825,
+      "seats": 14,
+      "score": 12.7,
+      "growth": 0.011,
+      "health": 60,
+      "renewal": "2026-07-03",
+      "active": true,
+      "email": "lumen59@example.com",
+      "website": "https://lumen.example",
+      "tenure": 723
+    }
+  ],
+  "cases": [
+    {
+      "name": "all rows",
+      "requires": [],
+      "request": {
+        "version": 1,
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_001",
+          "acc_002",
+          "acc_003",
+          "acc_004",
+          "acc_005",
+          "acc_006",
+          "acc_007",
+          "acc_008",
+          "acc_009",
+          "acc_010",
+          "acc_011",
+          "acc_012",
+          "acc_013",
+          "acc_014",
+          "acc_015",
+          "acc_016",
+          "acc_017",
+          "acc_018",
+          "acc_019",
+          "acc_020",
+          "acc_021",
+          "acc_022",
+          "acc_023",
+          "acc_024",
+          "acc_025",
+          "acc_026",
+          "acc_027",
+          "acc_028",
+          "acc_029",
+          "acc_030",
+          "acc_031",
+          "acc_032",
+          "acc_033",
+          "acc_034",
+          "acc_035",
+          "acc_036",
+          "acc_037",
+          "acc_038",
+          "acc_039",
+          "acc_040",
+          "acc_041",
+          "acc_042",
+          "acc_043",
+          "acc_044",
+          "acc_045",
+          "acc_046",
+          "acc_047",
+          "acc_048",
+          "acc_049",
+          "acc_050",
+          "acc_051",
+          "acc_052",
+          "acc_053",
+          "acc_054",
+          "acc_055",
+          "acc_056",
+          "acc_057",
+          "acc_058",
+          "acc_059",
+          "acc_060"
+        ],
+        "total": 60,
+        "matched": 60
+      }
+    },
+    {
+      "name": "text eq ignores case",
+      "requires": [
+        "filter"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "condition",
+          "column": "account",
+          "op": "eq",
+          "value": "ACME"
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_001",
+          "acc_013",
+          "acc_025",
+          "acc_037",
+          "acc_049"
+        ],
+        "total": 60,
+        "matched": 5
+      }
+    },
+    {
+      "name": "text neq",
+      "requires": [
+        "filter"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "condition",
+          "column": "account",
+          "op": "neq",
+          "value": "acme"
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_002",
+          "acc_003",
+          "acc_004",
+          "acc_005",
+          "acc_006",
+          "acc_007",
+          "acc_008",
+          "acc_009",
+          "acc_010",
+          "acc_011",
+          "acc_012",
+          "acc_014",
+          "acc_015",
+          "acc_016",
+          "acc_017",
+          "acc_018",
+          "acc_019",
+          "acc_020",
+          "acc_021",
+          "acc_022",
+          "acc_023",
+          "acc_024",
+          "acc_026",
+          "acc_027",
+          "acc_028",
+          "acc_029",
+          "acc_030",
+          "acc_031",
+          "acc_032",
+          "acc_033",
+          "acc_034",
+          "acc_035",
+          "acc_036",
+          "acc_038",
+          "acc_039",
+          "acc_040",
+          "acc_041",
+          "acc_042",
+          "acc_043",
+          "acc_044",
+          "acc_045",
+          "acc_046",
+          "acc_047",
+          "acc_048",
+          "acc_050",
+          "acc_051",
+          "acc_052",
+          "acc_053",
+          "acc_054",
+          "acc_055",
+          "acc_056",
+          "acc_057",
+          "acc_058",
+          "acc_059",
+          "acc_060"
+        ],
+        "total": 60,
+        "matched": 55
+      }
+    },
+    {
+      "name": "text contains",
+      "requires": [
+        "filter"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "condition",
+          "column": "account",
+          "op": "contains",
+          "value": "O"
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_002",
+          "acc_003",
+          "acc_005",
+          "acc_006",
+          "acc_009",
+          "acc_010",
+          "acc_011",
+          "acc_014",
+          "acc_015",
+          "acc_017",
+          "acc_018",
+          "acc_021",
+          "acc_022",
+          "acc_023",
+          "acc_026",
+          "acc_027",
+          "acc_029",
+          "acc_030",
+          "acc_033",
+          "acc_034",
+          "acc_035",
+          "acc_038",
+          "acc_039",
+          "acc_041",
+          "acc_042",
+          "acc_045",
+          "acc_046",
+          "acc_047",
+          "acc_050",
+          "acc_051",
+          "acc_053",
+          "acc_054",
+          "acc_057",
+          "acc_058",
+          "acc_059"
+        ],
+        "total": 60,
+        "matched": 35
+      }
+    },
+    {
+      "name": "text notContains",
+      "requires": [
+        "filter"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "condition",
+          "column": "account",
+          "op": "notContains",
+          "value": "o"
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_001",
+          "acc_004",
+          "acc_007",
+          "acc_008",
+          "acc_012",
+          "acc_013",
+          "acc_016",
+          "acc_019",
+          "acc_020",
+          "acc_024",
+          "acc_025",
+          "acc_028",
+          "acc_031",
+          "acc_032",
+          "acc_036",
+          "acc_037",
+          "acc_040",
+          "acc_043",
+          "acc_044",
+          "acc_048",
+          "acc_049",
+          "acc_052",
+          "acc_055",
+          "acc_056",
+          "acc_060"
+        ],
+        "total": 60,
+        "matched": 25
+      }
+    },
+    {
+      "name": "text startsWith",
+      "requires": [
+        "filter"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "condition",
+          "column": "account",
+          "op": "startsWith",
+          "value": "de"
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_004",
+          "acc_016",
+          "acc_028",
+          "acc_040",
+          "acc_052"
+        ],
+        "total": 60,
+        "matched": 5
+      }
+    },
+    {
+      "name": "text endsWith",
+      "requires": [
+        "filter"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "condition",
+          "column": "account",
+          "op": "endsWith",
+          "value": "A"
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_004",
+          "acc_007",
+          "acc_016",
+          "acc_019",
+          "acc_028",
+          "acc_031",
+          "acc_040",
+          "acc_043",
+          "acc_052",
+          "acc_055"
+        ],
+        "total": 60,
+        "matched": 10
+      }
+    },
+    {
+      "name": "text in",
+      "requires": [
+        "filter"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "condition",
+          "column": "account",
+          "op": "in",
+          "value": [
+            "acme",
+            "KILO"
+          ]
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_001",
+          "acc_011",
+          "acc_013",
+          "acc_023",
+          "acc_025",
+          "acc_035",
+          "acc_037",
+          "acc_047",
+          "acc_049",
+          "acc_059"
+        ],
+        "total": 60,
+        "matched": 10
+      }
+    },
+    {
+      "name": "text notIn",
+      "requires": [
+        "filter"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "condition",
+          "column": "account",
+          "op": "notIn",
+          "value": [
+            "acme",
+            "kilo"
+          ]
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_002",
+          "acc_003",
+          "acc_004",
+          "acc_005",
+          "acc_006",
+          "acc_007",
+          "acc_008",
+          "acc_009",
+          "acc_010",
+          "acc_012",
+          "acc_014",
+          "acc_015",
+          "acc_016",
+          "acc_017",
+          "acc_018",
+          "acc_019",
+          "acc_020",
+          "acc_021",
+          "acc_022",
+          "acc_024",
+          "acc_026",
+          "acc_027",
+          "acc_028",
+          "acc_029",
+          "acc_030",
+          "acc_031",
+          "acc_032",
+          "acc_033",
+          "acc_034",
+          "acc_036",
+          "acc_038",
+          "acc_039",
+          "acc_040",
+          "acc_041",
+          "acc_042",
+          "acc_043",
+          "acc_044",
+          "acc_045",
+          "acc_046",
+          "acc_048",
+          "acc_050",
+          "acc_051",
+          "acc_052",
+          "acc_053",
+          "acc_054",
+          "acc_055",
+          "acc_056",
+          "acc_057",
+          "acc_058",
+          "acc_060"
+        ],
+        "total": 60,
+        "matched": 50
+      }
+    },
+    {
+      "name": "text empty treats blank as empty",
+      "requires": [
+        "filter"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "condition",
+          "column": "email",
+          "op": "empty"
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_001",
+          "acc_014",
+          "acc_027",
+          "acc_040",
+          "acc_053"
+        ],
+        "total": 60,
+        "matched": 5
+      }
+    },
+    {
+      "name": "text notEmpty",
+      "requires": [
+        "filter"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "condition",
+          "column": "email",
+          "op": "notEmpty"
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_002",
+          "acc_003",
+          "acc_004",
+          "acc_005",
+          "acc_006",
+          "acc_007",
+          "acc_008",
+          "acc_009",
+          "acc_010",
+          "acc_011",
+          "acc_012",
+          "acc_013",
+          "acc_015",
+          "acc_016",
+          "acc_017",
+          "acc_018",
+          "acc_019",
+          "acc_020",
+          "acc_021",
+          "acc_022",
+          "acc_023",
+          "acc_024",
+          "acc_025",
+          "acc_026",
+          "acc_028",
+          "acc_029",
+          "acc_030",
+          "acc_031",
+          "acc_032",
+          "acc_033",
+          "acc_034",
+          "acc_035",
+          "acc_036",
+          "acc_037",
+          "acc_038",
+          "acc_039",
+          "acc_041",
+          "acc_042",
+          "acc_043",
+          "acc_044",
+          "acc_045",
+          "acc_046",
+          "acc_047",
+          "acc_048",
+          "acc_049",
+          "acc_050",
+          "acc_051",
+          "acc_052",
+          "acc_054",
+          "acc_055",
+          "acc_056",
+          "acc_057",
+          "acc_058",
+          "acc_059",
+          "acc_060"
+        ],
+        "total": 60,
+        "matched": 55
+      }
+    },
+    {
+      "name": "person eq",
+      "requires": [
+        "filter"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "condition",
+          "column": "owner",
+          "op": "eq",
+          "value": "mona"
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_001",
+          "acc_006",
+          "acc_011",
+          "acc_016",
+          "acc_021",
+          "acc_026",
+          "acc_031",
+          "acc_036",
+          "acc_041",
+          "acc_046",
+          "acc_051",
+          "acc_056"
+        ],
+        "total": 60,
+        "matched": 12
+      }
+    },
+    {
+      "name": "number eq",
+      "requires": [
+        "filter"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "condition",
+          "column": "mrr",
+          "op": "eq",
+          "value": 250
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_031"
+        ],
+        "total": 60,
+        "matched": 1
+      }
+    },
+    {
+      "name": "number neq keeps nulls",
+      "requires": [
+        "filter"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "condition",
+          "column": "mrr",
+          "op": "neq",
+          "value": 250
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_001",
+          "acc_002",
+          "acc_003",
+          "acc_004",
+          "acc_005",
+          "acc_006",
+          "acc_007",
+          "acc_008",
+          "acc_009",
+          "acc_010",
+          "acc_011",
+          "acc_012",
+          "acc_013",
+          "acc_014",
+          "acc_015",
+          "acc_016",
+          "acc_017",
+          "acc_018",
+          "acc_019",
+          "acc_020",
+          "acc_021",
+          "acc_022",
+          "acc_023",
+          "acc_024",
+          "acc_025",
+          "acc_026",
+          "acc_027",
+          "acc_028",
+          "acc_029",
+          "acc_030",
+          "acc_032",
+          "acc_033",
+          "acc_034",
+          "acc_035",
+          "acc_036",
+          "acc_037",
+          "acc_038",
+          "acc_039",
+          "acc_040",
+          "acc_041",
+          "acc_042",
+          "acc_043",
+          "acc_044",
+          "acc_045",
+          "acc_046",
+          "acc_047",
+          "acc_048",
+          "acc_049",
+          "acc_050",
+          "acc_051",
+          "acc_052",
+          "acc_053",
+          "acc_054",
+          "acc_055",
+          "acc_056",
+          "acc_057",
+          "acc_058",
+          "acc_059",
+          "acc_060"
+        ],
+        "total": 60,
+        "matched": 59
+      }
+    },
+    {
+      "name": "number lt",
+      "requires": [
+        "filter"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "condition",
+          "column": "seats",
+          "op": "lt",
+          "value": 10
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_002",
+          "acc_007",
+          "acc_013",
+          "acc_019",
+          "acc_024",
+          "acc_025",
+          "acc_030",
+          "acc_036",
+          "acc_041",
+          "acc_042",
+          "acc_047",
+          "acc_053",
+          "acc_059"
+        ],
+        "total": 60,
+        "matched": 13
+      }
+    },
+    {
+      "name": "number lte",
+      "requires": [
+        "filter"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "condition",
+          "column": "seats",
+          "op": "lte",
+          "value": 10
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_002",
+          "acc_007",
+          "acc_008",
+          "acc_013",
+          "acc_019",
+          "acc_024",
+          "acc_025",
+          "acc_030",
+          "acc_036",
+          "acc_041",
+          "acc_042",
+          "acc_047",
+          "acc_048",
+          "acc_053",
+          "acc_059"
+        ],
+        "total": 60,
+        "matched": 15
+      }
+    },
+    {
+      "name": "number gt",
+      "requires": [
+        "filter"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "condition",
+          "column": "score",
+          "op": "gt",
+          "value": 50
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_011",
+          "acc_012",
+          "acc_014",
+          "acc_015",
+          "acc_016",
+          "acc_017",
+          "acc_018",
+          "acc_030",
+          "acc_032",
+          "acc_033",
+          "acc_034",
+          "acc_035",
+          "acc_036",
+          "acc_038",
+          "acc_050",
+          "acc_051",
+          "acc_052",
+          "acc_053",
+          "acc_054",
+          "acc_056",
+          "acc_057"
+        ],
+        "total": 60,
+        "matched": 21
+      }
+    },
+    {
+      "name": "number gte",
+      "requires": [
+        "filter"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "condition",
+          "column": "score",
+          "op": "gte",
+          "value": 50
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_011",
+          "acc_012",
+          "acc_014",
+          "acc_015",
+          "acc_016",
+          "acc_017",
+          "acc_018",
+          "acc_030",
+          "acc_032",
+          "acc_033",
+          "acc_034",
+          "acc_035",
+          "acc_036",
+          "acc_038",
+          "acc_050",
+          "acc_051",
+          "acc_052",
+          "acc_053",
+          "acc_054",
+          "acc_056",
+          "acc_057"
+        ],
+        "total": 60,
+        "matched": 21
+      }
+    },
+    {
+      "name": "number between",
+      "requires": [
+        "filter"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "condition",
+          "column": "health",
+          "op": "between",
+          "value": [
+            20,
+            60
+          ]
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_003",
+          "acc_004",
+          "acc_005",
+          "acc_012",
+          "acc_013",
+          "acc_019",
+          "acc_020",
+          "acc_026",
+          "acc_027",
+          "acc_028",
+          "acc_034",
+          "acc_035",
+          "acc_036",
+          "acc_042",
+          "acc_043",
+          "acc_044",
+          "acc_050",
+          "acc_052",
+          "acc_057",
+          "acc_058",
+          "acc_059",
+          "acc_060"
+        ],
+        "total": 60,
+        "matched": 22
+      }
+    },
+    {
+      "name": "number in",
+      "requires": [
+        "filter"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "condition",
+          "column": "seats",
+          "op": "in",
+          "value": [
+            1,
+            8,
+            15
+          ]
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_002",
+          "acc_003",
+          "acc_041",
+          "acc_042",
+          "acc_043"
+        ],
+        "total": 60,
+        "matched": 5
+      }
+    },
+    {
+      "name": "number notIn",
+      "requires": [
+        "filter"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "condition",
+          "column": "seats",
+          "op": "notIn",
+          "value": [
+            1,
+            8,
+            15
+          ]
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_001",
+          "acc_004",
+          "acc_005",
+          "acc_006",
+          "acc_007",
+          "acc_008",
+          "acc_009",
+          "acc_010",
+          "acc_011",
+          "acc_012",
+          "acc_013",
+          "acc_014",
+          "acc_015",
+          "acc_016",
+          "acc_017",
+          "acc_018",
+          "acc_019",
+          "acc_020",
+          "acc_021",
+          "acc_022",
+          "acc_023",
+          "acc_024",
+          "acc_025",
+          "acc_026",
+          "acc_027",
+          "acc_028",
+          "acc_029",
+          "acc_030",
+          "acc_031",
+          "acc_032",
+          "acc_033",
+          "acc_034",
+          "acc_035",
+          "acc_036",
+          "acc_037",
+          "acc_038",
+          "acc_039",
+          "acc_040",
+          "acc_044",
+          "acc_045",
+          "acc_046",
+          "acc_047",
+          "acc_048",
+          "acc_049",
+          "acc_050",
+          "acc_051",
+          "acc_052",
+          "acc_053",
+          "acc_054",
+          "acc_055",
+          "acc_056",
+          "acc_057",
+          "acc_058",
+          "acc_059",
+          "acc_060"
+        ],
+        "total": 60,
+        "matched": 55
+      }
+    },
+    {
+      "name": "number empty",
+      "requires": [
+        "filter"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "condition",
+          "column": "mrr",
+          "op": "empty"
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_001",
+          "acc_010",
+          "acc_019",
+          "acc_028",
+          "acc_037",
+          "acc_046",
+          "acc_055"
+        ],
+        "total": 60,
+        "matched": 7
+      }
+    },
+    {
+      "name": "number notEmpty",
+      "requires": [
+        "filter"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "condition",
+          "column": "mrr",
+          "op": "notEmpty"
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_002",
+          "acc_003",
+          "acc_004",
+          "acc_005",
+          "acc_006",
+          "acc_007",
+          "acc_008",
+          "acc_009",
+          "acc_011",
+          "acc_012",
+          "acc_013",
+          "acc_014",
+          "acc_015",
+          "acc_016",
+          "acc_017",
+          "acc_018",
+          "acc_020",
+          "acc_021",
+          "acc_022",
+          "acc_023",
+          "acc_024",
+          "acc_025",
+          "acc_026",
+          "acc_027",
+          "acc_029",
+          "acc_030",
+          "acc_031",
+          "acc_032",
+          "acc_033",
+          "acc_034",
+          "acc_035",
+          "acc_036",
+          "acc_038",
+          "acc_039",
+          "acc_040",
+          "acc_041",
+          "acc_042",
+          "acc_043",
+          "acc_044",
+          "acc_045",
+          "acc_047",
+          "acc_048",
+          "acc_049",
+          "acc_050",
+          "acc_051",
+          "acc_052",
+          "acc_053",
+          "acc_054",
+          "acc_056",
+          "acc_057",
+          "acc_058",
+          "acc_059",
+          "acc_060"
+        ],
+        "total": 60,
+        "matched": 53
+      }
+    },
+    {
+      "name": "percent lt negative",
+      "requires": [
+        "filter"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "condition",
+          "column": "growth",
+          "op": "lt",
+          "value": 0
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_002",
+          "acc_003",
+          "acc_004",
+          "acc_008",
+          "acc_010",
+          "acc_011",
+          "acc_015",
+          "acc_016",
+          "acc_018",
+          "acc_022",
+          "acc_023",
+          "acc_024",
+          "acc_029",
+          "acc_030",
+          "acc_031",
+          "acc_032",
+          "acc_036",
+          "acc_037",
+          "acc_038",
+          "acc_043",
+          "acc_044",
+          "acc_045",
+          "acc_050",
+          "acc_051",
+          "acc_052",
+          "acc_058",
+          "acc_059"
+        ],
+        "total": 60,
+        "matched": 27
+      }
+    },
+    {
+      "name": "date eq",
+      "requires": [
+        "filter"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "condition",
+          "column": "renewal",
+          "op": "eq",
+          "value": "2025-06-24"
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_002"
+        ],
+        "total": 60,
+        "matched": 1
+      }
+    },
+    {
+      "name": "date lt",
+      "requires": [
+        "filter"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "condition",
+          "column": "renewal",
+          "op": "lt",
+          "value": "2026-01-01"
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_002",
+          "acc_003",
+          "acc_004",
+          "acc_005",
+          "acc_006",
+          "acc_007",
+          "acc_009",
+          "acc_010",
+          "acc_023",
+          "acc_024",
+          "acc_025",
+          "acc_026",
+          "acc_027",
+          "acc_028",
+          "acc_030",
+          "acc_031",
+          "acc_044",
+          "acc_045",
+          "acc_046",
+          "acc_047",
+          "acc_048",
+          "acc_049",
+          "acc_051",
+          "acc_052"
+        ],
+        "total": 60,
+        "matched": 24
+      }
+    },
+    {
+      "name": "date gte",
+      "requires": [
+        "filter"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "condition",
+          "column": "renewal",
+          "op": "gte",
+          "value": "2026-01-01"
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_011",
+          "acc_012",
+          "acc_013",
+          "acc_014",
+          "acc_016",
+          "acc_017",
+          "acc_018",
+          "acc_019",
+          "acc_020",
+          "acc_021",
+          "acc_032",
+          "acc_033",
+          "acc_034",
+          "acc_035",
+          "acc_037",
+          "acc_038",
+          "acc_039",
+          "acc_040",
+          "acc_041",
+          "acc_042",
+          "acc_053",
+          "acc_054",
+          "acc_055",
+          "acc_056",
+          "acc_058",
+          "acc_059",
+          "acc_060"
+        ],
+        "total": 60,
+        "matched": 27
+      }
+    },
+    {
+      "name": "date between",
+      "requires": [
+        "filter"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "condition",
+          "column": "renewal",
+          "op": "between",
+          "value": [
+            "2025-10-01",
+            "2025-12-31"
+          ]
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_007",
+          "acc_009",
+          "acc_010",
+          "acc_028",
+          "acc_030",
+          "acc_031",
+          "acc_049",
+          "acc_051",
+          "acc_052"
+        ],
+        "total": 60,
+        "matched": 9
+      }
+    },
+    {
+      "name": "date empty",
+      "requires": [
+        "filter"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "condition",
+          "column": "renewal",
+          "op": "empty"
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_001",
+          "acc_008",
+          "acc_015",
+          "acc_022",
+          "acc_029",
+          "acc_036",
+          "acc_043",
+          "acc_050",
+          "acc_057"
+        ],
+        "total": 60,
+        "matched": 9
+      }
+    },
+    {
+      "name": "date within last 90 days",
+      "requires": [
+        "filter"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "condition",
+          "column": "renewal",
+          "op": "within",
+          "value": {
+            "direction": "last",
+            "amount": 90,
+            "unit": "day"
+          }
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_010",
+          "acc_011",
+          "acc_012",
+          "acc_013",
+          "acc_031",
+          "acc_032",
+          "acc_033",
+          "acc_034",
+          "acc_052",
+          "acc_053",
+          "acc_054",
+          "acc_055"
+        ],
+        "total": 60,
+        "matched": 12
+      }
+    },
+    {
+      "name": "date within next 2 months",
+      "requires": [
+        "filter"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "condition",
+          "column": "renewal",
+          "op": "within",
+          "value": {
+            "direction": "next",
+            "amount": 2,
+            "unit": "month"
+          }
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_014",
+          "acc_016",
+          "acc_035",
+          "acc_037",
+          "acc_056"
+        ],
+        "total": 60,
+        "matched": 5
+      }
+    },
+    {
+      "name": "date within this quarter",
+      "requires": [
+        "filter"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "condition",
+          "column": "renewal",
+          "op": "within",
+          "value": {
+            "direction": "this",
+            "amount": 1,
+            "unit": "quarter"
+          }
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_011",
+          "acc_012",
+          "acc_013",
+          "acc_014",
+          "acc_032",
+          "acc_033",
+          "acc_034",
+          "acc_035",
+          "acc_053",
+          "acc_054",
+          "acc_055"
+        ],
+        "total": 60,
+        "matched": 11
+      }
+    },
+    {
+      "name": "date within last month shifted",
+      "requires": [
+        "filter"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "condition",
+          "column": "renewal",
+          "op": "within",
+          "value": {
+            "direction": "this",
+            "amount": 1,
+            "unit": "month",
+            "shift": -1
+          }
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_012",
+          "acc_033",
+          "acc_054"
+        ],
+        "total": 60,
+        "matched": 3
+      }
+    },
+    {
+      "name": "bool eq true",
+      "requires": [
+        "filter"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "condition",
+          "column": "active",
+          "op": "eq",
+          "value": true
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_002",
+          "acc_003",
+          "acc_005",
+          "acc_006",
+          "acc_008",
+          "acc_009",
+          "acc_011",
+          "acc_012",
+          "acc_014",
+          "acc_015",
+          "acc_017",
+          "acc_018",
+          "acc_020",
+          "acc_021",
+          "acc_023",
+          "acc_024",
+          "acc_026",
+          "acc_027",
+          "acc_029",
+          "acc_030",
+          "acc_032",
+          "acc_033",
+          "acc_035",
+          "acc_036",
+          "acc_038",
+          "acc_039",
+          "acc_041",
+          "acc_042",
+          "acc_044",
+          "acc_045",
+          "acc_047",
+          "acc_048",
+          "acc_050",
+          "acc_051",
+          "acc_053",
+          "acc_054",
+          "acc_056",
+          "acc_057",
+          "acc_059",
+          "acc_060"
+        ],
+        "total": 60,
+        "matched": 40
+      }
+    },
+    {
+      "name": "bool eq false",
+      "requires": [
+        "filter"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "condition",
+          "column": "active",
+          "op": "eq",
+          "value": false
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_004",
+          "acc_007",
+          "acc_013",
+          "acc_016",
+          "acc_022",
+          "acc_025",
+          "acc_031",
+          "acc_034",
+          "acc_040",
+          "acc_043",
+          "acc_049",
+          "acc_052",
+          "acc_058"
+        ],
+        "total": 60,
+        "matched": 13
+      }
+    },
+    {
+      "name": "bool neq true keeps nulls",
+      "requires": [
+        "filter"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "condition",
+          "column": "active",
+          "op": "neq",
+          "value": true
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_001",
+          "acc_004",
+          "acc_007",
+          "acc_010",
+          "acc_013",
+          "acc_016",
+          "acc_019",
+          "acc_022",
+          "acc_025",
+          "acc_028",
+          "acc_031",
+          "acc_034",
+          "acc_037",
+          "acc_040",
+          "acc_043",
+          "acc_046",
+          "acc_049",
+          "acc_052",
+          "acc_055",
+          "acc_058"
+        ],
+        "total": 60,
+        "matched": 20
+      }
+    },
+    {
+      "name": "bool empty",
+      "requires": [
+        "filter"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "condition",
+          "column": "active",
+          "op": "empty"
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_001",
+          "acc_010",
+          "acc_019",
+          "acc_028",
+          "acc_037",
+          "acc_046",
+          "acc_055"
+        ],
+        "total": 60,
+        "matched": 7
+      }
+    },
+    {
+      "name": "enum eq",
+      "requires": [
+        "filter"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "condition",
+          "column": "plan",
+          "op": "eq",
+          "value": "pro"
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_002",
+          "acc_004",
+          "acc_009",
+          "acc_011",
+          "acc_016",
+          "acc_018",
+          "acc_023",
+          "acc_025",
+          "acc_030",
+          "acc_032",
+          "acc_037",
+          "acc_039",
+          "acc_044",
+          "acc_046",
+          "acc_051",
+          "acc_053",
+          "acc_058",
+          "acc_060"
+        ],
+        "total": 60,
+        "matched": 18
+      }
+    },
+    {
+      "name": "enum in",
+      "requires": [
+        "filter"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "condition",
+          "column": "plan",
+          "op": "in",
+          "value": [
+            "free",
+            "team"
+          ]
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_001",
+          "acc_003",
+          "acc_005",
+          "acc_006",
+          "acc_008",
+          "acc_010",
+          "acc_012",
+          "acc_013",
+          "acc_015",
+          "acc_017",
+          "acc_019",
+          "acc_020",
+          "acc_022",
+          "acc_024",
+          "acc_026",
+          "acc_027",
+          "acc_029",
+          "acc_031",
+          "acc_033",
+          "acc_034",
+          "acc_036",
+          "acc_038",
+          "acc_040",
+          "acc_041",
+          "acc_043",
+          "acc_045",
+          "acc_047",
+          "acc_048",
+          "acc_050",
+          "acc_052",
+          "acc_054",
+          "acc_055",
+          "acc_057",
+          "acc_059"
+        ],
+        "total": 60,
+        "matched": 34
+      }
+    },
+    {
+      "name": "enum notIn",
+      "requires": [
+        "filter"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "condition",
+          "column": "plan",
+          "op": "notIn",
+          "value": [
+            "free",
+            "team"
+          ]
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_002",
+          "acc_004",
+          "acc_007",
+          "acc_009",
+          "acc_011",
+          "acc_014",
+          "acc_016",
+          "acc_018",
+          "acc_021",
+          "acc_023",
+          "acc_025",
+          "acc_028",
+          "acc_030",
+          "acc_032",
+          "acc_035",
+          "acc_037",
+          "acc_039",
+          "acc_042",
+          "acc_044",
+          "acc_046",
+          "acc_049",
+          "acc_051",
+          "acc_053",
+          "acc_056",
+          "acc_058",
+          "acc_060"
+        ],
+        "total": 60,
+        "matched": 26
+      }
+    },
+    {
+      "name": "enum empty",
+      "requires": [
+        "filter"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "condition",
+          "column": "plan",
+          "op": "empty"
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_007",
+          "acc_014",
+          "acc_021",
+          "acc_028",
+          "acc_035",
+          "acc_042",
+          "acc_049",
+          "acc_056"
+        ],
+        "total": 60,
+        "matched": 8
+      }
+    },
+    {
+      "name": "and",
+      "requires": [
+        "filter"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "and",
+          "filters": [
+            {
+              "type": "condition",
+              "column": "plan",
+              "op": "eq",
+              "value": "pro"
+            },
+            {
+              "type": "condition",
+              "column": "mrr",
+              "op": "gt",
+              "value": 500
+            }
+          ]
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_002",
+          "acc_009",
+          "acc_018",
+          "acc_025",
+          "acc_030",
+          "acc_032",
+          "acc_044",
+          "acc_053",
+          "acc_060"
+        ],
+        "total": 60,
+        "matched": 9
+      }
+    },
+    {
+      "name": "or",
+      "requires": [
+        "filter"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "or",
+          "filters": [
+            {
+              "type": "condition",
+              "column": "plan",
+              "op": "eq",
+              "value": "team"
+            },
+            {
+              "type": "condition",
+              "column": "seats",
+              "op": "lt",
+              "value": 5
+            }
+          ]
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_003",
+          "acc_006",
+          "acc_007",
+          "acc_010",
+          "acc_013",
+          "acc_017",
+          "acc_020",
+          "acc_024",
+          "acc_027",
+          "acc_030",
+          "acc_031",
+          "acc_034",
+          "acc_038",
+          "acc_041",
+          "acc_045",
+          "acc_047",
+          "acc_048",
+          "acc_052",
+          "acc_055",
+          "acc_059"
+        ],
+        "total": 60,
+        "matched": 20
+      }
+    },
+    {
+      "name": "not",
+      "requires": [
+        "filter"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "not",
+          "filter": {
+            "type": "condition",
+            "column": "plan",
+            "op": "eq",
+            "value": "team"
+          }
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_001",
+          "acc_002",
+          "acc_004",
+          "acc_005",
+          "acc_007",
+          "acc_008",
+          "acc_009",
+          "acc_011",
+          "acc_012",
+          "acc_014",
+          "acc_015",
+          "acc_016",
+          "acc_018",
+          "acc_019",
+          "acc_021",
+          "acc_022",
+          "acc_023",
+          "acc_025",
+          "acc_026",
+          "acc_028",
+          "acc_029",
+          "acc_030",
+          "acc_032",
+          "acc_033",
+          "acc_035",
+          "acc_036",
+          "acc_037",
+          "acc_039",
+          "acc_040",
+          "acc_042",
+          "acc_043",
+          "acc_044",
+          "acc_046",
+          "acc_047",
+          "acc_049",
+          "acc_050",
+          "acc_051",
+          "acc_053",
+          "acc_054",
+          "acc_056",
+          "acc_057",
+          "acc_058",
+          "acc_060"
+        ],
+        "total": 60,
+        "matched": 43
+      }
+    },
+    {
+      "name": "nested",
+      "requires": [
+        "filter"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "and",
+          "filters": [
+            {
+              "type": "or",
+              "filters": [
+                {
+                  "type": "condition",
+                  "column": "plan",
+                  "op": "eq",
+                  "value": "pro"
+                },
+                {
+                  "type": "condition",
+                  "column": "plan",
+                  "op": "empty"
+                }
+              ]
+            },
+            {
+              "type": "not",
+              "filter": {
+                "type": "and",
+                "filters": [
+                  {
+                    "type": "condition",
+                    "column": "active",
+                    "op": "eq",
+                    "value": true
+                  },
+                  {
+                    "type": "condition",
+                    "column": "mrr",
+                    "op": "lt",
+                    "value": 300
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_002",
+          "acc_004",
+          "acc_007",
+          "acc_009",
+          "acc_011",
+          "acc_014",
+          "acc_016",
+          "acc_018",
+          "acc_021",
+          "acc_023",
+          "acc_025",
+          "acc_028",
+          "acc_030",
+          "acc_032",
+          "acc_037",
+          "acc_042",
+          "acc_044",
+          "acc_046",
+          "acc_049",
+          "acc_053",
+          "acc_056",
+          "acc_058",
+          "acc_060"
+        ],
+        "total": 60,
+        "matched": 23
+      }
+    },
+    {
+      "name": "search",
+      "requires": [
+        "search"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "search",
+          "text": "lum"
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_012",
+          "acc_024",
+          "acc_036",
+          "acc_048",
+          "acc_060"
+        ],
+        "total": 60,
+        "matched": 5
+      }
+    },
+    {
+      "name": "search with condition",
+      "requires": [
+        "search",
+        "filter"
+      ],
+      "request": {
+        "version": 1,
+        "filter": {
+          "type": "and",
+          "filters": [
+            {
+              "type": "search",
+              "text": "example.com"
+            },
+            {
+              "type": "condition",
+              "column": "plan",
+              "op": "eq",
+              "value": "free"
+            }
+          ]
+        },
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_005",
+          "acc_008",
+          "acc_012",
+          "acc_015",
+          "acc_019",
+          "acc_022",
+          "acc_026",
+          "acc_029",
+          "acc_033",
+          "acc_036",
+          "acc_043",
+          "acc_047",
+          "acc_050",
+          "acc_054",
+          "acc_057"
+        ],
+        "total": 60,
+        "matched": 15
+      }
+    },
+    {
+      "name": "sort text asc",
+      "requires": [
+        "sort"
+      ],
+      "request": {
+        "version": 1,
+        "sort": [
+          {
+            "column": "account",
+            "direction": "asc"
+          },
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_001",
+          "acc_013",
+          "acc_025",
+          "acc_037",
+          "acc_049",
+          "acc_002",
+          "acc_014",
+          "acc_026",
+          "acc_038",
+          "acc_050",
+          "acc_003",
+          "acc_015",
+          "acc_027",
+          "acc_039",
+          "acc_051",
+          "acc_004",
+          "acc_016",
+          "acc_028",
+          "acc_040",
+          "acc_052",
+          "acc_005",
+          "acc_017",
+          "acc_029",
+          "acc_041",
+          "acc_053",
+          "acc_006",
+          "acc_018",
+          "acc_030",
+          "acc_042",
+          "acc_054",
+          "acc_007",
+          "acc_019",
+          "acc_031",
+          "acc_043",
+          "acc_055",
+          "acc_008",
+          "acc_020",
+          "acc_032",
+          "acc_044",
+          "acc_056",
+          "acc_009",
+          "acc_021",
+          "acc_033",
+          "acc_045",
+          "acc_057",
+          "acc_010",
+          "acc_022",
+          "acc_034",
+          "acc_046",
+          "acc_058",
+          "acc_011",
+          "acc_023",
+          "acc_035",
+          "acc_047",
+          "acc_059",
+          "acc_012",
+          "acc_024",
+          "acc_036",
+          "acc_048",
+          "acc_060"
+        ],
+        "total": 60,
+        "matched": 60
+      }
+    },
+    {
+      "name": "sort text desc",
+      "requires": [
+        "sort"
+      ],
+      "request": {
+        "version": 1,
+        "sort": [
+          {
+            "column": "account",
+            "direction": "desc"
+          },
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_012",
+          "acc_024",
+          "acc_036",
+          "acc_048",
+          "acc_060",
+          "acc_011",
+          "acc_023",
+          "acc_035",
+          "acc_047",
+          "acc_059",
+          "acc_010",
+          "acc_022",
+          "acc_034",
+          "acc_046",
+          "acc_058",
+          "acc_009",
+          "acc_021",
+          "acc_033",
+          "acc_045",
+          "acc_057",
+          "acc_008",
+          "acc_020",
+          "acc_032",
+          "acc_044",
+          "acc_056",
+          "acc_007",
+          "acc_019",
+          "acc_031",
+          "acc_043",
+          "acc_055",
+          "acc_006",
+          "acc_018",
+          "acc_030",
+          "acc_042",
+          "acc_054",
+          "acc_005",
+          "acc_017",
+          "acc_029",
+          "acc_041",
+          "acc_053",
+          "acc_004",
+          "acc_016",
+          "acc_028",
+          "acc_040",
+          "acc_052",
+          "acc_003",
+          "acc_015",
+          "acc_027",
+          "acc_039",
+          "acc_051",
+          "acc_002",
+          "acc_014",
+          "acc_026",
+          "acc_038",
+          "acc_050",
+          "acc_001",
+          "acc_013",
+          "acc_025",
+          "acc_037",
+          "acc_049"
+        ],
+        "total": 60,
+        "matched": 60
+      }
+    },
+    {
+      "name": "sort number asc nulls last",
+      "requires": [
+        "sort"
+      ],
+      "request": {
+        "version": 1,
+        "sort": [
+          {
+            "column": "mrr",
+            "direction": "asc"
+          },
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_051",
+          "acc_024",
+          "acc_047",
+          "acc_020",
+          "acc_043",
+          "acc_016",
+          "acc_039",
+          "acc_012",
+          "acc_035",
+          "acc_008",
+          "acc_058",
+          "acc_031",
+          "acc_004",
+          "acc_054",
+          "acc_027",
+          "acc_050",
+          "acc_023",
+          "acc_042",
+          "acc_015",
+          "acc_038",
+          "acc_011",
+          "acc_034",
+          "acc_007",
+          "acc_057",
+          "acc_030",
+          "acc_003",
+          "acc_053",
+          "acc_026",
+          "acc_049",
+          "acc_022",
+          "acc_045",
+          "acc_018",
+          "acc_041",
+          "acc_014",
+          "acc_060",
+          "acc_033",
+          "acc_006",
+          "acc_056",
+          "acc_029",
+          "acc_002",
+          "acc_052",
+          "acc_025",
+          "acc_048",
+          "acc_021",
+          "acc_044",
+          "acc_017",
+          "acc_040",
+          "acc_013",
+          "acc_036",
+          "acc_009",
+          "acc_059",
+          "acc_032",
+          "acc_005",
+          "acc_001",
+          "acc_010",
+          "acc_019",
+          "acc_028",
+          "acc_037",
+          "acc_046",
+          "acc_055"
+        ],
+        "total": 60,
+        "matched": 60
+      }
+    },
+    {
+      "name": "sort number desc nulls last",
+      "requires": [
+        "sort"
+      ],
+      "request": {
+        "version": 1,
+        "sort": [
+          {
+            "column": "mrr",
+            "direction": "desc"
+          },
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_005",
+          "acc_032",
+          "acc_009",
+          "acc_059",
+          "acc_036",
+          "acc_013",
+          "acc_040",
+          "acc_017",
+          "acc_044",
+          "acc_021",
+          "acc_048",
+          "acc_025",
+          "acc_002",
+          "acc_052",
+          "acc_029",
+          "acc_006",
+          "acc_056",
+          "acc_033",
+          "acc_060",
+          "acc_014",
+          "acc_041",
+          "acc_018",
+          "acc_045",
+          "acc_022",
+          "acc_049",
+          "acc_026",
+          "acc_003",
+          "acc_053",
+          "acc_030",
+          "acc_007",
+          "acc_057",
+          "acc_034",
+          "acc_011",
+          "acc_038",
+          "acc_015",
+          "acc_042",
+          "acc_023",
+          "acc_050",
+          "acc_027",
+          "acc_004",
+          "acc_054",
+          "acc_031",
+          "acc_008",
+          "acc_058",
+          "acc_035",
+          "acc_012",
+          "acc_039",
+          "acc_016",
+          "acc_043",
+          "acc_020",
+          "acc_047",
+          "acc_024",
+          "acc_051",
+          "acc_001",
+          "acc_010",
+          "acc_019",
+          "acc_028",
+          "acc_037",
+          "acc_046",
+          "acc_055"
+        ],
+        "total": 60,
+        "matched": 60
+      }
+    },
+    {
+      "name": "sort date asc",
+      "requires": [
+        "sort"
+      ],
+      "request": {
+        "version": 1,
+        "sort": [
+          {
+            "column": "renewal",
+            "direction": "asc"
+          },
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_002",
+          "acc_023",
+          "acc_044",
+          "acc_003",
+          "acc_024",
+          "acc_045",
+          "acc_004",
+          "acc_025",
+          "acc_046",
+          "acc_005",
+          "acc_026",
+          "acc_047",
+          "acc_006",
+          "acc_027",
+          "acc_048",
+          "acc_007",
+          "acc_028",
+          "acc_049",
+          "acc_009",
+          "acc_030",
+          "acc_051",
+          "acc_010",
+          "acc_031",
+          "acc_052",
+          "acc_011",
+          "acc_032",
+          "acc_053",
+          "acc_012",
+          "acc_033",
+          "acc_054",
+          "acc_013",
+          "acc_034",
+          "acc_055",
+          "acc_014",
+          "acc_035",
+          "acc_056",
+          "acc_016",
+          "acc_037",
+          "acc_058",
+          "acc_017",
+          "acc_038",
+          "acc_059",
+          "acc_018",
+          "acc_039",
+          "acc_060",
+          "acc_019",
+          "acc_040",
+          "acc_020",
+          "acc_041",
+          "acc_021",
+          "acc_042",
+          "acc_001",
+          "acc_008",
+          "acc_015",
+          "acc_022",
+          "acc_029",
+          "acc_036",
+          "acc_043",
+          "acc_050",
+          "acc_057"
+        ],
+        "total": 60,
+        "matched": 60
+      }
+    },
+    {
+      "name": "sort date desc",
+      "requires": [
+        "sort"
+      ],
+      "request": {
+        "version": 1,
+        "sort": [
+          {
+            "column": "renewal",
+            "direction": "desc"
+          },
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_042",
+          "acc_021",
+          "acc_041",
+          "acc_020",
+          "acc_040",
+          "acc_019",
+          "acc_060",
+          "acc_039",
+          "acc_018",
+          "acc_059",
+          "acc_038",
+          "acc_017",
+          "acc_058",
+          "acc_037",
+          "acc_016",
+          "acc_056",
+          "acc_035",
+          "acc_014",
+          "acc_055",
+          "acc_034",
+          "acc_013",
+          "acc_054",
+          "acc_033",
+          "acc_012",
+          "acc_053",
+          "acc_032",
+          "acc_011",
+          "acc_052",
+          "acc_031",
+          "acc_010",
+          "acc_051",
+          "acc_030",
+          "acc_009",
+          "acc_049",
+          "acc_028",
+          "acc_007",
+          "acc_048",
+          "acc_027",
+          "acc_006",
+          "acc_047",
+          "acc_026",
+          "acc_005",
+          "acc_046",
+          "acc_025",
+          "acc_004",
+          "acc_045",
+          "acc_024",
+          "acc_003",
+          "acc_044",
+          "acc_023",
+          "acc_002",
+          "acc_001",
+          "acc_008",
+          "acc_015",
+          "acc_022",
+          "acc_029",
+          "acc_036",
+          "acc_043",
+          "acc_050",
+          "acc_057"
+        ],
+        "total": 60,
+        "matched": 60
+      }
+    },
+    {
+      "name": "sort bool asc",
+      "requires": [
+        "sort"
+      ],
+      "request": {
+        "version": 1,
+        "sort": [
+          {
+            "column": "active",
+            "direction": "asc"
+          },
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_004",
+          "acc_007",
+          "acc_013",
+          "acc_016",
+          "acc_022",
+          "acc_025",
+          "acc_031",
+          "acc_034",
+          "acc_040",
+          "acc_043",
+          "acc_049",
+          "acc_052",
+          "acc_058",
+          "acc_002",
+          "acc_003",
+          "acc_005",
+          "acc_006",
+          "acc_008",
+          "acc_009",
+          "acc_011",
+          "acc_012",
+          "acc_014",
+          "acc_015",
+          "acc_017",
+          "acc_018",
+          "acc_020",
+          "acc_021",
+          "acc_023",
+          "acc_024",
+          "acc_026",
+          "acc_027",
+          "acc_029",
+          "acc_030",
+          "acc_032",
+          "acc_033",
+          "acc_035",
+          "acc_036",
+          "acc_038",
+          "acc_039",
+          "acc_041",
+          "acc_042",
+          "acc_044",
+          "acc_045",
+          "acc_047",
+          "acc_048",
+          "acc_050",
+          "acc_051",
+          "acc_053",
+          "acc_054",
+          "acc_056",
+          "acc_057",
+          "acc_059",
+          "acc_060",
+          "acc_001",
+          "acc_010",
+          "acc_019",
+          "acc_028",
+          "acc_037",
+          "acc_046",
+          "acc_055"
+        ],
+        "total": 60,
+        "matched": 60
+      }
+    },
+    {
+      "name": "sort enum by option order",
+      "requires": [
+        "sort"
+      ],
+      "request": {
+        "version": 1,
+        "sort": [
+          {
+            "column": "plan",
+            "direction": "asc"
+          },
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_001",
+          "acc_005",
+          "acc_008",
+          "acc_012",
+          "acc_015",
+          "acc_019",
+          "acc_022",
+          "acc_026",
+          "acc_029",
+          "acc_033",
+          "acc_036",
+          "acc_040",
+          "acc_043",
+          "acc_047",
+          "acc_050",
+          "acc_054",
+          "acc_057",
+          "acc_002",
+          "acc_004",
+          "acc_009",
+          "acc_011",
+          "acc_016",
+          "acc_018",
+          "acc_023",
+          "acc_025",
+          "acc_030",
+          "acc_032",
+          "acc_037",
+          "acc_039",
+          "acc_044",
+          "acc_046",
+          "acc_051",
+          "acc_053",
+          "acc_058",
+          "acc_060",
+          "acc_003",
+          "acc_006",
+          "acc_010",
+          "acc_013",
+          "acc_017",
+          "acc_020",
+          "acc_024",
+          "acc_027",
+          "acc_031",
+          "acc_034",
+          "acc_038",
+          "acc_041",
+          "acc_045",
+          "acc_048",
+          "acc_052",
+          "acc_055",
+          "acc_059",
+          "acc_007",
+          "acc_014",
+          "acc_021",
+          "acc_028",
+          "acc_035",
+          "acc_042",
+          "acc_049",
+          "acc_056"
+        ],
+        "total": 60,
+        "matched": 60
+      }
+    },
+    {
+      "name": "sort enum desc",
+      "requires": [
+        "sort"
+      ],
+      "request": {
+        "version": 1,
+        "sort": [
+          {
+            "column": "plan",
+            "direction": "desc"
+          },
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_003",
+          "acc_006",
+          "acc_010",
+          "acc_013",
+          "acc_017",
+          "acc_020",
+          "acc_024",
+          "acc_027",
+          "acc_031",
+          "acc_034",
+          "acc_038",
+          "acc_041",
+          "acc_045",
+          "acc_048",
+          "acc_052",
+          "acc_055",
+          "acc_059",
+          "acc_002",
+          "acc_004",
+          "acc_009",
+          "acc_011",
+          "acc_016",
+          "acc_018",
+          "acc_023",
+          "acc_025",
+          "acc_030",
+          "acc_032",
+          "acc_037",
+          "acc_039",
+          "acc_044",
+          "acc_046",
+          "acc_051",
+          "acc_053",
+          "acc_058",
+          "acc_060",
+          "acc_001",
+          "acc_005",
+          "acc_008",
+          "acc_012",
+          "acc_015",
+          "acc_019",
+          "acc_022",
+          "acc_026",
+          "acc_029",
+          "acc_033",
+          "acc_036",
+          "acc_040",
+          "acc_043",
+          "acc_047",
+          "acc_050",
+          "acc_054",
+          "acc_057",
+          "acc_007",
+          "acc_014",
+          "acc_021",
+          "acc_028",
+          "acc_035",
+          "acc_042",
+          "acc_049",
+          "acc_056"
+        ],
+        "total": 60,
+        "matched": 60
+      }
+    },
+    {
+      "name": "sort multi",
+      "requires": [
+        "sort"
+      ],
+      "request": {
+        "version": 1,
+        "sort": [
+          {
+            "column": "plan",
+            "direction": "asc"
+          },
+          {
+            "column": "mrr",
+            "direction": "desc"
+          },
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_005",
+          "acc_036",
+          "acc_040",
+          "acc_029",
+          "acc_033",
+          "acc_022",
+          "acc_026",
+          "acc_057",
+          "acc_015",
+          "acc_050",
+          "acc_054",
+          "acc_008",
+          "acc_012",
+          "acc_043",
+          "acc_047",
+          "acc_001",
+          "acc_019",
+          "acc_032",
+          "acc_009",
+          "acc_044",
+          "acc_025",
+          "acc_002",
+          "acc_060",
+          "acc_018",
+          "acc_053",
+          "acc_030",
+          "acc_011",
+          "acc_023",
+          "acc_004",
+          "acc_058",
+          "acc_039",
+          "acc_016",
+          "acc_051",
+          "acc_037",
+          "acc_046",
+          "acc_059",
+          "acc_013",
+          "acc_017",
+          "acc_048",
+          "acc_052",
+          "acc_006",
+          "acc_041",
+          "acc_045",
+          "acc_003",
+          "acc_034",
+          "acc_038",
+          "acc_027",
+          "acc_031",
+          "acc_020",
+          "acc_024",
+          "acc_010",
+          "acc_055",
+          "acc_021",
+          "acc_056",
+          "acc_014",
+          "acc_049",
+          "acc_007",
+          "acc_042",
+          "acc_035",
+          "acc_028"
+        ],
+        "total": 60,
+        "matched": 60
+      }
+    },
+    {
+      "name": "group enum",
+      "requires": [
+        "group",
+        "aggregates"
+      ],
+      "request": {
+        "version": 1,
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ],
+        "group": {
+          "column": "plan"
+        }
+      },
+      "expected": {
+        "rows": [
+          "acc_001",
+          "acc_005",
+          "acc_008",
+          "acc_012",
+          "acc_015",
+          "acc_019",
+          "acc_022",
+          "acc_026",
+          "acc_029",
+          "acc_033",
+          "acc_036",
+          "acc_040",
+          "acc_043",
+          "acc_047",
+          "acc_050",
+          "acc_054",
+          "acc_057",
+          "acc_002",
+          "acc_004",
+          "acc_009",
+          "acc_011",
+          "acc_016",
+          "acc_018",
+          "acc_023",
+          "acc_025",
+          "acc_030",
+          "acc_032",
+          "acc_037",
+          "acc_039",
+          "acc_044",
+          "acc_046",
+          "acc_051",
+          "acc_053",
+          "acc_058",
+          "acc_060",
+          "acc_003",
+          "acc_006",
+          "acc_010",
+          "acc_013",
+          "acc_017",
+          "acc_020",
+          "acc_024",
+          "acc_027",
+          "acc_031",
+          "acc_034",
+          "acc_038",
+          "acc_041",
+          "acc_045",
+          "acc_048",
+          "acc_052",
+          "acc_055",
+          "acc_059",
+          "acc_007",
+          "acc_014",
+          "acc_021",
+          "acc_028",
+          "acc_035",
+          "acc_042",
+          "acc_049",
+          "acc_056"
+        ],
+        "total": 60,
+        "matched": 60,
+        "groups": [
+          {
+            "key": "free",
+            "value": "free",
+            "count": 17,
+            "aggregates": {}
+          },
+          {
+            "key": "pro",
+            "value": "pro",
+            "count": 18,
+            "aggregates": {}
+          },
+          {
+            "key": "team",
+            "value": "team",
+            "count": 17,
+            "aggregates": {}
+          },
+          {
+            "key": "",
+            "value": null,
+            "count": 8,
+            "aggregates": {}
+          }
+        ]
+      }
+    },
+    {
+      "name": "group enum with aggregates",
+      "requires": [
+        "group",
+        "aggregates"
+      ],
+      "request": {
+        "version": 1,
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ],
+        "group": {
+          "column": "plan"
+        },
+        "aggregates": [
+          {
+            "column": "mrr",
+            "fn": "sum"
+          },
+          {
+            "column": "mrr",
+            "fn": "avg"
+          },
+          {
+            "column": "seats",
+            "fn": "max"
+          },
+          {
+            "column": "account",
+            "fn": "distinct"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_001",
+          "acc_005",
+          "acc_008",
+          "acc_012",
+          "acc_015",
+          "acc_019",
+          "acc_022",
+          "acc_026",
+          "acc_029",
+          "acc_033",
+          "acc_036",
+          "acc_040",
+          "acc_043",
+          "acc_047",
+          "acc_050",
+          "acc_054",
+          "acc_057",
+          "acc_002",
+          "acc_004",
+          "acc_009",
+          "acc_011",
+          "acc_016",
+          "acc_018",
+          "acc_023",
+          "acc_025",
+          "acc_030",
+          "acc_032",
+          "acc_037",
+          "acc_039",
+          "acc_044",
+          "acc_046",
+          "acc_051",
+          "acc_053",
+          "acc_058",
+          "acc_060",
+          "acc_003",
+          "acc_006",
+          "acc_010",
+          "acc_013",
+          "acc_017",
+          "acc_020",
+          "acc_024",
+          "acc_027",
+          "acc_031",
+          "acc_034",
+          "acc_038",
+          "acc_041",
+          "acc_045",
+          "acc_048",
+          "acc_052",
+          "acc_055",
+          "acc_059",
+          "acc_007",
+          "acc_014",
+          "acc_021",
+          "acc_028",
+          "acc_035",
+          "acc_042",
+          "acc_049",
+          "acc_056"
+        ],
+        "total": 60,
+        "matched": 60,
+        "groups": [
+          {
+            "key": "free",
+            "value": "free",
+            "count": 17,
+            "aggregates": {
+              "mrr:sum": 8600,
+              "mrr:avg": 573.3333333333334,
+              "seats:max": 37,
+              "account:distinct": 12
+            }
+          },
+          {
+            "key": "pro",
+            "value": "pro",
+            "count": 18,
+            "aggregates": {
+              "mrr:sum": 9575,
+              "mrr:avg": 598.4375,
+              "seats:max": 40,
+              "account:distinct": 11
+            }
+          },
+          {
+            "key": "team",
+            "value": "team",
+            "count": 17,
+            "aggregates": {
+              "mrr:sum": 9775,
+              "mrr:avg": 651.6666666666666,
+              "seats:max": 38,
+              "account:distinct": 12
+            }
+          },
+          {
+            "key": "",
+            "value": null,
+            "count": 8,
+            "aggregates": {
+              "mrr:sum": 4475,
+              "mrr:avg": 639.2857142857143,
+              "seats:max": 39,
+              "account:distinct": 8
+            }
+          }
+        ],
+        "aggregates": {
+          "mrr:sum": 32425,
+          "mrr:avg": 611.7924528301887,
+          "seats:max": 40,
+          "account:distinct": 12
+        }
+      }
+    },
+    {
+      "name": "group bool",
+      "requires": [
+        "group",
+        "aggregates"
+      ],
+      "request": {
+        "version": 1,
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ],
+        "group": {
+          "column": "active"
+        }
+      },
+      "expected": {
+        "rows": [
+          "acc_004",
+          "acc_007",
+          "acc_013",
+          "acc_016",
+          "acc_022",
+          "acc_025",
+          "acc_031",
+          "acc_034",
+          "acc_040",
+          "acc_043",
+          "acc_049",
+          "acc_052",
+          "acc_058",
+          "acc_002",
+          "acc_003",
+          "acc_005",
+          "acc_006",
+          "acc_008",
+          "acc_009",
+          "acc_011",
+          "acc_012",
+          "acc_014",
+          "acc_015",
+          "acc_017",
+          "acc_018",
+          "acc_020",
+          "acc_021",
+          "acc_023",
+          "acc_024",
+          "acc_026",
+          "acc_027",
+          "acc_029",
+          "acc_030",
+          "acc_032",
+          "acc_033",
+          "acc_035",
+          "acc_036",
+          "acc_038",
+          "acc_039",
+          "acc_041",
+          "acc_042",
+          "acc_044",
+          "acc_045",
+          "acc_047",
+          "acc_048",
+          "acc_050",
+          "acc_051",
+          "acc_053",
+          "acc_054",
+          "acc_056",
+          "acc_057",
+          "acc_059",
+          "acc_060",
+          "acc_001",
+          "acc_010",
+          "acc_019",
+          "acc_028",
+          "acc_037",
+          "acc_046",
+          "acc_055"
+        ],
+        "total": 60,
+        "matched": 60,
+        "groups": [
+          {
+            "key": "false",
+            "value": false,
+            "count": 13,
+            "aggregates": {}
+          },
+          {
+            "key": "true",
+            "value": true,
+            "count": 40,
+            "aggregates": {}
+          },
+          {
+            "key": "",
+            "value": null,
+            "count": 7,
+            "aggregates": {}
+          }
+        ]
+      }
+    },
+    {
+      "name": "group person",
+      "requires": [
+        "group",
+        "aggregates"
+      ],
+      "request": {
+        "version": 1,
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ],
+        "group": {
+          "column": "owner"
+        }
+      },
+      "expected": {
+        "rows": [
+          "acc_003",
+          "acc_008",
+          "acc_013",
+          "acc_018",
+          "acc_023",
+          "acc_028",
+          "acc_033",
+          "acc_038",
+          "acc_043",
+          "acc_048",
+          "acc_053",
+          "acc_058",
+          "acc_001",
+          "acc_006",
+          "acc_011",
+          "acc_016",
+          "acc_021",
+          "acc_026",
+          "acc_031",
+          "acc_036",
+          "acc_041",
+          "acc_046",
+          "acc_051",
+          "acc_056",
+          "acc_002",
+          "acc_007",
+          "acc_012",
+          "acc_017",
+          "acc_022",
+          "acc_027",
+          "acc_032",
+          "acc_037",
+          "acc_042",
+          "acc_047",
+          "acc_052",
+          "acc_057",
+          "acc_005",
+          "acc_010",
+          "acc_015",
+          "acc_020",
+          "acc_025",
+          "acc_030",
+          "acc_035",
+          "acc_040",
+          "acc_045",
+          "acc_050",
+          "acc_055",
+          "acc_060",
+          "acc_004",
+          "acc_009",
+          "acc_014",
+          "acc_019",
+          "acc_024",
+          "acc_029",
+          "acc_034",
+          "acc_039",
+          "acc_044",
+          "acc_049",
+          "acc_054",
+          "acc_059"
+        ],
+        "total": 60,
+        "matched": 60,
+        "groups": [
+          {
+            "key": "Lena",
+            "value": "Lena",
+            "count": 12,
+            "aggregates": {}
+          },
+          {
+            "key": "Mona",
+            "value": "Mona",
+            "count": 12,
+            "aggregates": {}
+          },
+          {
+            "key": "Omar",
+            "value": "Omar",
+            "count": 12,
+            "aggregates": {}
+          },
+          {
+            "key": "Yusuf",
+            "value": "Yusuf",
+            "count": 12,
+            "aggregates": {}
+          },
+          {
+            "key": "",
+            "value": null,
+            "count": 12,
+            "aggregates": {}
+          }
+        ]
+      }
+    },
+    {
+      "name": "group date month",
+      "requires": [
+        "group",
+        "aggregates"
+      ],
+      "request": {
+        "version": 1,
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ],
+        "group": {
+          "column": "renewal",
+          "granularity": "month"
+        }
+      },
+      "expected": {
+        "rows": [
+          "acc_021",
+          "acc_042",
+          "acc_020",
+          "acc_041",
+          "acc_019",
+          "acc_040",
+          "acc_060",
+          "acc_017",
+          "acc_018",
+          "acc_038",
+          "acc_039",
+          "acc_059",
+          "acc_016",
+          "acc_037",
+          "acc_058",
+          "acc_056",
+          "acc_013",
+          "acc_014",
+          "acc_034",
+          "acc_035",
+          "acc_055",
+          "acc_012",
+          "acc_033",
+          "acc_054",
+          "acc_011",
+          "acc_032",
+          "acc_053",
+          "acc_009",
+          "acc_010",
+          "acc_030",
+          "acc_031",
+          "acc_051",
+          "acc_052",
+          "acc_007",
+          "acc_028",
+          "acc_049",
+          "acc_005",
+          "acc_006",
+          "acc_026",
+          "acc_027",
+          "acc_047",
+          "acc_048",
+          "acc_004",
+          "acc_025",
+          "acc_046",
+          "acc_003",
+          "acc_024",
+          "acc_045",
+          "acc_002",
+          "acc_023",
+          "acc_044",
+          "acc_001",
+          "acc_008",
+          "acc_015",
+          "acc_022",
+          "acc_029",
+          "acc_036",
+          "acc_043",
+          "acc_050",
+          "acc_057"
+        ],
+        "total": 60,
+        "matched": 60,
+        "groups": [
+          {
+            "key": "2026-09",
+            "value": "2026-09",
+            "count": 2,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-08",
+            "value": "2026-08",
+            "count": 2,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-07",
+            "value": "2026-07",
+            "count": 3,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-06",
+            "value": "2026-06",
+            "count": 5,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-05",
+            "value": "2026-05",
+            "count": 3,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-04",
+            "value": "2026-04",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-03",
+            "value": "2026-03",
+            "count": 5,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-02",
+            "value": "2026-02",
+            "count": 3,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-01",
+            "value": "2026-01",
+            "count": 3,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-12",
+            "value": "2025-12",
+            "count": 6,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-10",
+            "value": "2025-10",
+            "count": 3,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-09",
+            "value": "2025-09",
+            "count": 6,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-08",
+            "value": "2025-08",
+            "count": 3,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-07",
+            "value": "2025-07",
+            "count": 3,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-06",
+            "value": "2025-06",
+            "count": 3,
+            "aggregates": {}
+          },
+          {
+            "key": "",
+            "value": null,
+            "count": 9,
+            "aggregates": {}
+          }
+        ]
+      }
+    },
+    {
+      "name": "group date day",
+      "requires": [
+        "group",
+        "aggregates"
+      ],
+      "request": {
+        "version": 1,
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ],
+        "group": {
+          "column": "renewal",
+          "granularity": "day"
+        }
+      },
+      "expected": {
+        "rows": [
+          "acc_042",
+          "acc_021",
+          "acc_041",
+          "acc_020",
+          "acc_040",
+          "acc_019",
+          "acc_060",
+          "acc_039",
+          "acc_018",
+          "acc_059",
+          "acc_038",
+          "acc_017",
+          "acc_058",
+          "acc_037",
+          "acc_016",
+          "acc_056",
+          "acc_035",
+          "acc_014",
+          "acc_055",
+          "acc_034",
+          "acc_013",
+          "acc_054",
+          "acc_033",
+          "acc_012",
+          "acc_053",
+          "acc_032",
+          "acc_011",
+          "acc_052",
+          "acc_031",
+          "acc_010",
+          "acc_051",
+          "acc_030",
+          "acc_009",
+          "acc_049",
+          "acc_028",
+          "acc_007",
+          "acc_048",
+          "acc_027",
+          "acc_006",
+          "acc_047",
+          "acc_026",
+          "acc_005",
+          "acc_046",
+          "acc_025",
+          "acc_004",
+          "acc_045",
+          "acc_024",
+          "acc_003",
+          "acc_044",
+          "acc_023",
+          "acc_002",
+          "acc_001",
+          "acc_008",
+          "acc_015",
+          "acc_022",
+          "acc_029",
+          "acc_036",
+          "acc_043",
+          "acc_050",
+          "acc_057"
+        ],
+        "total": 60,
+        "matched": 60,
+        "groups": [
+          {
+            "key": "2026-09-07",
+            "value": "2026-09-07",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-09-04",
+            "value": "2026-09-04",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-08-15",
+            "value": "2026-08-15",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-08-12",
+            "value": "2026-08-12",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-07-23",
+            "value": "2026-07-23",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-07-20",
+            "value": "2026-07-20",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-07-03",
+            "value": "2026-07-03",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-06-30",
+            "value": "2026-06-30",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-06-27",
+            "value": "2026-06-27",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-06-10",
+            "value": "2026-06-10",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-06-07",
+            "value": "2026-06-07",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-06-04",
+            "value": "2026-06-04",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-05-18",
+            "value": "2026-05-18",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-05-15",
+            "value": "2026-05-15",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-05-12",
+            "value": "2026-05-12",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-04-02",
+            "value": "2026-04-02",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-03-30",
+            "value": "2026-03-30",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-03-27",
+            "value": "2026-03-27",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-03-10",
+            "value": "2026-03-10",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-03-07",
+            "value": "2026-03-07",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-03-04",
+            "value": "2026-03-04",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-02-15",
+            "value": "2026-02-15",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-02-12",
+            "value": "2026-02-12",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-02-09",
+            "value": "2026-02-09",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-01-23",
+            "value": "2026-01-23",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-01-20",
+            "value": "2026-01-20",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-01-17",
+            "value": "2026-01-17",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-12-31",
+            "value": "2025-12-31",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-12-28",
+            "value": "2025-12-28",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-12-25",
+            "value": "2025-12-25",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-12-08",
+            "value": "2025-12-08",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-12-05",
+            "value": "2025-12-05",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-12-02",
+            "value": "2025-12-02",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-10-23",
+            "value": "2025-10-23",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-10-20",
+            "value": "2025-10-20",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-10-17",
+            "value": "2025-10-17",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-09-30",
+            "value": "2025-09-30",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-09-27",
+            "value": "2025-09-27",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-09-24",
+            "value": "2025-09-24",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-09-07",
+            "value": "2025-09-07",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-09-04",
+            "value": "2025-09-04",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-09-01",
+            "value": "2025-09-01",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-08-15",
+            "value": "2025-08-15",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-08-12",
+            "value": "2025-08-12",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-08-09",
+            "value": "2025-08-09",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-07-23",
+            "value": "2025-07-23",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-07-20",
+            "value": "2025-07-20",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-07-17",
+            "value": "2025-07-17",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-06-30",
+            "value": "2025-06-30",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-06-27",
+            "value": "2025-06-27",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-06-24",
+            "value": "2025-06-24",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "",
+            "value": null,
+            "count": 9,
+            "aggregates": {}
+          }
+        ]
+      }
+    },
+    {
+      "name": "group date week",
+      "requires": [
+        "group",
+        "aggregates"
+      ],
+      "request": {
+        "version": 1,
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ],
+        "group": {
+          "column": "renewal",
+          "granularity": "week"
+        }
+      },
+      "expected": {
+        "rows": [
+          "acc_042",
+          "acc_021",
+          "acc_020",
+          "acc_041",
+          "acc_019",
+          "acc_040",
+          "acc_039",
+          "acc_060",
+          "acc_018",
+          "acc_059",
+          "acc_017",
+          "acc_038",
+          "acc_058",
+          "acc_016",
+          "acc_037",
+          "acc_035",
+          "acc_056",
+          "acc_014",
+          "acc_055",
+          "acc_013",
+          "acc_034",
+          "acc_012",
+          "acc_033",
+          "acc_054",
+          "acc_032",
+          "acc_053",
+          "acc_011",
+          "acc_052",
+          "acc_010",
+          "acc_031",
+          "acc_051",
+          "acc_009",
+          "acc_030",
+          "acc_028",
+          "acc_049",
+          "acc_007",
+          "acc_048",
+          "acc_006",
+          "acc_027",
+          "acc_005",
+          "acc_026",
+          "acc_047",
+          "acc_025",
+          "acc_046",
+          "acc_004",
+          "acc_045",
+          "acc_003",
+          "acc_024",
+          "acc_044",
+          "acc_002",
+          "acc_023",
+          "acc_001",
+          "acc_008",
+          "acc_015",
+          "acc_022",
+          "acc_029",
+          "acc_036",
+          "acc_043",
+          "acc_050",
+          "acc_057"
+        ],
+        "total": 60,
+        "matched": 60,
+        "groups": [
+          {
+            "key": "2026-09-07",
+            "value": "2026-09-07",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-08-31",
+            "value": "2026-08-31",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-08-10",
+            "value": "2026-08-10",
+            "count": 2,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-07-20",
+            "value": "2026-07-20",
+            "count": 2,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-06-29",
+            "value": "2026-06-29",
+            "count": 2,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-06-22",
+            "value": "2026-06-22",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-06-08",
+            "value": "2026-06-08",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-06-01",
+            "value": "2026-06-01",
+            "count": 2,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-05-18",
+            "value": "2026-05-18",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-05-11",
+            "value": "2026-05-11",
+            "count": 2,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-03-30",
+            "value": "2026-03-30",
+            "count": 2,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-03-23",
+            "value": "2026-03-23",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-03-09",
+            "value": "2026-03-09",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-03-02",
+            "value": "2026-03-02",
+            "count": 2,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-02-09",
+            "value": "2026-02-09",
+            "count": 3,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-01-19",
+            "value": "2026-01-19",
+            "count": 2,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-01-12",
+            "value": "2026-01-12",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-12-29",
+            "value": "2025-12-29",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-12-22",
+            "value": "2025-12-22",
+            "count": 2,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-12-08",
+            "value": "2025-12-08",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-12-01",
+            "value": "2025-12-01",
+            "count": 2,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-10-20",
+            "value": "2025-10-20",
+            "count": 2,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-10-13",
+            "value": "2025-10-13",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-09-29",
+            "value": "2025-09-29",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-09-22",
+            "value": "2025-09-22",
+            "count": 2,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-09-01",
+            "value": "2025-09-01",
+            "count": 3,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-08-11",
+            "value": "2025-08-11",
+            "count": 2,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-08-04",
+            "value": "2025-08-04",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-07-21",
+            "value": "2025-07-21",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-07-14",
+            "value": "2025-07-14",
+            "count": 2,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-06-30",
+            "value": "2025-06-30",
+            "count": 1,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-06-23",
+            "value": "2025-06-23",
+            "count": 2,
+            "aggregates": {}
+          },
+          {
+            "key": "",
+            "value": null,
+            "count": 9,
+            "aggregates": {}
+          }
+        ]
+      }
+    },
+    {
+      "name": "group date quarter",
+      "requires": [
+        "group",
+        "aggregates"
+      ],
+      "request": {
+        "version": 1,
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ],
+        "group": {
+          "column": "renewal",
+          "granularity": "quarter"
+        }
+      },
+      "expected": {
+        "rows": [
+          "acc_019",
+          "acc_020",
+          "acc_021",
+          "acc_040",
+          "acc_041",
+          "acc_042",
+          "acc_060",
+          "acc_016",
+          "acc_017",
+          "acc_018",
+          "acc_037",
+          "acc_038",
+          "acc_039",
+          "acc_056",
+          "acc_058",
+          "acc_059",
+          "acc_011",
+          "acc_012",
+          "acc_013",
+          "acc_014",
+          "acc_032",
+          "acc_033",
+          "acc_034",
+          "acc_035",
+          "acc_053",
+          "acc_054",
+          "acc_055",
+          "acc_007",
+          "acc_009",
+          "acc_010",
+          "acc_028",
+          "acc_030",
+          "acc_031",
+          "acc_049",
+          "acc_051",
+          "acc_052",
+          "acc_003",
+          "acc_004",
+          "acc_005",
+          "acc_006",
+          "acc_024",
+          "acc_025",
+          "acc_026",
+          "acc_027",
+          "acc_045",
+          "acc_046",
+          "acc_047",
+          "acc_048",
+          "acc_002",
+          "acc_023",
+          "acc_044",
+          "acc_001",
+          "acc_008",
+          "acc_015",
+          "acc_022",
+          "acc_029",
+          "acc_036",
+          "acc_043",
+          "acc_050",
+          "acc_057"
+        ],
+        "total": 60,
+        "matched": 60,
+        "groups": [
+          {
+            "key": "2026-Q3",
+            "value": "2026-Q3",
+            "count": 7,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-Q2",
+            "value": "2026-Q2",
+            "count": 9,
+            "aggregates": {}
+          },
+          {
+            "key": "2026-Q1",
+            "value": "2026-Q1",
+            "count": 11,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-Q4",
+            "value": "2025-Q4",
+            "count": 9,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-Q3",
+            "value": "2025-Q3",
+            "count": 12,
+            "aggregates": {}
+          },
+          {
+            "key": "2025-Q2",
+            "value": "2025-Q2",
+            "count": 3,
+            "aggregates": {}
+          },
+          {
+            "key": "",
+            "value": null,
+            "count": 9,
+            "aggregates": {}
+          }
+        ]
+      }
+    },
+    {
+      "name": "group date year",
+      "requires": [
+        "group",
+        "aggregates"
+      ],
+      "request": {
+        "version": 1,
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ],
+        "group": {
+          "column": "renewal",
+          "granularity": "year"
+        }
+      },
+      "expected": {
+        "rows": [
+          "acc_011",
+          "acc_012",
+          "acc_013",
+          "acc_014",
+          "acc_016",
+          "acc_017",
+          "acc_018",
+          "acc_019",
+          "acc_020",
+          "acc_021",
+          "acc_032",
+          "acc_033",
+          "acc_034",
+          "acc_035",
+          "acc_037",
+          "acc_038",
+          "acc_039",
+          "acc_040",
+          "acc_041",
+          "acc_042",
+          "acc_053",
+          "acc_054",
+          "acc_055",
+          "acc_056",
+          "acc_058",
+          "acc_059",
+          "acc_060",
+          "acc_002",
+          "acc_003",
+          "acc_004",
+          "acc_005",
+          "acc_006",
+          "acc_007",
+          "acc_009",
+          "acc_010",
+          "acc_023",
+          "acc_024",
+          "acc_025",
+          "acc_026",
+          "acc_027",
+          "acc_028",
+          "acc_030",
+          "acc_031",
+          "acc_044",
+          "acc_045",
+          "acc_046",
+          "acc_047",
+          "acc_048",
+          "acc_049",
+          "acc_051",
+          "acc_052",
+          "acc_001",
+          "acc_008",
+          "acc_015",
+          "acc_022",
+          "acc_029",
+          "acc_036",
+          "acc_043",
+          "acc_050",
+          "acc_057"
+        ],
+        "total": 60,
+        "matched": 60,
+        "groups": [
+          {
+            "key": "2026",
+            "value": "2026",
+            "count": 27,
+            "aggregates": {}
+          },
+          {
+            "key": "2025",
+            "value": "2025",
+            "count": 24,
+            "aggregates": {}
+          },
+          {
+            "key": "",
+            "value": null,
+            "count": 9,
+            "aggregates": {}
+          }
+        ]
+      }
+    },
+    {
+      "name": "group sorted by group column",
+      "requires": [
+        "group",
+        "aggregates"
+      ],
+      "request": {
+        "version": 1,
+        "sort": [
+          {
+            "column": "plan",
+            "direction": "desc"
+          },
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ],
+        "group": {
+          "column": "plan"
+        }
+      },
+      "expected": {
+        "rows": [
+          "acc_003",
+          "acc_006",
+          "acc_010",
+          "acc_013",
+          "acc_017",
+          "acc_020",
+          "acc_024",
+          "acc_027",
+          "acc_031",
+          "acc_034",
+          "acc_038",
+          "acc_041",
+          "acc_045",
+          "acc_048",
+          "acc_052",
+          "acc_055",
+          "acc_059",
+          "acc_002",
+          "acc_004",
+          "acc_009",
+          "acc_011",
+          "acc_016",
+          "acc_018",
+          "acc_023",
+          "acc_025",
+          "acc_030",
+          "acc_032",
+          "acc_037",
+          "acc_039",
+          "acc_044",
+          "acc_046",
+          "acc_051",
+          "acc_053",
+          "acc_058",
+          "acc_060",
+          "acc_001",
+          "acc_005",
+          "acc_008",
+          "acc_012",
+          "acc_015",
+          "acc_019",
+          "acc_022",
+          "acc_026",
+          "acc_029",
+          "acc_033",
+          "acc_036",
+          "acc_040",
+          "acc_043",
+          "acc_047",
+          "acc_050",
+          "acc_054",
+          "acc_057",
+          "acc_007",
+          "acc_014",
+          "acc_021",
+          "acc_028",
+          "acc_035",
+          "acc_042",
+          "acc_049",
+          "acc_056"
+        ],
+        "total": 60,
+        "matched": 60,
+        "groups": [
+          {
+            "key": "team",
+            "value": "team",
+            "count": 17,
+            "aggregates": {}
+          },
+          {
+            "key": "pro",
+            "value": "pro",
+            "count": 18,
+            "aggregates": {}
+          },
+          {
+            "key": "free",
+            "value": "free",
+            "count": 17,
+            "aggregates": {}
+          },
+          {
+            "key": "",
+            "value": null,
+            "count": 8,
+            "aggregates": {}
+          }
+        ]
+      }
+    },
+    {
+      "name": "group with filter",
+      "requires": [
+        "group",
+        "aggregates"
+      ],
+      "request": {
+        "version": 1,
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ],
+        "group": {
+          "column": "plan"
+        },
+        "filter": {
+          "type": "condition",
+          "column": "mrr",
+          "op": "gte",
+          "value": 500
+        }
+      },
+      "expected": {
+        "rows": [
+          "acc_005",
+          "acc_022",
+          "acc_026",
+          "acc_029",
+          "acc_033",
+          "acc_036",
+          "acc_040",
+          "acc_057",
+          "acc_002",
+          "acc_009",
+          "acc_011",
+          "acc_018",
+          "acc_025",
+          "acc_030",
+          "acc_032",
+          "acc_044",
+          "acc_053",
+          "acc_060",
+          "acc_003",
+          "acc_006",
+          "acc_013",
+          "acc_017",
+          "acc_034",
+          "acc_041",
+          "acc_045",
+          "acc_048",
+          "acc_052",
+          "acc_059",
+          "acc_007",
+          "acc_014",
+          "acc_021",
+          "acc_049",
+          "acc_056"
+        ],
+        "total": 60,
+        "matched": 33,
+        "groups": [
+          {
+            "key": "free",
+            "value": "free",
+            "count": 8,
+            "aggregates": {}
+          },
+          {
+            "key": "pro",
+            "value": "pro",
+            "count": 10,
+            "aggregates": {}
+          },
+          {
+            "key": "team",
+            "value": "team",
+            "count": 10,
+            "aggregates": {}
+          },
+          {
+            "key": "",
+            "value": null,
+            "count": 5,
+            "aggregates": {}
+          }
+        ]
+      }
+    },
+    {
+      "name": "aggregates number",
+      "requires": [
+        "aggregates"
+      ],
+      "request": {
+        "version": 1,
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ],
+        "aggregates": [
+          {
+            "column": "mrr",
+            "fn": "sum"
+          },
+          {
+            "column": "mrr",
+            "fn": "avg"
+          },
+          {
+            "column": "mrr",
+            "fn": "min"
+          },
+          {
+            "column": "mrr",
+            "fn": "max"
+          },
+          {
+            "column": "mrr",
+            "fn": "count"
+          },
+          {
+            "column": "mrr",
+            "fn": "distinct"
+          },
+          {
+            "column": "score",
+            "fn": "avg"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_001",
+          "acc_002",
+          "acc_003",
+          "acc_004",
+          "acc_005",
+          "acc_006",
+          "acc_007",
+          "acc_008",
+          "acc_009",
+          "acc_010",
+          "acc_011",
+          "acc_012",
+          "acc_013",
+          "acc_014",
+          "acc_015",
+          "acc_016",
+          "acc_017",
+          "acc_018",
+          "acc_019",
+          "acc_020",
+          "acc_021",
+          "acc_022",
+          "acc_023",
+          "acc_024",
+          "acc_025",
+          "acc_026",
+          "acc_027",
+          "acc_028",
+          "acc_029",
+          "acc_030",
+          "acc_031",
+          "acc_032",
+          "acc_033",
+          "acc_034",
+          "acc_035",
+          "acc_036",
+          "acc_037",
+          "acc_038",
+          "acc_039",
+          "acc_040",
+          "acc_041",
+          "acc_042",
+          "acc_043",
+          "acc_044",
+          "acc_045",
+          "acc_046",
+          "acc_047",
+          "acc_048",
+          "acc_049",
+          "acc_050",
+          "acc_051",
+          "acc_052",
+          "acc_053",
+          "acc_054",
+          "acc_055",
+          "acc_056",
+          "acc_057",
+          "acc_058",
+          "acc_059",
+          "acc_060"
+        ],
+        "total": 60,
+        "matched": 60,
+        "aggregates": {
+          "mrr:sum": 32425,
+          "mrr:avg": 611.7924528301887,
+          "mrr:min": 0,
+          "mrr:max": 1200,
+          "mrr:count": 53,
+          "mrr:distinct": 46,
+          "score:avg": 45
+        }
+      }
+    },
+    {
+      "name": "aggregates date and text",
+      "requires": [
+        "aggregates"
+      ],
+      "request": {
+        "version": 1,
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ],
+        "aggregates": [
+          {
+            "column": "renewal",
+            "fn": "min"
+          },
+          {
+            "column": "renewal",
+            "fn": "max"
+          },
+          {
+            "column": "renewal",
+            "fn": "count"
+          },
+          {
+            "column": "account",
+            "fn": "count"
+          },
+          {
+            "column": "account",
+            "fn": "distinct"
+          },
+          {
+            "column": "email",
+            "fn": "count"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_001",
+          "acc_002",
+          "acc_003",
+          "acc_004",
+          "acc_005",
+          "acc_006",
+          "acc_007",
+          "acc_008",
+          "acc_009",
+          "acc_010",
+          "acc_011",
+          "acc_012",
+          "acc_013",
+          "acc_014",
+          "acc_015",
+          "acc_016",
+          "acc_017",
+          "acc_018",
+          "acc_019",
+          "acc_020",
+          "acc_021",
+          "acc_022",
+          "acc_023",
+          "acc_024",
+          "acc_025",
+          "acc_026",
+          "acc_027",
+          "acc_028",
+          "acc_029",
+          "acc_030",
+          "acc_031",
+          "acc_032",
+          "acc_033",
+          "acc_034",
+          "acc_035",
+          "acc_036",
+          "acc_037",
+          "acc_038",
+          "acc_039",
+          "acc_040",
+          "acc_041",
+          "acc_042",
+          "acc_043",
+          "acc_044",
+          "acc_045",
+          "acc_046",
+          "acc_047",
+          "acc_048",
+          "acc_049",
+          "acc_050",
+          "acc_051",
+          "acc_052",
+          "acc_053",
+          "acc_054",
+          "acc_055",
+          "acc_056",
+          "acc_057",
+          "acc_058",
+          "acc_059",
+          "acc_060"
+        ],
+        "total": 60,
+        "matched": 60,
+        "aggregates": {
+          "renewal:min": "2025-06-24",
+          "renewal:max": "2026-09-07",
+          "renewal:count": 51,
+          "account:count": 60,
+          "account:distinct": 12,
+          "email:count": 55
+        }
+      }
+    },
+    {
+      "name": "aggregates over filtered rows",
+      "requires": [
+        "filter",
+        "aggregates"
+      ],
+      "request": {
+        "version": 1,
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ],
+        "filter": {
+          "type": "condition",
+          "column": "plan",
+          "op": "eq",
+          "value": "team"
+        },
+        "aggregates": [
+          {
+            "column": "mrr",
+            "fn": "sum"
+          },
+          {
+            "column": "seats",
+            "fn": "avg"
+          }
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_003",
+          "acc_006",
+          "acc_010",
+          "acc_013",
+          "acc_017",
+          "acc_020",
+          "acc_024",
+          "acc_027",
+          "acc_031",
+          "acc_034",
+          "acc_038",
+          "acc_041",
+          "acc_045",
+          "acc_048",
+          "acc_052",
+          "acc_055",
+          "acc_059"
+        ],
+        "total": 60,
+        "matched": 17,
+        "aggregates": {
+          "mrr:sum": 9775,
+          "seats:avg": 17.2
+        }
+      }
+    },
+    {
+      "name": "facets terms",
+      "requires": [
+        "facets"
+      ],
+      "request": {
+        "version": 1,
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ],
+        "facets": [
+          "plan",
+          "active",
+          "owner"
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_001",
+          "acc_002",
+          "acc_003",
+          "acc_004",
+          "acc_005",
+          "acc_006",
+          "acc_007",
+          "acc_008",
+          "acc_009",
+          "acc_010",
+          "acc_011",
+          "acc_012",
+          "acc_013",
+          "acc_014",
+          "acc_015",
+          "acc_016",
+          "acc_017",
+          "acc_018",
+          "acc_019",
+          "acc_020",
+          "acc_021",
+          "acc_022",
+          "acc_023",
+          "acc_024",
+          "acc_025",
+          "acc_026",
+          "acc_027",
+          "acc_028",
+          "acc_029",
+          "acc_030",
+          "acc_031",
+          "acc_032",
+          "acc_033",
+          "acc_034",
+          "acc_035",
+          "acc_036",
+          "acc_037",
+          "acc_038",
+          "acc_039",
+          "acc_040",
+          "acc_041",
+          "acc_042",
+          "acc_043",
+          "acc_044",
+          "acc_045",
+          "acc_046",
+          "acc_047",
+          "acc_048",
+          "acc_049",
+          "acc_050",
+          "acc_051",
+          "acc_052",
+          "acc_053",
+          "acc_054",
+          "acc_055",
+          "acc_056",
+          "acc_057",
+          "acc_058",
+          "acc_059",
+          "acc_060"
+        ],
+        "total": 60,
+        "matched": 60,
+        "facets": {
+          "plan": {
+            "kind": "terms",
+            "terms": [
+              {
+                "value": "free",
+                "count": 17
+              },
+              {
+                "value": "pro",
+                "count": 18
+              },
+              {
+                "value": "team",
+                "count": 17
+              }
+            ],
+            "distinct": 3
+          },
+          "active": {
+            "kind": "terms",
+            "terms": [
+              {
+                "value": true,
+                "count": 40
+              },
+              {
+                "value": false,
+                "count": 13
+              }
+            ],
+            "distinct": 2
+          },
+          "owner": {
+            "kind": "terms",
+            "terms": [
+              {
+                "value": "Mona",
+                "count": 12
+              },
+              {
+                "value": "Omar",
+                "count": 12
+              },
+              {
+                "value": "Lena",
+                "count": 12
+              },
+              {
+                "value": "Yusuf",
+                "count": 12
+              }
+            ],
+            "distinct": 4
+          }
+        }
+      }
+    },
+    {
+      "name": "facets histogram",
+      "requires": [
+        "facets"
+      ],
+      "request": {
+        "version": 1,
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ],
+        "facets": [
+          "mrr",
+          "score",
+          "renewal"
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_001",
+          "acc_002",
+          "acc_003",
+          "acc_004",
+          "acc_005",
+          "acc_006",
+          "acc_007",
+          "acc_008",
+          "acc_009",
+          "acc_010",
+          "acc_011",
+          "acc_012",
+          "acc_013",
+          "acc_014",
+          "acc_015",
+          "acc_016",
+          "acc_017",
+          "acc_018",
+          "acc_019",
+          "acc_020",
+          "acc_021",
+          "acc_022",
+          "acc_023",
+          "acc_024",
+          "acc_025",
+          "acc_026",
+          "acc_027",
+          "acc_028",
+          "acc_029",
+          "acc_030",
+          "acc_031",
+          "acc_032",
+          "acc_033",
+          "acc_034",
+          "acc_035",
+          "acc_036",
+          "acc_037",
+          "acc_038",
+          "acc_039",
+          "acc_040",
+          "acc_041",
+          "acc_042",
+          "acc_043",
+          "acc_044",
+          "acc_045",
+          "acc_046",
+          "acc_047",
+          "acc_048",
+          "acc_049",
+          "acc_050",
+          "acc_051",
+          "acc_052",
+          "acc_053",
+          "acc_054",
+          "acc_055",
+          "acc_056",
+          "acc_057",
+          "acc_058",
+          "acc_059",
+          "acc_060"
+        ],
+        "total": 60,
+        "matched": 60,
+        "facets": {
+          "mrr": {
+            "kind": "histogram",
+            "min": 0,
+            "max": 1200,
+            "bins": [
+              {
+                "start": 0,
+                "end": 60,
+                "count": 3
+              },
+              {
+                "start": 60,
+                "end": 120,
+                "count": 2
+              },
+              {
+                "start": 120,
+                "end": 180,
+                "count": 3
+              },
+              {
+                "start": 180,
+                "end": 240,
+                "count": 3
+              },
+              {
+                "start": 240,
+                "end": 300,
+                "count": 3
+              },
+              {
+                "start": 300,
+                "end": 360,
+                "count": 3
+              },
+              {
+                "start": 360,
+                "end": 420,
+                "count": 0
+              },
+              {
+                "start": 420,
+                "end": 480,
+                "count": 3
+              },
+              {
+                "start": 480,
+                "end": 540,
+                "count": 2
+              },
+              {
+                "start": 540,
+                "end": 600,
+                "count": 3
+              },
+              {
+                "start": 600,
+                "end": 660,
+                "count": 4
+              },
+              {
+                "start": 660,
+                "end": 720,
+                "count": 2
+              },
+              {
+                "start": 720,
+                "end": 780,
+                "count": 3
+              },
+              {
+                "start": 780,
+                "end": 840,
+                "count": 1
+              },
+              {
+                "start": 840,
+                "end": 900,
+                "count": 3
+              },
+              {
+                "start": 900,
+                "end": 960,
+                "count": 4
+              },
+              {
+                "start": 960,
+                "end": 1020,
+                "count": 2
+              },
+              {
+                "start": 1020,
+                "end": 1080,
+                "count": 3
+              },
+              {
+                "start": 1080,
+                "end": 1140,
+                "count": 2
+              },
+              {
+                "start": 1140,
+                "end": 1200,
+                "count": 4
+              }
+            ]
+          },
+          "score": {
+            "kind": "histogram",
+            "min": 0.7,
+            "max": 96.8,
+            "bins": [
+              {
+                "start": 0.7,
+                "end": 5.505,
+                "count": 4
+              },
+              {
+                "start": 5.505,
+                "end": 10.309999999999999,
+                "count": 3
+              },
+              {
+                "start": 10.309999999999999,
+                "end": 15.114999999999998,
+                "count": 4
+              },
+              {
+                "start": 15.114999999999998,
+                "end": 19.919999999999998,
+                "count": 3
+              },
+              {
+                "start": 19.919999999999998,
+                "end": 24.724999999999998,
+                "count": 2
+              },
+              {
+                "start": 24.724999999999998,
+                "end": 29.529999999999998,
+                "count": 2
+              },
+              {
+                "start": 29.529999999999998,
+                "end": 34.335,
+                "count": 2
+              },
+              {
+                "start": 34.335,
+                "end": 39.14,
+                "count": 3
+              },
+              {
+                "start": 39.14,
+                "end": 43.945,
+                "count": 3
+              },
+              {
+                "start": 43.945,
+                "end": 48.75,
+                "count": 2
+              },
+              {
+                "start": 48.75,
+                "end": 53.555,
+                "count": 2
+              },
+              {
+                "start": 53.555,
+                "end": 58.36,
+                "count": 2
+              },
+              {
+                "start": 58.36,
+                "end": 63.165,
+                "count": 1
+              },
+              {
+                "start": 63.165,
+                "end": 67.97,
+                "count": 2
+              },
+              {
+                "start": 67.97,
+                "end": 72.77499999999999,
+                "count": 3
+              },
+              {
+                "start": 72.77499999999999,
+                "end": 77.58,
+                "count": 3
+              },
+              {
+                "start": 77.58,
+                "end": 82.385,
+                "count": 3
+              },
+              {
+                "start": 82.385,
+                "end": 87.19,
+                "count": 2
+              },
+              {
+                "start": 87.19,
+                "end": 91.99499999999999,
+                "count": 2
+              },
+              {
+                "start": 91.99499999999999,
+                "end": 96.8,
+                "count": 2
+              }
+            ]
+          },
+          "renewal": {
+            "kind": "histogram",
+            "min": "2025-06-24",
+            "max": "2026-09-07",
+            "bins": [
+              {
+                "start": "2025-06-24",
+                "end": "2025-07-16",
+                "count": 3
+              },
+              {
+                "start": "2025-07-16",
+                "end": "2025-08-07",
+                "count": 3
+              },
+              {
+                "start": "2025-08-07",
+                "end": "2025-08-29",
+                "count": 3
+              },
+              {
+                "start": "2025-08-29",
+                "end": "2025-09-20",
+                "count": 3
+              },
+              {
+                "start": "2025-09-20",
+                "end": "2025-10-12",
+                "count": 3
+              },
+              {
+                "start": "2025-10-12",
+                "end": "2025-11-03",
+                "count": 3
+              },
+              {
+                "start": "2025-11-03",
+                "end": "2025-11-25",
+                "count": 0
+              },
+              {
+                "start": "2025-11-25",
+                "end": "2025-12-17",
+                "count": 3
+              },
+              {
+                "start": "2025-12-17",
+                "end": "2026-01-08",
+                "count": 3
+              },
+              {
+                "start": "2026-01-08",
+                "end": "2026-01-30",
+                "count": 3
+              },
+              {
+                "start": "2026-01-30",
+                "end": "2026-02-21",
+                "count": 3
+              },
+              {
+                "start": "2026-02-21",
+                "end": "2026-03-15",
+                "count": 3
+              },
+              {
+                "start": "2026-03-15",
+                "end": "2026-04-06",
+                "count": 3
+              },
+              {
+                "start": "2026-04-06",
+                "end": "2026-04-28",
+                "count": 0
+              },
+              {
+                "start": "2026-04-28",
+                "end": "2026-05-20",
+                "count": 3
+              },
+              {
+                "start": "2026-05-20",
+                "end": "2026-06-11",
+                "count": 3
+              },
+              {
+                "start": "2026-06-11",
+                "end": "2026-07-03",
+                "count": 2
+              },
+              {
+                "start": "2026-07-03",
+                "end": "2026-07-25",
+                "count": 3
+              },
+              {
+                "start": "2026-07-25",
+                "end": "2026-08-16",
+                "count": 2
+              },
+              {
+                "start": "2026-08-16",
+                "end": "2026-09-07",
+                "count": 2
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "facets over filtered rows",
+      "requires": [
+        "filter",
+        "facets"
+      ],
+      "request": {
+        "version": 1,
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ],
+        "filter": {
+          "type": "condition",
+          "column": "active",
+          "op": "eq",
+          "value": true
+        },
+        "facets": [
+          "plan",
+          "mrr"
+        ]
+      },
+      "expected": {
+        "rows": [
+          "acc_002",
+          "acc_003",
+          "acc_005",
+          "acc_006",
+          "acc_008",
+          "acc_009",
+          "acc_011",
+          "acc_012",
+          "acc_014",
+          "acc_015",
+          "acc_017",
+          "acc_018",
+          "acc_020",
+          "acc_021",
+          "acc_023",
+          "acc_024",
+          "acc_026",
+          "acc_027",
+          "acc_029",
+          "acc_030",
+          "acc_032",
+          "acc_033",
+          "acc_035",
+          "acc_036",
+          "acc_038",
+          "acc_039",
+          "acc_041",
+          "acc_042",
+          "acc_044",
+          "acc_045",
+          "acc_047",
+          "acc_048",
+          "acc_050",
+          "acc_051",
+          "acc_053",
+          "acc_054",
+          "acc_056",
+          "acc_057",
+          "acc_059",
+          "acc_060"
+        ],
+        "total": 60,
+        "matched": 40,
+        "facets": {
+          "plan": {
+            "kind": "terms",
+            "terms": [
+              {
+                "value": "free",
+                "count": 12
+              },
+              {
+                "value": "pro",
+                "count": 12
+              },
+              {
+                "value": "team",
+                "count": 11
+              }
+            ],
+            "distinct": 3
+          },
+          "mrr": {
+            "kind": "histogram",
+            "min": 0,
+            "max": 1200,
+            "bins": [
+              {
+                "start": 0,
+                "end": 60,
+                "count": 3
+              },
+              {
+                "start": 60,
+                "end": 120,
+                "count": 1
+              },
+              {
+                "start": 120,
+                "end": 180,
+                "count": 2
+              },
+              {
+                "start": 180,
+                "end": 240,
+                "count": 2
+              },
+              {
+                "start": 240,
+                "end": 300,
+                "count": 1
+              },
+              {
+                "start": 300,
+                "end": 360,
+                "count": 3
+              },
+              {
+                "start": 360,
+                "end": 420,
+                "count": 0
+              },
+              {
+                "start": 420,
+                "end": 480,
+                "count": 3
+              },
+              {
+                "start": 480,
+                "end": 540,
+                "count": 1
+              },
+              {
+                "start": 540,
+                "end": 600,
+                "count": 2
+              },
+              {
+                "start": 600,
+                "end": 660,
+                "count": 3
+              },
+              {
+                "start": 660,
+                "end": 720,
+                "count": 1
+              },
+              {
+                "start": 720,
+                "end": 780,
+                "count": 3
+              },
+              {
+                "start": 780,
+                "end": 840,
+                "count": 1
+              },
+              {
+                "start": 840,
+                "end": 900,
+                "count": 3
+              },
+              {
+                "start": 900,
+                "end": 960,
+                "count": 2
+              },
+              {
+                "start": 960,
+                "end": 1020,
+                "count": 2
+              },
+              {
+                "start": 1020,
+                "end": 1080,
+                "count": 2
+              },
+              {
+                "start": 1080,
+                "end": 1140,
+                "count": 1
+              },
+              {
+                "start": 1140,
+                "end": 1200,
+                "count": 4
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "pages": [
+    {
+      "name": "page first",
+      "requires": [],
+      "request": {
+        "version": 1,
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ],
+        "page": {
+          "offset": 0,
+          "limit": 7
+        }
+      },
+      "expected": {
+        "rows": [
+          "acc_001",
+          "acc_002",
+          "acc_003",
+          "acc_004",
+          "acc_005",
+          "acc_006",
+          "acc_007"
+        ],
+        "total": 60,
+        "matched": 60
+      }
+    },
+    {
+      "name": "page middle",
+      "requires": [],
+      "request": {
+        "version": 1,
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ],
+        "page": {
+          "offset": 14,
+          "limit": 7
+        }
+      },
+      "expected": {
+        "rows": [
+          "acc_015",
+          "acc_016",
+          "acc_017",
+          "acc_018",
+          "acc_019",
+          "acc_020",
+          "acc_021"
+        ],
+        "total": 60,
+        "matched": 60
+      }
+    },
+    {
+      "name": "page last partial",
+      "requires": [],
+      "request": {
+        "version": 1,
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ],
+        "page": {
+          "offset": 56,
+          "limit": 7
+        }
+      },
+      "expected": {
+        "rows": [
+          "acc_057",
+          "acc_058",
+          "acc_059",
+          "acc_060"
+        ],
+        "total": 60,
+        "matched": 60
+      }
+    },
+    {
+      "name": "page beyond end",
+      "requires": [],
+      "request": {
+        "version": 1,
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ],
+        "page": {
+          "offset": 70,
+          "limit": 7
+        }
+      },
+      "expected": {
+        "rows": [],
+        "total": 60,
+        "matched": 60
+      }
+    },
+    {
+      "name": "page sorted and filtered",
+      "requires": [
+        "filter",
+        "sort"
+      ],
+      "request": {
+        "version": 1,
+        "sort": [
+          {
+            "column": "mrr",
+            "direction": "desc"
+          },
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ],
+        "filter": {
+          "type": "condition",
+          "column": "plan",
+          "op": "neq",
+          "value": "free"
+        },
+        "page": {
+          "offset": 5,
+          "limit": 10
+        }
+      },
+      "expected": {
+        "rows": [
+          "acc_044",
+          "acc_021",
+          "acc_048",
+          "acc_025",
+          "acc_002",
+          "acc_052",
+          "acc_006",
+          "acc_056",
+          "acc_060",
+          "acc_014"
+        ],
+        "total": 60,
+        "matched": 43
+      }
+    },
+    {
+      "name": "page grouped",
+      "requires": [
+        "group"
+      ],
+      "request": {
+        "version": 1,
+        "sort": [
+          {
+            "column": "id",
+            "direction": "asc"
+          }
+        ],
+        "group": {
+          "column": "plan"
+        },
+        "page": {
+          "offset": 10,
+          "limit": 10
+        }
+      },
+      "expected": {
+        "rows": [],
+        "total": 60,
+        "matched": 60,
+        "groups": [
+          {
+            "key": "free",
+            "value": "free",
+            "count": 17,
+            "aggregates": {}
+          },
+          {
+            "key": "pro",
+            "value": "pro",
+            "count": 18,
+            "aggregates": {}
+          },
+          {
+            "key": "team",
+            "value": "team",
+            "count": 17,
+            "aggregates": {}
+          },
+          {
+            "key": "",
+            "value": null,
+            "count": 8,
+            "aggregates": {}
+          }
+        ]
+      }
+    }
+  ]
+}

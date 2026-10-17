@@ -6,3 +6,5 @@ CHANGELOG.md
 packages/protocol/schemas
 examples/playground/src/components/ui
 examples/playground/src/hooks/use-mobile.ts
+packages/php/resources/schemas
+packages/php/tests/Fixtures/conformance.json
