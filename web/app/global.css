@@ -1,1 +1,64 @@
+@layer theme, base, tally, components, utilities;
 @import 'tailwindcss';
+@import 'tally-react/styles.css' layer(tally);
+
+@theme {
+  --font-sans: var(--font-onest), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+
+  --color-canvas: oklch(0.975 0.004 268);
+  --color-surface: oklch(0.985 0.002 265);
+  --color-chip: oklch(0.962 0.004 265);
+  --color-ink: oklch(0.21 0.012 265);
+  --color-ink-2: oklch(0.46 0.013 265);
+  --color-ink-3: oklch(0.62 0.011 265);
+  --color-line: oklch(0.922 0.005 265);
+  --color-line-soft: oklch(0.953 0.004 265);
+  --color-track: oklch(0.93 0.004 265);
+  --color-accent: oklch(0.53 0.2 268);
+  --color-accent-deep: oklch(0.47 0.2 268);
+  --color-brand: oklch(0.62 0.11 190);
+  --color-up: oklch(0.55 0.13 155);
+  --color-down: oklch(0.56 0.19 25);
+  --color-warn: oklch(0.76 0.15 75);
+  --color-warn-ink: oklch(0.56 0.13 65);
+  --color-ai: oklch(0.6 0.2 300);
+  --color-ai-ink: oklch(0.5 0.19 300);
+  --color-grey: oklch(0.7 0.01 265);
+  --color-night: oklch(0.115 0.012 268);
+  --color-night-2: oklch(0.155 0.012 268);
+  --color-night-3: oklch(0.175 0.012 268);
+  --color-night-4: oklch(0.23 0.014 268);
+  --color-night-line: oklch(0.26 0.014 268);
+  --color-night-ink: oklch(0.97 0.004 265);
+  --color-night-ink-3: oklch(0.62 0.012 265);
+  --color-night-ink-4: oklch(0.55 0.012 265);
+  --color-pill: oklch(0.17 0.012 268);
+  --color-live: oklch(0.78 0.15 155);
+}
+
+:root {
+  color-scheme: light;
+  --tally-font: var(--font-onest), system-ui, sans-serif;
+  --tally-font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  overflow-x: hidden;
+}
+
+@utility font-tabular {
+  font-variant-numeric: tabular-nums;
+}

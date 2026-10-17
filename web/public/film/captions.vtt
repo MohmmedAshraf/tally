@@ -1,0 +1,49 @@
+WEBVTT
+
+00:01.600 --> 00:05.100
+Every app ends up with a table.
+
+00:05.200 --> 00:10.340
+It's where the real work happens. So it should be the best part.
+
+00:11.200 --> 00:15.220
+Meet Tally, an open-source data table.
+
+00:15.400 --> 00:21.580
+Every column knows its type. So money looks like money, and people look like people.
+
+00:22.900 --> 00:30.600
+Write a filter. Each condition finds its column, and everything else falls away.
+
+00:32.000 --> 00:39.900
+Or just ask in plain English. You get a real filter back, one you can read and keep.
+
+00:40.000 --> 00:48.100
+Point Tally at a live source, and every change streams straight in. Values update in place, and rows re-rank on their own.
+
+00:48.200 --> 00:55.100
+Copy, paste, fill down. Change your mind, and every step undoes cleanly.
+
+00:56.600 --> 01:01.820
+Group by anything, with the totals already worked out.
+
+01:04.000 --> 01:08.420
+Need an answer that isn't in your data? Add an AI column, and it works through every row.
+
+01:11.200 --> 01:17.140
+Under every view is one clean request. Tally checks it, then speaks your database's language.
+
+01:20.800 --> 01:29.700
+React, Vue, Svelte or Solid. Postgres, Laravel, Supabase, or your own API. Bring the stack you already have.
+
+01:29.800 --> 01:36.460
+Make the screen smaller, and Tally adapts. Columns step aside, rows become cards, and details are one tap away.
+
+01:38.600 --> 01:45.820
+And when you want it your way, just ask your coding agent. It knows exactly where each change goes.
+
+01:47.500 --> 01:51.600
+Customize every piece, so it fits your design system and your stack.
+
+01:51.700 --> 01:57.240
+Tally. Open source, and ready for your next big idea.

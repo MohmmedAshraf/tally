@@ -1,30 +1,42 @@
 import type { ReactNode } from 'react'
-import { docsUrl, githubUrl, playgroundUrl } from '@/lib/links'
-
-const description =
-  'The data grid with a query language, saved views and a backend protocol. Typed columns, grouping, live rows, undo, cards on phones, AI that writes real queries, and an MCP server so your coding agent knows where every change goes.'
-
-const install = 'npm install tally-react tally-core react react-dom'
+import { Nav } from '@/components/nav'
+import { Adapters } from '@/components/sections/adapters'
+import { AiColumns } from '@/components/sections/ai-columns'
+import { Ask } from '@/components/sections/ask'
+import { ColumnTypes } from '@/components/sections/column-types'
+import { Film } from '@/components/sections/film'
+import { GroupBy } from '@/components/sections/group'
+import { Hero } from '@/components/sections/hero'
+import { Live } from '@/components/sections/live'
+import { Mcp } from '@/components/sections/mcp'
+import { Mobile } from '@/components/sections/mobile'
+import { Outro } from '@/components/sections/outro'
+import { Protocol } from '@/components/sections/protocol'
+import { Query } from '@/components/sections/query'
+import { Theming } from '@/components/sections/theming'
+import { Undo } from '@/components/sections/undo'
 
 export default function HomePage(): ReactNode {
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col justify-center gap-6 px-4 py-16">
-      <h1 className="text-3xl font-semibold">Tally</h1>
-      <p className="text-neutral-600 dark:text-neutral-400">{description}</p>
-      <pre className="overflow-x-auto rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm dark:border-neutral-800 dark:bg-neutral-900">
-        <code>{install}</code>
-      </pre>
-      <nav className="flex gap-4 text-sm font-medium">
-        <a href={docsUrl} className="underline underline-offset-4">
-          Documentation
-        </a>
-        <a href={playgroundUrl} className="underline underline-offset-4">
-          Playground
-        </a>
-        <a href={githubUrl} className="underline underline-offset-4">
-          GitHub
-        </a>
-      </nav>
-    </main>
+    <>
+      <Nav />
+      <main>
+        <Hero />
+        <Film />
+        <Ask />
+        <Query />
+        <AiColumns />
+        <Live />
+        <Mcp />
+        <Protocol />
+        <Adapters />
+        <ColumnTypes />
+        <Undo />
+        <GroupBy />
+        <Mobile />
+        <Theming />
+        <Outro />
+      </main>
+    </>
   )
 }

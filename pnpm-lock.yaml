@@ -1041,6 +1041,9 @@ importers:
 
   web:
     dependencies:
+      '@base-ui/react':
+        specifier: 'catalog:'
+        version: 1.9.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       motion:
         specifier: 'catalog:'
         version: 14.3.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)

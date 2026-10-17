@@ -9,9 +9,14 @@
     "typecheck": "next typegen && tsc -p tsconfig.json"
   },
   "dependencies": {
+    "@base-ui/react": "catalog:",
+    "motion": "catalog:",
     "next": "catalog:",
     "react": "catalog:",
-    "react-dom": "catalog:"
+    "react-dom": "catalog:",
+    "simple-icons": "catalog:",
+    "tally-core": "workspace:*",
+    "tally-react": "workspace:*"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "catalog:",
