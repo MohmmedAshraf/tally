@@ -3,6 +3,7 @@
 </p>
 
 <p align="center">
+  <a href="https://www.npmjs.com/package/tally-react"><img src="https://img.shields.io/npm/v/tally-react?label=tally-react" alt="tally-react on npm" /></a>
   <a href="https://github.com/MohmmedAshraf/tally/actions/workflows/ci.yml"><img src="https://github.com/MohmmedAshraf/tally/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT license" /></a>
 </p>
@@ -11,7 +12,7 @@
 
 The data grid with a query language, saved views and a backend protocol. Typed columns, grouping, live rows, undo, cards on phones, AI that writes real queries, and an MCP server so your coding agent knows where every change goes.
 
-Tally is under active development and is not published yet.
+[Documentation](https://tally.outhebox.dev/docs) · [Playground](https://play.tally.outhebox.dev) · [tally.outhebox.dev](https://tally.outhebox.dev)
 
 ## Why Tally
 
