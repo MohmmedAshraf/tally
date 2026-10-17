@@ -8,7 +8,20 @@
   ],
   "commit": false,
   "fixed": [],
-  "linked": [["tally-*"]],
+  "linked": [
+    [
+      "tally-adapters",
+      "tally-ai",
+      "tally-core",
+      "tally-mcp-server",
+      "tally-protocol",
+      "tally-react",
+      "tally-server",
+      "tally-solid",
+      "tally-svelte",
+      "tally-vue"
+    ]
+  ],
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch"
