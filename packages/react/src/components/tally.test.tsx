@@ -80,7 +80,7 @@ describe('Tally', () => {
     render(<Harness />)
     const grid = screen.getByRole('grid', { name: 'Accounts' })
     await within(grid).findByText('Kite Supply')
-    expect(grid).toHaveAttribute('aria-rowcount', '3')
+    expect(grid).toHaveAttribute('aria-rowcount', '5')
     expect(grid).toHaveAttribute('aria-colcount', '9')
     const headers = within(grid).getAllByRole('columnheader')
     expect(headers.map((header) => header.querySelector('.tally-text')?.textContent)).toEqual([
@@ -206,5 +206,69 @@ describe('Tally', () => {
     expect(flagged).toHaveAttribute('data-rule')
     expect(flagged).toHaveAttribute('data-bold')
     expect(flagged).toHaveStyle({ '--tally-rule-background': 'red' })
+  })
+
+  it('indexes header, pinned, group, data, add and footer rows for assistive tech', async () => {
+    render(
+      <Harness
+        view={{
+          columns: schema.columns.map((column) => ({ id: column.id })),
+          sort: [],
+          group: { column: 'status' },
+          density: 'comfortable',
+          rules: [],
+          footer: {},
+          pinnedRows: [2],
+          expanded: [],
+          collapsedGroups: [],
+        }}
+      />,
+    )
+    const grid = screen.getByRole('grid')
+    await within(grid).findByText('Kite Supply')
+    expect(grid).toHaveAttribute('aria-rowcount', '-1')
+    const indexes = within(grid)
+      .getAllByRole('row')
+      .map((row) => row.getAttribute('aria-rowindex'))
+    expect(indexes.slice(0, 5)).toEqual(['1', '2', '3', '4', '5'])
+    const group = within(grid).getAllByRole('row', { expanded: true })[0]!
+    expect(group).toHaveClass('tally-group')
+    const cells = within(group).getAllByRole('gridcell')
+    expect(cells[0]).toHaveAttribute('aria-colindex', '1')
+    expect(within(cells[0]!).getByRole('button', { name: 'Toggle group' })).toHaveAttribute(
+      'aria-expanded',
+      'true',
+    )
+    expect(cells[1]).toHaveAttribute('aria-colindex', '2')
+    const footer = within(grid).getByRole('row', { name: 'Footer' })
+    expect(footer.parentElement).toHaveAttribute('role', 'rowgroup')
+    expect(within(footer).getAllByRole('gridcell')[0]).toHaveAttribute('aria-colindex', '1')
+  })
+
+  it('counts every rendered row and ends with the footer row', async () => {
+    render(<Harness />)
+    const grid = screen.getByRole('grid')
+    await within(grid).findByText('Kite Supply')
+    const rowsInGrid = within(grid).getAllByRole('row')
+    expect(rowsInGrid.map((row) => row.getAttribute('aria-rowindex'))).toEqual([
+      '1',
+      '2',
+      '3',
+      '4',
+      '5',
+    ])
+    expect(rowsInGrid.at(-2)).toHaveAccessibleName('Add row')
+    expect(rowsInGrid.at(-1)).toHaveAccessibleName('Footer')
+    expect(within(grid).getByRole('checkbox', { name: 'Select all rows' })).toBeInTheDocument()
+    expect(within(grid).getByRole('checkbox', { name: 'Select row 1' })).toHaveAttribute(
+      'tabindex',
+      '-1',
+    )
+  })
+
+  it('names the cards region with the grid label', async () => {
+    render(<Harness layout="cards" />)
+    await screen.findByRole('article', { name: 'Kite Supply' })
+    expect(screen.getByRole('region', { name: 'Accounts' })).toHaveAttribute('data-layout', 'cards')
   })
 })

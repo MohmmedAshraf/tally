@@ -18,7 +18,7 @@ function rowKeyOf(target: EventTarget | null): string | undefined {
 
 export function RowMenu({ grid, children }: RowMenuProps): ReactNode {
   const labels = useLabels()
-  const { root } = useShell()
+  const { root, viewport } = useShell()
   const [keys, setKeys] = useState<readonly RowKey[]>([])
   const [doomed, setDoomed] = useState<readonly RowKey[]>()
   const pinned = keys.length > 0 && keys.every((key) => grid.view.get().pinnedRows.includes(key))
@@ -98,7 +98,7 @@ export function RowMenu({ grid, children }: RowMenuProps): ReactNode {
       >
         <AlertDialog.Portal container={root}>
           <AlertDialog.Backdrop className="tally-dialog-backdrop" />
-          <AlertDialog.Popup className="tally-dialog">
+          <AlertDialog.Popup className="tally-dialog" finalFocus={viewport}>
             <AlertDialog.Title className="tally-dialog-title">
               {labels.deleteRowsTitle(doomed?.length ?? 0)}
             </AlertDialog.Title>

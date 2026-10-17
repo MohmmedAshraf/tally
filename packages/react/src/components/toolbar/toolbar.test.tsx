@@ -117,9 +117,10 @@ describe('Toolbar', () => {
     const harness = renderTally({ columns, rows, source: { mutable: false } })
     await gridReady('Account 1')
     expect(screen.queryByRole('button', { name: 'Undo' })).toBeNull()
-    expect(screen.getByText('5 rows')).toBeInTheDocument()
+    const count = document.querySelector('.tally-count')
+    expect(count).toHaveTextContent('5 rows')
     act(() => harness.grid().selection.dispatch({ type: 'selectRows', keys: [1, 2] }))
-    expect(await screen.findByText('2 selected')).toBeInTheDocument()
+    await waitFor(() => expect(count).toHaveTextContent('2 selected'))
   })
 
   it('pages offset sources and reports the visible range', async () => {

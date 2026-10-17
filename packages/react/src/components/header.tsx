@@ -15,6 +15,7 @@ import { useColumnDrag, useColumnDropMonitor } from './column-drag.ts'
 import { useShell } from './context.ts'
 import { groupSpans, hasColumnGroups, isPinEdge, type PinOffsets } from './geometry.ts'
 import { HeaderMenu } from './header-menu.tsx'
+import { useLabels } from './labels.ts'
 import { ResizeHandle } from './resize-handle.tsx'
 import type { ColumnWindow } from './row.tsx'
 
@@ -146,6 +147,7 @@ export function Header({
   model,
   selection,
 }: HeaderProps): ReactNode {
+  const labels = useLabels()
   const sorts = useView(grid, (view) => view.sort)
   const filter = useView(grid, (view) => view.filter)
   const filtered = new Set<string>()
@@ -195,7 +197,7 @@ export function Header({
           <input
             type="checkbox"
             className="tally-check"
-            aria-label="Select all rows"
+            aria-label={labels.selectAllRows}
             checked={allSelected}
             ref={(input) => {
               if (input !== null) input.indeterminate = selectedCount > 0 && !allSelected

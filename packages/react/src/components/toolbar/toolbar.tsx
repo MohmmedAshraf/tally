@@ -46,9 +46,7 @@ export function Toolbar({ grid, ai, start, children }: ToolbarProps): ReactNode 
     <div className="tally-toolbar" data-version={rows.version}>
       {start}
       <FilterBar grid={grid} ask={ai?.ask} />
-      <span className="tally-count" aria-live="polite">
-        {count}
-      </span>
+      <span className="tally-count">{count}</span>
       {paged ? <Pager grid={grid} /> : null}
       <span className="tally-toolbar-separator" aria-hidden />
       {grid.capabilities.mutate ? (

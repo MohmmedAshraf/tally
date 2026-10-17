@@ -20,6 +20,7 @@ export interface RulesPopoverProps {
   readonly open: boolean
   readonly onOpenChange: (open: boolean) => void
   readonly anchor: RefObject<HTMLElement | null>
+  readonly returnFocus?: RefObject<HTMLElement | null> | undefined
 }
 
 export interface RuleTint {
@@ -66,6 +67,7 @@ export function RulesPopover({
   open,
   onOpenChange,
   anchor,
+  returnFocus,
 }: RulesPopoverProps): ReactNode {
   const labels = useLabels()
   const { root } = useShell()
@@ -100,6 +102,7 @@ export function RulesPopover({
           <Popover.Popup
             className="tally-popup tally-rules-popup"
             aria-label={labels.formattingRules}
+            {...(returnFocus === undefined ? {} : { finalFocus: returnFocus })}
           >
             <Popover.Title className="tally-menu-heading">
               {columnLabel(column)}
@@ -148,7 +151,7 @@ export function RulesPopover({
                       className="tally-tint"
                       data-tint={tint.id}
                       aria-checked={tintOf(rule.style) === tint.id}
-                      aria-label={tint.id}
+                      aria-label={labels.tint(tint.id)}
                       style={{
                         background: tint.style.background,
                         color: tint.style.color,

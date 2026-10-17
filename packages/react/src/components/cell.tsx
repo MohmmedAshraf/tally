@@ -10,6 +10,7 @@ import {
 import { AiCell } from './cells/ai-cell.tsx'
 import { rendererFor, signOf } from './cells/renderers.tsx'
 import { useShell } from './context.ts'
+import { useLabels } from './labels.ts'
 
 export interface CellViewProps {
   readonly id: string
@@ -43,6 +44,7 @@ export function CellView({
   editor,
 }: CellViewProps): ReactNode {
   const { renderers, entering } = useShell()
+  const labels = useLabels()
   const { column } = entry
   const type = grid.schema.typeOf(column)
   const value = grid.schema.valueOf(item.row, column)
@@ -86,6 +88,8 @@ export function CellView({
         <button
           type="button"
           className="tally-expander"
+          tabIndex={-1}
+          aria-label={labels.toggleRow}
           aria-expanded={item.expanded}
           onClick={() => grid.view.setExpanded(item.key, !item.expanded)}
           {...(item.expanded ? { 'data-open': '' } : {})}

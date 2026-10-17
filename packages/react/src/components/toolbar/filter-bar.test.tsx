@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { useEffect, useState, type ReactNode } from 'react'
 import { createArraySource, createSchema, type Grid } from 'tally-core'
 import { describe, expect, it, vi } from 'vitest'
@@ -144,7 +144,10 @@ describe('FilterBar', () => {
     render(
       <Harness labels={{ rows: (count) => `${count} accounts`, filterPlaceholder: 'Search' }} />,
     )
-    await screen.findByText('3 accounts')
+    await waitFor(() =>
+      expect(document.querySelector('.tally-count')).toHaveTextContent('3 accounts'),
+    )
+    await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('3 accounts'))
     expect(screen.getByPlaceholderText('Search')).toBeInTheDocument()
   })
 })

@@ -228,9 +228,13 @@ export function useInteractions(options: InteractionOptions): void {
     }
 
     const onKeyDown = (event: KeyboardEvent): void => {
-      if (event.defaultPrevented || latest.current.editing.active) return
-      if (event.target instanceof HTMLElement && event.target !== element) {
-        if (event.target.closest('input, textarea, select, [contenteditable]') !== null) return
+      if (event.defaultPrevented || latest.current.editing.active || event.target !== element) {
+        return
+      }
+      if (event.key === 'Tab' && !event.ctrlKey && !event.metaKey && !event.altKey) {
+        const active = grid.selection.get().active
+        const next = active === undefined ? -1 : active.column + (event.shiftKey ? -1 : 1)
+        if (next < 0 || next >= grid.selection.geometry().columnCount) return
       }
       const intent = keyboardIntent(
         {
@@ -249,6 +253,14 @@ export function useInteractions(options: InteractionOptions): void {
       handle(intent)
     }
 
+    const onFocus = (event: FocusEvent): void => {
+      if (event.target !== element || dragging.current !== undefined) return
+      if (grid.selection.get().active !== undefined || !element.matches(':focus-visible')) return
+      const { rowCount, columnCount } = grid.selection.geometry()
+      if (rowCount === 0 || columnCount === 0) return
+      grid.selection.dispatch({ type: 'focus', cell: { row: 0, column: 0 } })
+    }
+
     const onMouseDown = (event: MouseEvent): void => {
       if (event.button !== 0 || !(event.target instanceof Element)) return
       if (event.target.closest('[data-fill-handle]') !== null) {
@@ -263,8 +275,8 @@ export function useInteractions(options: InteractionOptions): void {
       if (cell === undefined) return
       if (event.target.closest('a, button, input, textarea, [role="combobox"]') !== null) return
       event.preventDefault()
-      element.focus({ preventScroll: true })
       dragging.current = 'select'
+      element.focus({ preventScroll: true })
       grid.selection.dispatch({ type: 'focus', cell, extend: event.shiftKey })
     }
 
@@ -291,12 +303,14 @@ export function useInteractions(options: InteractionOptions): void {
     }
 
     element.addEventListener('keydown', onKeyDown)
+    element.addEventListener('focus', onFocus)
     element.addEventListener('mousedown', onMouseDown)
     element.addEventListener('dblclick', onDoubleClick)
     element.addEventListener('mouseover', onMouseOver)
     window.addEventListener('mouseup', onMouseUp)
     return () => {
       element.removeEventListener('keydown', onKeyDown)
+      element.removeEventListener('focus', onFocus)
       element.removeEventListener('mousedown', onMouseDown)
       element.removeEventListener('dblclick', onDoubleClick)
       element.removeEventListener('mouseover', onMouseOver)

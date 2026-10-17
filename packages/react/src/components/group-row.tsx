@@ -26,6 +26,8 @@ export interface GroupRowProps {
   readonly item: GroupItem
   readonly columns?: GroupColumns | undefined
   readonly style?: CSSProperties | undefined
+  readonly rowIndex?: number | undefined
+  readonly focusable?: boolean | undefined
 }
 
 function GroupLabel({ grid, item }: Pick<GroupRowProps, 'grid' | 'item'>): ReactNode {
@@ -49,7 +51,14 @@ function GroupLabel({ grid, item }: Pick<GroupRowProps, 'grid' | 'item'>): React
   })
 }
 
-export function GroupRow({ grid, item, columns, style }: GroupRowProps): ReactNode {
+export function GroupRow({
+  grid,
+  item,
+  columns,
+  style,
+  rowIndex,
+  focusable = true,
+}: GroupRowProps): ReactNode {
   const labels = useLabels()
   const footer = useView(grid, (view) => view.footer)
   const toggle = (
@@ -57,6 +66,7 @@ export function GroupRow({ grid, item, columns, style }: GroupRowProps): ReactNo
       type="button"
       className="tally-group-toggle"
       aria-label={labels.toggleGroup}
+      {...(focusable ? {} : { tabIndex: -1 })}
       aria-expanded={!item.collapsed}
       onClick={() => grid.view.toggleGroupCollapsed(item.key)}
       style={item.collapsed ? undefined : { rotate: '90deg' }}
@@ -77,14 +87,7 @@ export function GroupRow({ grid, item, columns, style }: GroupRowProps): ReactNo
   )
   if (columns === undefined) {
     return (
-      <div
-        role="row"
-        className="tally-group"
-        data-plain=""
-        aria-expanded={!item.collapsed}
-        data-group={item.key}
-        style={style}
-      >
+      <div className="tally-group" data-plain="" data-group={item.key} style={style}>
         {toggle}
         {label}
       </div>
@@ -99,7 +102,9 @@ export function GroupRow({ grid, item, columns, style }: GroupRowProps): ReactNo
     return (
       <div
         key={column.id}
+        role="gridcell"
         className="tally-group-cell"
+        aria-colindex={entry.index + 2}
         data-column={column.id}
         data-align={column.align ?? grid.schema.typeOf(column).align}
         style={cellStyle(entry, offsets)}
@@ -119,16 +124,26 @@ export function GroupRow({ grid, item, columns, style }: GroupRowProps): ReactNo
       role="row"
       className="tally-group"
       aria-expanded={!item.collapsed}
+      aria-rowindex={rowIndex}
       data-group={item.key}
       style={style}
     >
-      <div className="tally-gutter" {...(layout.left.length === 0 ? { 'data-pin-edge': '' } : {})}>
+      <div
+        role="gridcell"
+        className="tally-gutter"
+        aria-colindex={1}
+        {...(layout.left.length === 0 ? { 'data-pin-edge': '' } : {})}
+      >
         {toggle}
       </div>
       {layout.left.map(cell)}
-      {window.before > 0 ? <div className="tally-spacer" style={{ width: window.before }} /> : null}
+      {window.before > 0 ? (
+        <div className="tally-spacer" style={{ width: window.before }} aria-hidden />
+      ) : null}
       {window.columns.map(cell)}
-      {window.after > 0 ? <div className="tally-spacer" style={{ width: window.after }} /> : null}
+      {window.after > 0 ? (
+        <div className="tally-spacer" style={{ width: window.after }} aria-hidden />
+      ) : null}
       {layout.right.map(cell)}
     </div>
   )

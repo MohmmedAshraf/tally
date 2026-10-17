@@ -9,6 +9,7 @@ import {
   type LayoutColumn,
 } from 'tally-core'
 import { useGridState, useView } from '../hooks/use-store.ts'
+import { useLabels } from './labels.ts'
 
 interface Segment {
   readonly value: string
@@ -42,13 +43,11 @@ function Distribution({
   readonly locale: string
 }): ReactNode {
   const total = segments.reduce((sum, segment) => sum + segment.count, 0)
+  const summary = segments
+    .map((segment) => `${segment.label} ${segment.count.toLocaleString(locale)}`)
+    .join(' · ')
   return (
-    <span
-      className="tally-distribution"
-      title={segments
-        .map((segment) => `${segment.label} ${segment.count.toLocaleString(locale)}`)
-        .join(' · ')}
-    >
+    <span className="tally-distribution" role="img" aria-label={summary} title={summary}>
       {segments.map((segment) => (
         <i
           key={segment.value}
@@ -68,9 +67,18 @@ export interface FooterProps {
   readonly offsets: PinOffsets
   readonly window: ColumnWindow
   readonly visible: { readonly from: number; readonly to: number } | undefined
+  readonly rowIndex?: number | undefined
 }
 
-export function Footer({ grid, layout, offsets, window, visible }: FooterProps): ReactNode {
+export function Footer({
+  grid,
+  layout,
+  offsets,
+  window,
+  visible,
+  rowIndex,
+}: FooterProps): ReactNode {
+  const labels = useLabels()
   const footer = useView(grid, (view) => view.footer)
   const state = useGridState(grid)
   const locale = grid.context.format.locale
@@ -100,7 +108,9 @@ export function Footer({ grid, layout, offsets, window, visible }: FooterProps):
     return (
       <div
         key={column.id}
+        role="gridcell"
         className="tally-footer-cell"
+        aria-colindex={entry.index + 2}
         data-column={column.id}
         data-align={column.align ?? type.align}
         style={cellStyle(entry, offsets)}
@@ -113,18 +123,27 @@ export function Footer({ grid, layout, offsets, window, visible }: FooterProps):
   }
   const firstId = layout.columns[0]?.column.id
   return (
-    <div className="tally-footer" aria-hidden>
-      <div className="tally-footer-row">
+    <div className="tally-footer" role="rowgroup">
+      <div
+        role="row"
+        className="tally-footer-row"
+        aria-label={labels.footer}
+        aria-rowindex={rowIndex}
+      >
         <div
+          role="gridcell"
           className="tally-gutter"
+          aria-colindex={1}
           {...(layout.left.length === 0 ? { 'data-pin-edge': '' } : {})}
         />
         {layout.left.map((entry) => cell(entry, entry.column.id === firstId))}
         {window.before > 0 ? (
-          <div className="tally-spacer" style={{ width: window.before }} />
+          <div className="tally-spacer" style={{ width: window.before }} aria-hidden />
         ) : null}
         {window.columns.map((entry) => cell(entry, entry.column.id === firstId))}
-        {window.after > 0 ? <div className="tally-spacer" style={{ width: window.after }} /> : null}
+        {window.after > 0 ? (
+          <div className="tally-spacer" style={{ width: window.after }} aria-hidden />
+        ) : null}
         {layout.right.map((entry) => cell(entry, entry.column.id === firstId))}
       </div>
     </div>

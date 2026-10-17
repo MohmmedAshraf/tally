@@ -13,9 +13,17 @@ export interface NewRowProps {
   readonly offsets: PinOffsets
   readonly window: ColumnWindow
   readonly onCreated: (rowIndex: number, column: number, move: EditorMove | undefined) => void
+  readonly rowIndex?: number | undefined
 }
 
-export function NewRow({ grid, layout, offsets, window, onCreated }: NewRowProps): ReactNode {
+export function NewRow({
+  grid,
+  layout,
+  offsets,
+  window,
+  onCreated,
+  rowIndex,
+}: NewRowProps): ReactNode {
   const labels = useLabels()
   const { editors, viewport } = useShell()
   const [editing, setEditing] = useState<number | undefined>(undefined)
@@ -51,6 +59,7 @@ export function NewRow({ grid, layout, offsets, window, onCreated }: NewRowProps
         key={column.id}
         role="gridcell"
         className="tally-cell"
+        aria-colindex={entry.index + 2}
         data-column={column.id}
         data-align={column.align ?? type.align}
         style={style}
@@ -82,13 +91,19 @@ export function NewRow({ grid, layout, offsets, window, onCreated }: NewRowProps
     )
   }
   return (
-    <div role="row" className="tally-row tally-new-row" aria-label={labels.addRow}>
+    <div
+      role="row"
+      className="tally-row tally-new-row"
+      aria-label={labels.addRow}
+      aria-rowindex={rowIndex}
+    >
       <div
+        role="gridcell"
         className="tally-gutter"
-        aria-hidden
+        aria-colindex={1}
         {...(layout.left.length === 0 ? { 'data-pin-edge': '' } : {})}
       >
-        <Plus size={14} />
+        <Plus size={14} aria-hidden />
       </div>
       {layout.left.map(cell)}
       {window.before > 0 ? (

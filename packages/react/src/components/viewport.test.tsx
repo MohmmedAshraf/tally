@@ -47,6 +47,14 @@ function stringFailure(rowsIn: readonly RowData[]): DataSource {
   return { ...base, query: () => Promise.reject('offline') }
 }
 
+async function emptyCell(title: string): Promise<HTMLElement> {
+  const text = await within(screen.getByRole('grid')).findByText(title)
+  const cell = text.closest<HTMLElement>('[role="gridcell"]')
+  if (cell?.parentElement?.getAttribute('role') !== 'row')
+    throw new Error('empty state not in a row')
+  return cell
+}
+
 describe('Tally viewport', () => {
   afterEach(() => {
     vi.unstubAllGlobals()
@@ -80,8 +88,7 @@ describe('Tally viewport', () => {
     act(() =>
       harness.grid().view.setFilter({ type: 'condition', column: 'mrr', op: 'gt', value: 99 }),
     )
-    const status = await screen.findByRole('status')
-    expect(status).toHaveTextContent('No rows match')
+    const status = await emptyCell('No rows match')
     fireEvent.click(within(status).getByRole('button', { name: 'Clear filter' }))
     await gridReady('One')
     expect(harness.grid().view.get().filter).toBeUndefined()
@@ -89,7 +96,7 @@ describe('Tally viewport', () => {
 
   it('shows an empty state for empty sources', async () => {
     renderTally({ columns, rows: [] })
-    expect(await screen.findByRole('status')).toHaveTextContent('No rows')
+    expect(await emptyCell('No rows')).toHaveAttribute('aria-colspan', '6')
   })
 
   it('brings hidden columns back from the empty state', async () => {
@@ -98,8 +105,8 @@ describe('Tally viewport', () => {
     act(() => {
       for (const column of columns) harness.grid().view.setColumnHidden(column.id, true)
     })
-    const status = await screen.findByRole('status')
-    expect(status).toHaveTextContent('No visible columns')
+    const status = await emptyCell('No visible columns')
+    expect(screen.getByRole('grid')).toHaveAttribute('aria-rowcount', '1')
     fireEvent.click(within(status).getByRole('button', { name: 'Show all columns' }))
     await gridReady('One')
   })

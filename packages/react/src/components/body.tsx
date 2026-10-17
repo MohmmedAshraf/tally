@@ -28,6 +28,7 @@ export interface BodyProps {
   readonly initialSize: { readonly width: number; readonly height: number } | undefined
   readonly onIntent: IntentHandler | undefined
   readonly empty: ReactNode
+  readonly rowCount: number
 }
 
 function useOffsetTop(element: HTMLElement | null): number {
@@ -52,7 +53,14 @@ function bodyItems(model: RowModel): RowModel['items'] {
   return model.items.filter((item) => item.kind === 'group' || !item.pinned)
 }
 
-export function Body({ grid, layout, initialSize, onIntent, empty }: BodyProps): ReactNode {
+export function Body({
+  grid,
+  layout,
+  initialSize,
+  onIntent,
+  empty,
+  rowCount,
+}: BodyProps): ReactNode {
   const id = useId()
   const cellId = useCallback(
     (row: number, column: number): string => `${id}r${row}c${column}`,
@@ -78,7 +86,7 @@ export function Body({ grid, layout, initialSize, onIntent, empty }: BodyProps):
     estimateSize: (index) => (items[index]?.kind === 'group' ? GROUP_HEIGHT : rowHeight),
     overscan: 6,
     scrollMargin,
-    scrollPaddingStart: model.pinned.length * rowHeight,
+    scrollPaddingStart: scrollMargin,
     scrollPaddingEnd: 38,
     ...(initialSize === undefined ? {} : { initialRect: initialSize }),
     getItemKey: (index) => {
@@ -100,6 +108,8 @@ export function Body({ grid, layout, initialSize, onIntent, empty }: BodyProps):
     estimateSize: (index) => layout.center[index]?.width ?? 160,
     overscan: 2,
     scrollMargin: GUTTER_WIDTH + offsets.leftWidth,
+    scrollPaddingStart: GUTTER_WIDTH + offsets.leftWidth,
+    scrollPaddingEnd: offsets.rightWidth,
     ...(initialSize === undefined ? {} : { initialRect: initialSize }),
     rangeExtractor,
     getItemKey: (index) => layout.center[index]?.column.id ?? index,
@@ -183,6 +193,8 @@ export function Body({ grid, layout, initialSize, onIntent, empty }: BodyProps):
     return group !== undefined && !group.collapsed ? group : undefined
   })()
 
+  const firstRowIndex = 2 + pageOffset
+  const bodyRowIndex = firstRowIndex + model.pinned.length
   const headerOffset = `${scrollMargin - model.pinned.length * rowHeight}px`
   const totalWidth = `${GUTTER_WIDTH + layout.totalWidth}px`
 
@@ -202,9 +214,10 @@ export function Body({ grid, layout, initialSize, onIntent, empty }: BodyProps):
         />
         {model.pinned.length > 0 ? (
           <div className="tally-pinned-rows" role="rowgroup">
-            {model.pinned.map((item) => (
+            {model.pinned.map((item, position) => (
               <RowView
                 key={item.key}
+                rowIndex={firstRowIndex + position}
                 grid={grid}
                 item={item}
                 layout={layout}
@@ -223,7 +236,12 @@ export function Body({ grid, layout, initialSize, onIntent, empty }: BodyProps):
         ) : null}
         {currentGroup === undefined ? null : (
           <div className="tally-group-sticky" aria-hidden>
-            <GroupRow grid={grid} item={currentGroup} columns={{ layout, offsets, window }} />
+            <GroupRow
+              grid={grid}
+              item={currentGroup}
+              columns={{ layout, offsets, window }}
+              focusable={false}
+            />
           </div>
         )}
         <div
@@ -242,6 +260,7 @@ export function Body({ grid, layout, initialSize, onIntent, empty }: BodyProps):
               return (
                 <GroupRow
                   key={virtual.key}
+                  rowIndex={bodyRowIndex + virtual.index}
                   grid={grid}
                   item={item}
                   columns={{ layout, offsets, window }}
@@ -254,6 +273,7 @@ export function Body({ grid, layout, initialSize, onIntent, empty }: BodyProps):
                 key={virtual.key}
                 ref={wrap ? rows.measureElement : undefined}
                 index={virtual.index}
+                rowIndex={bodyRowIndex + virtual.index}
                 grid={grid}
                 item={item}
                 layout={layout}
@@ -274,6 +294,7 @@ export function Body({ grid, layout, initialSize, onIntent, empty }: BodyProps):
         {empty}
         {grid.capabilities.mutate ? (
           <NewRow
+            rowIndex={rowCount > 0 ? rowCount - 1 : undefined}
             grid={grid}
             layout={layout}
             offsets={offsets}
@@ -289,7 +310,14 @@ export function Body({ grid, layout, initialSize, onIntent, empty }: BodyProps):
             }}
           />
         ) : null}
-        <Footer grid={grid} layout={layout} offsets={offsets} window={window} visible={visible} />
+        <Footer
+          grid={grid}
+          layout={layout}
+          offsets={offsets}
+          window={window}
+          visible={visible}
+          rowIndex={rowCount > 0 ? rowCount : undefined}
+        />
       </div>
     </RowMenu>
   )

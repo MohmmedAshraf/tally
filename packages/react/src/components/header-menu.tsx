@@ -16,7 +16,7 @@ import {
   Sigma,
   UnfoldHorizontal,
 } from 'lucide-react'
-import { useMemo, useState, type ReactNode, type RefObject } from 'react'
+import { useMemo, useRef, useState, type ReactNode, type RefObject } from 'react'
 import { columnLabel, isAggregate, type Grid, type LayoutColumn } from 'tally-core'
 import { useGridState, useView } from '../hooks/use-store.ts'
 import { measureColumnWidth } from './autosize.ts'
@@ -42,6 +42,7 @@ export function HeaderMenu({
 }: HeaderMenuProps): ReactNode {
   const labels = useLabels()
   const { root, prefillFilter } = useShell()
+  const trigger = useRef<HTMLButtonElement>(null)
   const [rulesOpen, setRulesOpen] = useState(false)
   const [open, setOpen] = useState(false)
   const pointAnchor = useMemo(
@@ -87,9 +88,11 @@ export function HeaderMenu({
         open={rulesOpen}
         onOpenChange={setRulesOpen}
         anchor={anchor}
+        returnFocus={trigger}
       />
       <Menu.Root open={open || point !== undefined} onOpenChange={onOpenChange}>
         <Menu.Trigger
+          ref={trigger}
           className="tally-header-menu-trigger"
           aria-label={labels.columnMenu(label)}
           title={labels.columnMenu(label)}

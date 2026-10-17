@@ -168,7 +168,12 @@ describe('tree rows', () => {
     expect(cellAt(1, 0).querySelector('.tally-expander:not(button)')).not.toBeNull()
     fireEvent.mouseDown(cellAt(1, 0))
     fireEvent.keyDown(grid, { key: 'ArrowRight', altKey: true })
-    fireEvent.click(within(cellAt(0, 0)).getByRole('button', { expanded: true }))
+    const expander = within(cellAt(0, 0)).getByRole('button', {
+      name: 'Toggle row',
+      expanded: true,
+    })
+    expect(expander).toHaveAttribute('tabindex', '-1')
+    fireEvent.click(expander)
     await waitFor(() => expect(within(grid).queryByText('Leaf')).toBeNull())
     expect(harness.grid().view.get().expanded).toEqual([])
   })
@@ -202,6 +207,7 @@ describe('row menu', () => {
     const dialog = await screen.findByRole('alertdialog', { name: 'Delete 2 rows?' })
     fireEvent.click(within(dialog).getByRole('button', { name: 'Cancel' }))
     await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull())
+    await waitFor(() => expect(screen.getByRole('grid')).toHaveFocus())
     expect(harness.grid().rows.rows()).toHaveLength(3)
   })
 })

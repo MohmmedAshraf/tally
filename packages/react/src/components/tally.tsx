@@ -11,6 +11,7 @@ import { Columns3, Inbox, RefreshCw, SearchX, CircleAlert } from 'lucide-react'
 import { printFilter, type Grid } from 'tally-core'
 import { GridProvider } from '../hooks/context.tsx'
 import { useColumnLayout, useGridState, useRowModel, useView } from '../hooks/use-store.ts'
+import { Announcer } from './announcer.tsx'
 import { Body } from './body.tsx'
 import type { DetailRenderer } from './card-detail.tsx'
 import { Cards } from './cards.tsx'
@@ -78,7 +79,7 @@ function EmptyState({
   const filter = useView(grid, (view) => view.filter)
   if (columns === 0) {
     return (
-      <div className="tally-empty" role="status">
+      <div className="tally-empty">
         <span className="tally-empty-icon">
           <Columns3 size={20} strokeWidth={1.75} aria-hidden />
         </span>
@@ -101,7 +102,7 @@ function EmptyState({
   }
   if (filter === undefined) {
     return (
-      <div className="tally-empty" role="status">
+      <div className="tally-empty">
         <span className="tally-empty-icon">
           <Inbox size={20} strokeWidth={1.75} aria-hidden />
         </span>
@@ -110,7 +111,7 @@ function EmptyState({
     )
   }
   return (
-    <div className="tally-empty" role="status">
+    <div className="tally-empty">
       <span className="tally-empty-icon">
         <SearchX size={20} strokeWidth={1.75} aria-hidden />
       </span>
@@ -149,12 +150,24 @@ function Viewport({
   const status = useGridState(grid, (state) => state.status)
   const error = useGridState(grid, (state) => state.error)
   const matched = useGridState(grid, (state) => state.matched ?? state.total)
-  const itemCount = useRowModel(grid).items.length
+  const model = useRowModel(grid)
   const bare = layout.columns.length === 0
-  const empty =
-    status === 'ready' && (itemCount === 0 || bare) ? (
-      <EmptyState grid={grid} columns={layout.columns.length} />
-    ) : null
+  const blank = status === 'ready' && (model.items.length === 0 || bare)
+  const empty = blank ? <EmptyState grid={grid} columns={layout.columns.length} /> : null
+  const rowCount =
+    matched === undefined || model.groups.length > 0
+      ? -1
+      : bare
+        ? 1
+        : matched + (blank ? 1 : 0) + (grid.capabilities.mutate ? 3 : 2)
+  const emptyRow =
+    empty === null ? null : (
+      <div role="row" className="tally-empty-row">
+        <div role="gridcell" className="tally-empty-row" aria-colspan={layout.columns.length + 1}>
+          {empty}
+        </div>
+      </div>
+    )
   const message = error instanceof Error ? error.message : String(error)
   return (
     <>
@@ -172,7 +185,13 @@ function Viewport({
         </div>
       ) : null}
       {cards ? (
-        <div ref={viewport} className="tally-viewport" aria-label={label} data-layout="cards">
+        <div
+          ref={viewport}
+          role="region"
+          className="tally-viewport"
+          aria-label={label}
+          data-layout="cards"
+        >
           <Cards grid={grid} />
           {empty}
         </div>
@@ -184,20 +203,21 @@ function Viewport({
           tabIndex={0}
           aria-label={label}
           aria-busy={status === 'loading'}
-          aria-rowcount={matched === undefined ? -1 : matched + 1}
+          aria-rowcount={rowCount}
           aria-colcount={layout.columns.length + 1}
           aria-multiselectable
           style={{ '--tally-viewport-width': `${viewportWidth}px` }}
         >
           {bare ? (
-            empty
+            emptyRow
           ) : (
             <Body
               grid={grid}
               layout={layout}
               initialSize={initialSize}
               onIntent={onIntent}
-              empty={empty}
+              empty={emptyRow}
+              rowCount={rowCount}
             />
           )}
         </div>
@@ -283,6 +303,7 @@ export function Tally({
             ) : (
               toolbar
             )}
+            <Announcer grid={grid} />
             <Viewport
               grid={grid}
               initialSize={initialSize}

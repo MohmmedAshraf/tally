@@ -127,3 +127,14 @@ describe('enum editor', () => {
     expect(within(cellAt(0, 3)).queryByRole('combobox')).toBeNull()
   })
 })
+
+describe('editor accessibility', () => {
+  it('names the editor after its column and returns focus to the grid on escape', async () => {
+    const { grid } = await edit(1, 4)
+    const input = within(cellAt(1, 4)).getByRole('textbox', { name: 'MRR' })
+    expect(input).toHaveFocus()
+    fireEvent.keyDown(input, { key: 'Escape' })
+    await waitFor(() => expect(grid).toHaveFocus())
+    expect(cellAt(1, 4)).toHaveAttribute('data-active')
+  })
+})

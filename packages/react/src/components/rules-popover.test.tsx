@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, within } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { useEffect, useState, type ReactNode } from 'react'
 import { createArraySource, createSchema, type Grid } from 'tally-core'
 import { describe, expect, it, vi } from 'vitest'
@@ -56,7 +56,7 @@ describe('RulesPopover', () => {
     fireEvent.change(within(popup).getByRole('textbox', { name: 'Value' }), {
       target: { value: '40' },
     })
-    fireEvent.click(within(popup).getByRole('radio', { name: 'amber' }))
+    fireEvent.click(within(popup).getByRole('radio', { name: 'Amber' }))
     await settle()
     expect(current?.view.get().rules).toEqual([
       expect.objectContaining({
@@ -116,12 +116,12 @@ describe('RulesPopover editors', () => {
     fireEvent.change(within(popup).getByLabelText('Value'), { target: { value: '2026-02-02' } })
     fireEvent.change(within(popup).getByLabelText('Value'), { target: { value: '' } })
     expect(harness.grid().view.get().rules[0]).toMatchObject({ value: '' })
-    fireEvent.click(within(popup).getByRole('radio', { name: 'bold' }))
-    expect(within(popup).getByRole('radio', { name: 'bold' })).toHaveAttribute(
+    fireEvent.click(within(popup).getByRole('radio', { name: 'Bold' }))
+    expect(within(popup).getByRole('radio', { name: 'Bold' })).toHaveAttribute(
       'aria-checked',
       'true',
     )
-    expect(within(popup).getByRole('radio', { name: 'red' })).toHaveAttribute(
+    expect(within(popup).getByRole('radio', { name: 'Red' })).toHaveAttribute(
       'aria-checked',
       'false',
     )
@@ -149,5 +149,26 @@ describe('RulesPopover editors', () => {
     expect(input).toHaveAttribute('inputmode', 'decimal')
     fireEvent.change(input, { target: { value: 'lots' } })
     expect(harness.grid().view.get().rules[0]).toMatchObject({ value: 'lots' })
+  })
+})
+
+describe('RulesPopover focus', () => {
+  it('names tints from labels and returns focus to the column menu trigger on close', async () => {
+    render(<Harness />)
+    const grid = screen.getByRole('grid')
+    await within(grid).findByText('One')
+    const trigger = within(grid).getByRole('button', { name: 'Health options' })
+    fireEvent.click(trigger)
+    fireEvent.click(await screen.findByRole('menuitem', { name: /Formatting rules/ }))
+    const popup = await screen.findByRole('dialog', { name: /Formatting rules/ })
+    fireEvent.click(within(popup).getByRole('button', { name: 'Add rule' }))
+    expect(
+      within(popup)
+        .getAllByRole('radio')
+        .map((radio) => radio.getAttribute('aria-label')),
+    ).toEqual(['Red', 'Amber', 'Green', 'Bold'])
+    fireEvent.keyDown(within(popup).getByRole('button', { name: 'Add rule' }), { key: 'Escape' })
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
+    await waitFor(() => expect(trigger).toHaveFocus())
   })
 })

@@ -173,7 +173,7 @@ describe('ResizeHandle', () => {
     const harness = renderTally({ columns, rows })
     const grid = await gridReady('One')
     const header = within(grid).getByRole('columnheader', { name: /^Name/ })
-    const handle = within(header).getByRole('separator', { name: 'Resize column' })
+    const handle = within(header).getByRole('separator', { name: 'Resize Name' })
     fireEvent.keyDown(handle, { key: 'ArrowRight' })
     expect(columnState(harness, 'name')?.width).toBe(128)
     await settle()

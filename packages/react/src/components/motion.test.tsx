@@ -51,9 +51,10 @@ describe('motion', () => {
   it('animates the toolbar count between values', async () => {
     const harness = renderTally({ columns, rows })
     await gridReady('One')
-    expect(screen.getByText('2 rows')).toBeInTheDocument()
+    const count = document.querySelector('.tally-count')
+    expect(count).toHaveTextContent('2 rows')
     act(() => harness.grid().selection.dispatch({ type: 'selectRows', keys: [1] }))
-    await screen.findByText('1 selected', {}, { timeout: 2000 })
+    await waitFor(() => expect(count).toHaveTextContent('1 selected'), { timeout: 2000 })
   })
 
   it('flashes the reveal attribute after an answered question', async () => {

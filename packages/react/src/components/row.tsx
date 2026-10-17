@@ -11,6 +11,7 @@ import {
 import { CellView } from './cell.tsx'
 import { isPinEdge, type PinOffsets } from './geometry.ts'
 import { isActive, isInRange } from './interactions.ts'
+import { useLabels } from './labels.ts'
 import { ruleFor, type CompiledRule } from './rules.ts'
 
 export interface ColumnWindow {
@@ -35,6 +36,7 @@ export interface RowViewProps {
   readonly style?: CSSProperties | undefined
   readonly ref?: Ref<HTMLDivElement> | undefined
   readonly index?: number | undefined
+  readonly rowIndex: number
 }
 
 export function RowView({
@@ -53,7 +55,9 @@ export function RowView({
   style,
   ref,
   index,
+  rowIndex,
 }: RowViewProps): ReactNode {
+  const labels = useLabels()
   const selected = selection.rows.has(item.key)
   const box = selection.range === undefined ? undefined : normalizeRange(selection.range)
   const cell = (entry: LayoutColumn): ReactNode => (
@@ -98,7 +102,7 @@ export function RowView({
       ref={ref}
       role="row"
       className="tally-row"
-      aria-rowindex={item.index + 2}
+      aria-rowindex={rowIndex}
       aria-selected={selected}
       data-key={String(item.key)}
       data-index={index}
@@ -110,6 +114,7 @@ export function RowView({
       <div
         role="rowheader"
         className="tally-gutter"
+        aria-colindex={1}
         {...(layout.left.length === 0 ? { 'data-pin-edge': '' } : {})}
       >
         <span className="tally-row-number" aria-hidden>
@@ -118,7 +123,8 @@ export function RowView({
         <input
           type="checkbox"
           className="tally-check"
-          aria-label={`Select row ${item.position}`}
+          tabIndex={-1}
+          aria-label={labels.selectRowAt(item.position)}
           checked={selected}
           onClick={onToggle}
           readOnly

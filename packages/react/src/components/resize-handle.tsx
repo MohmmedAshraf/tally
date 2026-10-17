@@ -1,5 +1,5 @@
 import type { KeyboardEvent, PointerEvent, ReactNode } from 'react'
-import { clampWidth, type Grid, type LayoutColumn } from 'tally-core'
+import { clampWidth, columnLabel, type Grid, type LayoutColumn } from 'tally-core'
 import { measureColumnWidth } from './autosize.ts'
 import { useShell } from './context.ts'
 import { useLabels } from './labels.ts'
@@ -47,9 +47,9 @@ export function ResizeHandle({
       role="separator"
       tabIndex={0}
       aria-orientation="vertical"
-      aria-label={labels.resizeColumn}
+      aria-label={labels.resizeColumn(columnLabel(entry.column))}
       aria-valuenow={entry.width}
-      title={labels.resizeColumn}
+      title={labels.resizeColumn(columnLabel(entry.column))}
       onPointerDown={onPointerDown}
       onKeyDown={onKeyDown}
       onDoubleClick={() => {

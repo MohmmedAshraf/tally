@@ -3,6 +3,7 @@ import { Check } from 'lucide-react'
 import { useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
 import { useShell } from '../context.ts'
 import {
+  columnLabel,
   findOption,
   isEmptyValue,
   optionLabel,
@@ -74,7 +75,7 @@ function TextEditor({ value, initial, column, type, commit, cancel }: CellEditor
     onBlur: () => {
       if (done.settle()) commit(parse())
     },
-    'aria-label': column.label ?? column.id,
+    'aria-label': columnLabel(column),
   }
   if (column.wrap === true) return <textarea {...shared} rows={3} />
   return (
@@ -107,7 +108,7 @@ function DateEditor({ value, column, commit, cancel }: CellEditorProps): ReactNo
       type="date"
       value={text}
       autoFocus
-      aria-label={column.label ?? column.id}
+      aria-label={columnLabel(column)}
       onChange={(event) => setText(event.target.value)}
       onKeyDown={onKeyDown}
       onBlur={() => {
@@ -145,7 +146,7 @@ function EnumEditor({ value, initial, column, commit, cancel }: CellEditorProps)
       <Combobox.Input
         className="tally-editor-input"
         autoFocus
-        aria-label={column.label ?? column.id}
+        aria-label={columnLabel(column)}
         placeholder={selected === null ? undefined : optionLabel(column, selected.value)}
         onKeyDown={(event) => {
           if (event.key === 'Tab') {
