@@ -176,8 +176,10 @@ export function FilterBar({ grid, ask }: FilterBarProps): ReactNode {
       }),
     [onPrefillFilter, filterInput],
   )
+  const wasAsking = useRef(false)
   useEffect(() => {
-    if (asking === undefined) filterInput.current?.focus()
+    if (asking === undefined && wasAsking.current) filterInput.current?.focus()
+    wasAsking.current = asking !== undefined
   }, [asking, filterInput])
   const clauses = topLevelClauses(filter)
   const keys = clauseKeys(clauses, grid)
