@@ -95,12 +95,7 @@ export function Film(): ReactNode {
                       playsInline
                       className="block size-full object-cover"
                     >
-                      <track
-                        kind="captions"
-                        src={film.captions}
-                        srcLang="en"
-                        label="English"
-                      />
+                      <track kind="captions" src={film.captions} srcLang="en" label="English" />
                     </video>
                   </Dialog.Popup>
                 </Dialog.Viewport>
