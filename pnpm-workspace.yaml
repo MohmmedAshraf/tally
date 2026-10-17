@@ -3,6 +3,7 @@ packages:
   - apps/*
   - examples/*
   - docs
+  - web
 
 catalog:
   '@ai-sdk/anthropic': 4.0.79
@@ -38,7 +39,6 @@ catalog:
   '@testing-library/jest-dom': 7.0.1
   '@testing-library/react': 16.3.3
   '@types/node': 26.6.5
-  '@types/mdx': 2.0.14
   '@types/papaparse': 5.5.2
   '@types/react': 19.3.0
   '@types/react-dom': 19.3.0
@@ -46,9 +46,6 @@ catalog:
   '@vitest/coverage-v8': 5.0.3
   chevrotain: 13.2.0
   eventsource: 5.1.2
-  fumadocs-core: 16.17.5
-  fumadocs-mdx: 15.4.7
-  fumadocs-ui: npm:@fumadocs/base-ui@16.17.5
   happy-dom: 21.0.1
   hono: 4.13.13
   knip: 6.41.0

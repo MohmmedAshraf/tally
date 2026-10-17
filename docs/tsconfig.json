@@ -5,14 +5,8 @@
     "types": ["node"],
     "isolatedDeclarations": false,
     "declaration": false,
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "noPropertyAccessFromIndexSignature": false,
-    "paths": {
-      "@/*": ["./*"]
-    },
-    "plugins": [{ "name": "next" }]
+    "module": "preserve",
+    "moduleResolution": "bundler"
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": ["env.d.ts", "scripts/**/*.ts", "snippets/**/*.ts", "snippets/**/*.tsx"]
 }

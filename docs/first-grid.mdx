@@ -1,0 +1,120 @@
+---
+title: 'Your first grid'
+description: 'Render a typed, filterable grid from an array of rows.'
+icon: 'table'
+---
+
+A grid needs three things: a schema that describes the columns, a data source that answers queries, and the `<Tally>` component.
+
+<Steps>
+  <Step title="Describe the columns">
+    `createSchema` validates the columns and resolves each one to a column type. `key` names the field that identifies a row. A column without a `type` is `text`.
+
+{/* snippet: first-grid/schema.ts */}
+
+```ts schema.ts
+import { createSchema } from 'tally-core'
+
+export const schema = createSchema({
+  key: 'id',
+  columns: [
+    { id: 'account', label: 'Account', pin: 'left' },
+    { id: 'owner', type: 'person' },
+    { id: 'plan', type: 'enum', options: [{ value: 'free' }, { value: 'pro' }, { value: 'team' }] },
+    { id: 'mrr', label: 'MRR', type: 'currency', aggregate: 'sum' },
+    { id: 'growth', type: 'percent' },
+    { id: 'renewal', type: 'date' },
+  ],
+})
+```
+
+    `aggregate: 'sum'` puts the sum of MRR in the footer. `pin: 'left'` keeps the account column in view while scrolling.
+
+  </Step>
+  <Step title="Provide the rows">
+    Rows are plain objects keyed by column id. Empty cells are `null`, `undefined` or `''`.
+
+{/* snippet: first-grid/rows.ts */}
+
+```ts rows.ts
+export const rows = [
+  {
+    id: 1,
+    account: 'Acme Corp',
+    owner: 'Ada Okafor',
+    plan: 'team',
+    mrr: 4200,
+    growth: 12.5,
+    renewal: '2026-11-02',
+  },
+  {
+    id: 2,
+    account: 'Globex',
+    owner: 'Bruno Silva',
+    plan: 'pro',
+    mrr: 1800,
+    growth: -3.2,
+    renewal: '2027-01-15',
+  },
+  { id: 3, account: 'Initech', owner: null, plan: 'free', mrr: 0, growth: 0, renewal: null },
+]
+```
+
+  </Step>
+  <Step title="Render the grid">
+    `createArraySource` filters, sorts, groups and aggregates the rows in memory. `useGrid` creates the grid, loads it on mount and disposes it on unmount.
+
+{/* snippet: first-grid/accounts.tsx */}
+
+```tsx accounts.tsx
+import { useState, type ReactNode } from 'react'
+import { createArraySource } from 'tally-core'
+import { Tally, useGrid } from 'tally-react'
+import 'tally-react/styles.css'
+import { rows } from './rows'
+import { schema } from './schema'
+
+export function Accounts(): ReactNode {
+  const [source] = useState(() => createArraySource(rows, schema))
+  const grid = useGrid({ schema, source })
+  return <Tally grid={grid} label="Accounts" />
+}
+```
+
+    `label` is the accessible name of the grid, and the name of exported CSV files.
+
+  </Step>
+</Steps>
+
+<Note>
+  Create the source once. `useGrid` recreates the grid when `schema` or `source` change identity, so
+  a source created on every render reloads the grid on every render.
+</Note>
+
+## Type into the filter bar
+
+The filter bar takes the query language. Each line below is one query.
+
+```text
+plan is pro or team
+mrr > 2k
+renewal last 30 days
+owner is empty
+acme, plan is pro
+plan is pro and mrr between 1k and 5k
+sort by mrr desc
+group by plan
+```
+
+Column names resolve by id, label or alias, so `MRR > 2k` and `mrr > 2k` are the same condition. Bare words such as `acme` search every searchable column. Parse errors carry the character offset of the problem.
+
+## Next
+
+<CardGroup cols={2}>
+  <Card title="Data sources" icon="database" href="/data-sources">
+    Point the grid at a server instead of an array.
+  </Card>
+  <Card title="Query language" icon="square-terminal" href="/concepts/query-language">
+    Everything the filter bar understands.
+  </Card>
+</CardGroup>

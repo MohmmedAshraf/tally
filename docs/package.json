@@ -1,33 +1,21 @@
 {
-  "name": "tally-docs",
+  "name": "tally-docs-content",
   "private": true,
   "type": "module",
   "scripts": {
-    "sync": "node scripts/sync.ts",
-    "dev": "next dev --port 3100",
-    "build": "pnpm sync && next build",
-    "start": "next start --port 3100",
-    "typecheck": "next typegen && tsc -p tsconfig.json"
-  },
-  "dependencies": {
-    "fumadocs-core": "catalog:",
-    "fumadocs-mdx": "catalog:",
-    "fumadocs-ui": "catalog:",
-    "next": "catalog:",
-    "react": "catalog:",
-    "react-dom": "catalog:",
-    "zod": "catalog:"
+    "dev": "npx mint dev --port 3333",
+    "generate": "node scripts/generate.ts",
+    "check": "tsc -p tsconfig.json"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "catalog:",
-    "@types/mdx": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
-    "@types/react-dom": "catalog:",
-    "postcss": "catalog:",
-    "tailwindcss": "catalog:",
+    "prettier": "catalog:",
+    "react": "catalog:",
+    "tally-adapters": "workspace:*",
     "tally-core": "workspace:*",
     "tally-protocol": "workspace:*",
+    "tally-react": "workspace:*",
     "typescript": "catalog:"
   }
 }

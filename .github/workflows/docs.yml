@@ -10,7 +10,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
+  check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -20,5 +20,9 @@ jobs:
           node-version-file: .node-version
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm turbo run build --filter tally-docs
-      - run: test -z "$(git status --porcelain -- docs/content)"
+      - run: pnpm turbo run generate check --filter tally-docs-content
+      - run: git diff --exit-code -- docs
+      - run: npx --yes mint@latest validate
+        working-directory: docs
+      - run: npx --yes mint@latest broken-links
+        working-directory: docs

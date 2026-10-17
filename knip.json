@@ -3,7 +3,10 @@
   "workspaces": {
     ".": {},
     "packages/*": {},
-    "docs": {},
+    "docs": {
+      "entry": ["snippets/code/**/*.{ts,tsx}"]
+    },
+    "web": {},
     "examples/playground": {
       "ignore": ["src/components/ui/**"],
       "entry": ["api/index.ts"]

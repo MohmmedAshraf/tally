@@ -1,0 +1,130 @@
+---
+title: 'Selection and keyboard'
+description: 'Pure reducers for cell ranges and row selection, and the intents keys turn into.'
+icon: 'mouse-pointer-2'
+---
+
+Selection and keyboard handling live in `tally-core` as pure functions. A key press becomes an intent, an intent becomes a selection action, and a reducer turns the current state and an action into the next state. `tally-react` wires them to the DOM, and you can run them anywhere.
+
+## Selection state
+
+| Field          | Type                | Notes                                              |
+| -------------- | ------------------- | -------------------------------------------------- |
+| `active`       | `{ row, column }`   | The focused cell, by visible row and column index. |
+| `range`        | `{ anchor, focus }` | The selected cell range.                           |
+| `rows`         | `Set<RowKey>`       | Selected rows, by key.                             |
+| `lastRowIndex` | `number`            | Anchor for selecting a range of rows.              |
+
+Cell addresses are indexes into the visible rows and columns. Row selection uses keys, so selected rows survive sorting and filtering.
+
+## Actions
+
+`reduceSelection(state, action, geometry)` applies one action. The geometry gives the row and column counts, the page size, and the key of the row at an index.
+
+| Action           | Effect                                                                       |
+| ---------------- | ---------------------------------------------------------------------------- |
+| `focus`          | Focus a cell. With `extend`, grow the range to it.                           |
+| `move`           | Move by rows and columns. `extend` grows the range, `jump` goes to the edge. |
+| `selectRow`      | Select a row by index: `toggle`, `only`, or `range` from the last one.       |
+| `selectRows`     | Replace the selected rows with a list of keys.                               |
+| `clearRows`      | Clear the selected rows.                                                     |
+| `selectAllCells` | Select every cell.                                                           |
+| `clear`          | Clear everything.                                                            |
+
+Targets are clamped to the grid, so moving past an edge stays on the edge.
+
+{/* snippet: selection-and-keyboard/headless.ts */}
+
+```ts headless.ts
+import { emptySelection, keyboardIntent, reduceSelection, type GridGeometry } from 'tally-core'
+
+const geometry: GridGeometry = {
+  rowCount: 100,
+  columnCount: 6,
+  pageSize: 20,
+  rowKeyAt: (index) => index,
+}
+
+const intent = keyboardIntent({ key: 'ArrowDown', shiftKey: true }, emptySelection, geometry)
+
+export const selection =
+  intent?.type === 'select'
+    ? reduceSelection(emptySelection, intent.action, geometry)
+    : emptySelection
+```
+
+## Intents
+
+`keyboardIntent(key, state, geometry, options?)` maps a key press to a `GridIntent`. While a cell is being edited, only `Escape` produces an intent. On macOS pass `platform: 'mac'` so the primary modifier is Command instead of Control.
+
+| Intent                 | Meaning                                         |
+| ---------------------- | ----------------------------------------------- |
+| `select`               | A selection action.                             |
+| `edit`                 | Start editing, with the typed character if any. |
+| `clearCells`           | Clear the selected range.                       |
+| `copy`, `cut`, `paste` | Clipboard operations.                           |
+| `undo`, `redo`         | History.                                        |
+| `escape`               | Cancel editing or clear the range.              |
+| `inspect`              | Space on a cell. For the host to handle.        |
+| `toggleRow`            | Toggle the row's selection.                     |
+| `expand`               | Expand or collapse a tree row.                  |
+| `focusFilter`          | Focus the filter bar.                           |
+| `commandPalette`       | Primary + K. For the host to handle.            |
+
+## Keyboard in React
+
+| Keys                                | Action                               |
+| ----------------------------------- | ------------------------------------ |
+| Arrows, Home, End, PageUp, PageDown | Move the active cell                 |
+| Shift + arrows                      | Extend the range                     |
+| Cmd/Ctrl + arrows, Home, End        | Jump to the edge                     |
+| Tab, Shift + Tab                    | Next and previous cell               |
+| Enter, F2, typing                   | Edit the active cell                 |
+| Escape                              | Cancel editing or clear the range    |
+| Shift + Space                       | Toggle the row                       |
+| Space                               | `inspect` intent for the host        |
+| Alt + Left, Alt + Right             | Collapse and expand a tree row       |
+| Delete, Backspace                   | Clear the range                      |
+| Cmd/Ctrl + C, X, V                  | Copy, cut and paste as TSV           |
+| Cmd/Ctrl + Z, Shift + Z, Y          | Undo and redo                        |
+| Cmd/Ctrl + A                        | Select all cells                     |
+| Cmd/Ctrl + K                        | `commandPalette` intent for the host |
+| /                                   | Focus the filter bar                 |
+
+Under `dir="rtl"` Left and Right follow the screen, so Right moves to the previous column.
+
+## Handling intents
+
+`onIntent` on `<Tally>` sees every keyboard and pointer intent before the grid does. Return `true` to consume it.
+
+{/* snippet: selection-and-keyboard/intents.tsx */}
+
+```tsx accounts.tsx
+import type { ReactNode } from 'react'
+import type { Grid } from 'tally-core'
+import { Tally } from 'tally-react'
+
+export function Accounts({
+  grid,
+  openPalette,
+}: {
+  grid: Grid
+  openPalette: () => void
+}): ReactNode {
+  return (
+    <Tally
+      grid={grid}
+      label="Accounts"
+      onIntent={(intent) => {
+        if (intent.type === 'commandPalette') {
+          openPalette()
+          return true
+        }
+        return undefined
+      }}
+    />
+  )
+}
+```
+
+Use it to bind your own command palette or inspector, or to block an action.

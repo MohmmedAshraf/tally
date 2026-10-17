@@ -1,0 +1,30 @@
+---
+title: 'Introduction'
+description: 'The data grid with a query language, saved views and a backend protocol.'
+icon: 'house'
+---
+
+Tally is the data grid with a query language, saved views and a backend protocol. Typed columns, grouping, live rows, undo, cards on phones, AI that writes real queries, and an MCP server so your coding agent knows where every change goes.
+
+The engine lives in `tally-core` and knows nothing about the DOM. `tally-react` renders it as a full component, and `tally-vue`, `tally-svelte` and `tally-solid` bind it to their frameworks. Rows come from an array, from any server that speaks the Tally Query Protocol, or from an adapter for TanStack Query, TanStack DB or Supabase.
+
+<CardGroup cols={2}>
+  <Card title="Installation" icon="download" href="/installation">
+    Install the packages and import the styles.
+  </Card>
+  <Card title="Your first grid" icon="table" href="/first-grid">
+    A schema, an array of rows and one component.
+  </Card>
+  <Card title="Data sources" icon="database" href="/data-sources">
+    Arrays, HTTP servers and adapters, and when to use each.
+  </Card>
+  <Card title="Schema and columns" icon="columns-3" href="/concepts/schema-and-columns">
+    How a schema describes your rows.
+  </Card>
+  <Card title="Query language" icon="square-terminal" href="/concepts/query-language">
+    Filters, sorts and groups as text.
+  </Card>
+  <Card title="Packages" icon="package" href="/reference/packages">
+    Every package and what it does.
+  </Card>
+</CardGroup>

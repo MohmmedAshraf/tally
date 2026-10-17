@@ -1,0 +1,126 @@
+---
+title: 'Query language'
+description: 'Filters, sorts and groups written as text, parsed against the schema into a typed AST.'
+icon: 'square-terminal'
+---
+
+Tally has a query language instead of a filter builder. A query is text that parses into a validated AST, prints back to canonical text, and runs in memory or on your database.
+
+```text
+plan is pro or team and renewal next 30 days sort by mrr
+```
+
+The filter bar in `tally-react` takes this text, `tally-ai` asks the model to answer in it, and `useViewUrl` writes it to the URL. Every place that shows or stores a filter uses the same language.
+
+## Parse, print, execute
+
+{/* snippet: query-language/parse.ts */}
+
+```ts parse.ts
+import { createSchema, execute, parseQuery, printQuery } from 'tally-core'
+
+const schema = createSchema({
+  columns: [
+    { id: 'account', label: 'Account' },
+    { id: 'plan', type: 'enum', options: [{ value: 'free' }, { value: 'pro' }, { value: 'team' }] },
+    { id: 'mrr', label: 'MRR', type: 'currency' },
+  ],
+})
+
+const { query, errors } = parseQuery('plan is pro or team, sort by mrr', schema)
+
+export const text = printQuery(query, schema)
+export const problems = errors.map((error) => `${error.message} at ${error.offset}`)
+export const result = execute([{ id: 1, account: 'Acme', plan: 'pro', mrr: 4200 }], query, schema)
+```
+
+`parseQuery(text, schema)` returns:
+
+| Field     | Notes                                                          |
+| --------- | -------------------------------------------------------------- |
+| `text`    | The input.                                                     |
+| `query`   | `{ filter?, sort, group? }`. Clauses that failed are left out. |
+| `clauses` | The top-level clauses with their positions in the text.        |
+| `errors`  | `{ message, offset, length }` per problem, sorted by offset.   |
+
+Parsing never throws. A query with errors still returns everything that parsed, so a half-typed filter keeps the clauses that are already valid.
+
+`printQuery(query, schema)` prints the canonical form. `plan is pro or team` prints as `plan in (pro, team)`, and `mrr > 2k` as `mrr > 2000`. `execute(rows, query, schema)` runs a query over an array and returns the rows, `total`, `matched`, and groups, aggregates and facets when asked.
+
+## Names and values
+
+Columns resolve by id, label or alias, ignoring case. Enum values resolve by value or label.
+
+| Value    | Accepted forms                                                                                       |
+| -------- | ---------------------------------------------------------------------------------------------------- |
+| Numbers  | `2000`, `2k`, `1.5m`, `$5,000`, `12%`                                                                |
+| Dates    | `2026`, `2026-01`, `2026-01-15`, `today`, `yesterday`, `last 7 days`, `next 2 weeks`, `this quarter` |
+| Booleans | `yes`, `no`, `true`, `false`                                                                         |
+| Text     | A word, or a phrase in double quotes                                                                 |
+
+A year or a month used with `is` covers the whole period, so `renewal is 2026-01` matches every day of January. Relative ranges resolve against the grid's `today`, which follows the time zone of the format context.
+
+## Clauses
+
+| Form          | Example                                             |
+| ------------- | --------------------------------------------------- |
+| Condition     | `mrr > 2k`, `plan is not free`                      |
+| List          | `plan is pro or team`, `plan in (pro, team)`        |
+| Range         | `mrr between 1k and 5k`, `mrr 1k..5k`               |
+| Empty         | `owner is empty`, `owner is set`                    |
+| Relative date | `renewal last 30 days`, `renewal this quarter`      |
+| Search        | `acme`, `"acme corp"`                               |
+| Flag          | `is:overdue`                                        |
+| Logic         | `and`, `&&`, `,`, `or`, `not`, parentheses          |
+| Sort          | `sort by mrr desc`, `order by renewal oldest first` |
+| Group         | `group by plan`                                     |
+
+Bare words outside a condition search every searchable column. A search is case insensitive. In memory it matches the formatted text of a value, so `acme` finds `Acme Corp`. The SQL adapters in `tally-server` and `tally/laravel` match the stored value.
+
+`sort by` without a direction sorts numbers and dates descending and everything else ascending. `group by` groups by the column. The granularity of a date group is part of the view, not the text.
+
+The [query language reference](/reference/query-language) lists every operator and phrasing with its canonical form, parsed from the code.
+
+## Flags
+
+A flag, written `is:name`, is a named predicate the language does not define. The grid resolves `is:changed` itself: it matches rows with cells changed by a live patch. Every other name goes to the `flags` option of the grid, a function from a flag name and a row to a boolean. A flag nobody resolves matches nothing.
+
+## The AST
+
+A query is plain data. Build one in code with the AST constructors and print it as text.
+
+{/* snippet: query-language/ast.ts */}
+
+```ts ast.ts
+import { and, condition, createSchema, not, or, printFilter, search } from 'tally-core'
+
+const schema = createSchema({
+  columns: [
+    { id: 'account' },
+    { id: 'plan', type: 'enum', options: [{ value: 'free' }, { value: 'pro' }] },
+    { id: 'mrr', type: 'currency' },
+  ],
+})
+
+export const filter = and(
+  search('acme'),
+  or(condition('plan', 'eq', 'pro'), condition('mrr', 'gt', 1000)),
+  not(condition('plan', 'eq', 'free')),
+)
+
+export const text = printFilter(filter, schema)
+```
+
+| Node        | Shape                          |
+| ----------- | ------------------------------ |
+| `condition` | `{ type, column, op, value? }` |
+| `and`, `or` | `{ type, filters }`            |
+| `not`       | `{ type, filter }`             |
+| `search`    | `{ type, text }`               |
+| `flag`      | `{ type, name }`               |
+
+`and` and `or` flatten nested nodes of the same type and drop `undefined`. `not` of a condition flips its operator when there is an opposite, so `not(plan is free)` becomes `plan is not free`.
+
+## Autocomplete
+
+`suggest(text, cursor, schema, options?)` returns completions for the clause under the cursor: columns, operators that fit the column's kind, values and directives. Pass `facets` to suggest the values present in the data, `examples` for example queries, and `limit`, which defaults to 8. Each suggestion carries the range of text it replaces.

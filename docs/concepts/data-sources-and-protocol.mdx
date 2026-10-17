@@ -1,0 +1,120 @@
+---
+title: 'Data sources and protocol'
+description: 'The DataSource contract, capabilities, and the Tally Query Protocol on the wire.'
+icon: 'network'
+---
+
+A data source answers queries for a grid. The contract is one interface in `tally-core`, and the Tally Query Protocol is that interface as JSON over HTTP.
+
+## The DataSource interface
+
+| Member                    | Required | Notes                                                                                 |
+| ------------------------- | -------- | ------------------------------------------------------------------------------------- |
+| `capabilities`            | yes      | What the source does itself. See below.                                               |
+| `query(request, signal?)` | yes      | Returns a `QueryResponse`. The grid aborts `signal` when a newer query supersedes it. |
+| `schema()`                | no       | The columns, when the source knows them.                                              |
+| `mutate(mutations)`       | no       | Applies mutations and returns a `MutationResult`.                                     |
+| `subscribe(onPatch)`      | no       | Delivers live `RowPatch` updates. Returns an unsubscribe function.                    |
+
+{/* snippet: data-sources-and-protocol/custom-source.ts */}
+
+```ts custom-source.ts
+import type { DataSource } from 'tally-core'
+import { queryResponseSchema } from 'tally-protocol'
+
+export const source: DataSource = {
+  capabilities: {
+    filter: false,
+    sort: false,
+    group: false,
+    search: false,
+    aggregates: false,
+    facets: false,
+    pagination: 'none',
+    mutate: false,
+    live: false,
+  },
+  async query(_request, signal) {
+    const response = await fetch('/api/accounts', { signal: signal ?? null })
+    return queryResponseSchema.parse(await response.json())
+  },
+}
+```
+
+## Capabilities
+
+| Capability   | Type                             | When `false`                                        |
+| ------------ | -------------------------------- | --------------------------------------------------- |
+| `filter`     | `boolean`                        | The grid filters the loaded rows.                   |
+| `sort`       | `boolean`                        | The grid sorts the loaded rows.                     |
+| `group`      | `boolean`                        | The grid groups the loaded rows.                    |
+| `search`     | `boolean`                        | The grid applies any filter that contains a search. |
+| `aggregates` | `boolean`                        | The grid computes footer and group aggregates.      |
+| `facets`     | `boolean`                        | The grid computes facets.                           |
+| `pagination` | `'none' \| 'offset' \| 'cursor'` | `none` loads every row in one response.             |
+| `mutate`     | `boolean`                        | Cells are not editable.                             |
+| `live`       | `boolean`                        | The source pushes no live patches.                  |
+
+The grid plans every query against the capabilities. It sends the parts the source supports and runs the rest itself over the rows it received. The source above declares nothing, so it returns every row once and the grid does all the work.
+
+A filter that contains a flag is always applied by the grid, since flags are resolved on the client.
+
+<Warning>
+  Work the grid does locally sees only the loaded page. A source that pages but cannot filter shows
+  the matches within the current page, not across the table.
+</Warning>
+
+## Requests
+
+A `QueryRequest` carries the view's query and the page:
+
+```json
+{
+  "version": 1,
+  "filter": { "type": "condition", "column": "plan", "op": "in", "value": ["pro", "team"] },
+  "sort": [{ "column": "mrr", "direction": "desc" }],
+  "group": { "column": "renewal", "granularity": "quarter" },
+  "page": { "offset": 0, "limit": 100 },
+  "aggregates": [{ "column": "mrr", "fn": "sum" }],
+  "facets": ["plan", "mrr", "renewal"]
+}
+```
+
+The grid asks for the footer aggregates of the view and for facets of every filterable column whose type has a facet. A cursor page is `{ cursor?, limit }`. The page size defaults to 100 and is set with `pageSize` on the grid.
+
+## Responses
+
+| Field        | Notes                                          |
+| ------------ | ---------------------------------------------- |
+| `rows`       | The rows of the page.                          |
+| `total`      | Rows before filtering.                         |
+| `matched`    | Rows after filtering.                          |
+| `cursor`     | The next cursor. Absent on the last page.      |
+| `groups`     | `{ key, value, count, aggregates }` per group. |
+| `aggregates` | Results keyed `column:fn`, such as `mrr:sum`.  |
+| `facets`     | A histogram or a terms count per column.       |
+
+## Pagination
+
+With `offset`, the grid shows one page at a time and `grid.setPage(index)` moves between pages. With `cursor`, `grid.loadMore()` appends the next page until the source returns no cursor. `grid.fetchAll(max?)` walks every page, up to 100,000 rows by default, for export.
+
+## Mutations and live patches
+
+`mutate` receives the mutations the grid committed and answers `{ accepted, rows?, errors? }`. A rejected mutation is rolled back in the grid. See [Mutations and undo](/concepts/mutations-and-undo).
+
+`subscribe` delivers `{ upserts?, deletes? }` patches. Upserts replace rows with the same key or add new ones, and deletes remove rows by key.
+
+## The protocol over HTTP
+
+The Tally Query Protocol puts the same contract on four routes. `tally-server` and `tally/laravel` serve it, and `connectHttpSource` in `tally-adapters` consumes it.
+
+| Route         | Body                     | Response                                         |
+| ------------- | ------------------------ | ------------------------------------------------ |
+| `GET /schema` |                          | `{ version, columns, capabilities, key }`        |
+| `POST /query` | `QueryRequest`           | `QueryResponse`                                  |
+| `PATCH /rows` | `{ version, mutations }` | `MutationResult`                                 |
+| `GET /events` |                          | Server-sent `patch` events carrying a `RowPatch` |
+
+`tally-protocol` holds the Zod schemas of every body, validation of a request against a schema, the generated [JSON Schema](/reference/json-schema) files for servers in other languages, and a conformance suite. An adapter is conformant when it returns the same rows, totals, groups, aggregates and facets as the in-memory executor for the fixture dataset, so a filter means the same thing on every backend.
+
+Invalid requests are answered with `400` and `{ code, message, details }`, where every detail names the path of a problem.

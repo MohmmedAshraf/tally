@@ -61,8 +61,7 @@
     "**/coverage/**",
     "**/node_modules/**",
     "**/.next/**",
-    "**/.source/**",
-    "docs/next-env.d.ts",
+    "web/next-env.d.ts",
     "examples/playground/src/components/ui/**",
     "examples/playground/src/hooks/use-mobile.ts"
   ],

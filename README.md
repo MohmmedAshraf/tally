@@ -150,7 +150,7 @@ Any MCP client can use it. It serves the package guides as resources, answers "w
 | [`tally-ai`](packages/ai)             | Natural language to query, AI columns, column design                             |
 | [`tally-mcp-server`](packages/mcp)    | MCP server: guides, extension points, query and schema tools                     |
 
-Each package README is the reference for that package. The documentation site in [`docs`](docs) is generated from them, so the two never drift.
+Each package README is the reference for that package. The documentation in [`docs`](docs) is a Mintlify site whose reference pages are generated from the code.
 
 ## Extending
 
@@ -172,7 +172,7 @@ pnpm install
 pnpm check
 ```
 
-`pnpm check` runs lint, typecheck, tests with coverage thresholds, build, publish checks and size limits for every package. The playground runs with `pnpm --filter playground dev`, the docs with `pnpm --filter tally-docs dev`, and the Laravel package with `composer check` inside `packages/php`.
+`pnpm check` runs lint, typecheck, tests with coverage thresholds, build, publish checks and size limits for every package. The playground runs with `pnpm --filter playground dev`, the docs with `pnpm --filter tally-docs-content dev`, and the Laravel package with `composer check` inside `packages/php`.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md).
 

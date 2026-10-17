@@ -7,7 +7,8 @@ Node 24 or later and pnpm 12. Run `pnpm install`, then `pnpm check` to lint, typ
 ## Layout
 
 - `packages/` publishable packages. Each has one public entry point at `src/index.ts`.
-- `docs/` the documentation site, generated from the package READMEs.
+- `docs/` the Mintlify documentation; reference pages are generated from the code.
+- `web/` the landing page.
 - `examples/` the playground and runnable examples.
 
 ## Rules

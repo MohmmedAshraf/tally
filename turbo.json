@@ -7,13 +7,17 @@
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]
     },
-    "sync": {
+    "tally-web#build": {
       "dependsOn": ["^build"],
-      "outputs": ["content/docs/**"]
+      "outputs": [".next/**", "!.next/cache/**"]
     },
-    "tally-docs#build": {
+    "generate": {
       "dependsOn": ["^build"],
-      "outputs": [".next/**", "!.next/cache/**", "content/docs/**"]
+      "cache": false
+    },
+    "check": {
+      "dependsOn": ["^build"],
+      "outputs": []
     },
     "typecheck": {
       "dependsOn": ["^build"]

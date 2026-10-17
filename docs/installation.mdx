@@ -1,0 +1,116 @@
+---
+title: 'Installation'
+description: 'Install Tally for React, import the styles and set up fonts.'
+icon: 'download'
+---
+
+<Steps>
+  <Step title="Install the packages">
+    `tally-react` renders the grid. `tally-core` is the engine it renders. React 19 or newer is required.
+
+<Tabs>
+  <Tab title="npm">
+
+```sh
+npm install tally-react tally-core react react-dom
+```
+
+  </Tab>
+  <Tab title="pnpm">
+
+```sh
+pnpm add tally-react tally-core react react-dom
+```
+
+  </Tab>
+  <Tab title="yarn">
+
+```sh
+yarn add tally-react tally-core react react-dom
+```
+
+  </Tab>
+  <Tab title="bun">
+
+```sh
+bun add tally-react tally-core react react-dom
+```
+
+  </Tab>
+</Tabs>
+
+  </Step>
+  <Step title="Import the styles">
+    Import the stylesheet once, at the root of your app.
+
+```ts
+import 'tally-react/styles.css'
+```
+
+    The stylesheet is unlayered and every selector is scoped under `.tally`, so it survives Tailwind's preflight and other resets without configuration.
+
+  </Step>
+  <Step title="Add the fonts">
+    The default type is Onest, with JetBrains Mono for numbers. To self-host both, install the font packages and import `tally-react/fonts.css`.
+
+<Tabs>
+  <Tab title="npm">
+
+```sh
+npm install @fontsource-variable/onest @fontsource-variable/jetbrains-mono
+```
+
+  </Tab>
+  <Tab title="pnpm">
+
+```sh
+pnpm add @fontsource-variable/onest @fontsource-variable/jetbrains-mono
+```
+
+  </Tab>
+  <Tab title="yarn">
+
+```sh
+yarn add @fontsource-variable/onest @fontsource-variable/jetbrains-mono
+```
+
+  </Tab>
+  <Tab title="bun">
+
+```sh
+bun add @fontsource-variable/onest @fontsource-variable/jetbrains-mono
+```
+
+  </Tab>
+</Tabs>
+
+```ts
+import 'tally-react/fonts.css'
+```
+
+    Leave it out and the system font stack takes over.
+
+  </Step>
+</Steps>
+
+## Tailwind CSS
+
+With Tailwind v4, import the stylesheet into a layer when utilities should be able to override Tally classes.
+
+```css
+@layer theme, base, tally, components, utilities;
+@import 'tailwindcss';
+@import 'tally-react/styles.css' layer(tally);
+```
+
+## Other frameworks
+
+The Vue, Svelte and Solid packages bind the engine to a component's lifecycle and expose its state reactively. They render nothing.
+
+| Framework | Install                                       | Requires            |
+| --------- | --------------------------------------------- | ------------------- |
+| Vue       | `npm install tally-vue tally-core vue`        | Vue 3.5 or newer    |
+| Svelte    | `npm install tally-svelte tally-core svelte`  | Svelte 5.7 or newer |
+| Solid     | `npm install tally-solid tally-core solid-js` | Solid 1.9 or newer  |
+
+The Svelte package ships rune modules, so it is compiled by your Svelte toolchain.

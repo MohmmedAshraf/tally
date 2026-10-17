@@ -1,0 +1,96 @@
+---
+title: 'Mutations and undo'
+description: 'Every edit is a labelled mutation that applies optimistically, syncs to the source and undoes.'
+icon: 'undo-2'
+---
+
+Edits, pastes, fills, clears, inserts, deletes and imports are all mutations. A mutation is a labelled record of what changed, so it can be applied, sent to the source, inverted and undone. In `tally-react` the undo message reads from the label, such as `Undid Paste 2 cells`.
+
+## The Mutation object
+
+| Field      | Type                          | Notes                                          |
+| ---------- | ----------------------------- | ---------------------------------------------- |
+| `id`       | `string`                      | A random UUID.                                 |
+| `label`    | `string`                      | What the user did, such as `Edit MRR`.         |
+| `at`       | `number`                      | Creation time in milliseconds.                 |
+| `changes`  | `{ key, column, from, to }[]` | Cell changes, with the value before and after. |
+| `inserted` | `{ row, index? }[]`           | New rows, at an index or at the end.           |
+| `deleted`  | `{ row, index }[]`            | Removed rows and where they were.              |
+
+`createMutation({ label, changes?, inserted?, deleted? })` fills in `id` and `at`. `applyMutation(rows, mutation, schema, direction?)` applies one forward or backward, and `invertMutation` swaps every change and turns inserts into deletes and back.
+
+## Editing through the grid
+
+{/* snippet: mutations-and-undo/edits.ts */}
+
+```ts edits.ts
+import { createArraySource, createGrid, createSchema } from 'tally-core'
+
+const schema = createSchema({
+  key: 'id',
+  columns: [{ id: 'account' }, { id: 'mrr', label: 'MRR', type: 'currency' }],
+})
+const source = createArraySource([{ id: 1, account: 'Acme', mrr: 4200 }], schema)
+const grid = createGrid({ schema, source })
+await grid.load()
+
+await grid.setCells([{ key: 1, column: 'mrr', value: '$5k' }])
+await grid.insertRows([{ id: 2, account: 'Globex', mrr: 1800 }])
+await grid.deleteRows([1])
+
+export const labels = grid.rows.history().map((mutation) => mutation.label)
+
+await grid.undo()
+```
+
+| Method                     | Label                                                                        |
+| -------------------------- | ---------------------------------------------------------------------------- |
+| `setCells(edits, verb?)`   | `Edit MRR` for one cell, `Edit 3 cells` for several. `verb` replaces `Edit`. |
+| `insertRows(rows, index?)` | `Add row`, `Add 2 rows`                                                      |
+| `deleteRows(keys)`         | `Delete row`, `Delete 2 rows`                                                |
+| `commit(mutation)`         | The mutation's own label.                                                    |
+
+`setCells` parses every value with the column type, so `'$5k'` becomes `5000` in a currency column. An empty value becomes `null`. Values that do not parse and values that do not change are skipped, and a call that changes nothing commits nothing. `tally-react` uses the verbs `Paste`, `Fill` and `Clear`.
+
+`grid.newRow()` creates a blank row with a fresh UUID key. Pass `newRow` to the grid when the key is a function or needs another shape.
+
+## Optimistic updates
+
+A commit applies to the grid's rows at once, then goes to the source's `mutate`. When the source answers `accepted: false` or throws, the mutation is reverted and removed from history, and the result carries the errors. A source without `mutate` keeps edits in the grid only.
+
+## Undo and redo
+
+`grid.undo()` reverts the last mutation in the grid and sends its inverse to the source. `grid.redo()` applies it again and sends it. When the source rejects either one, the grid steps back.
+
+The row store at `grid.rows` keeps the history:
+
+| Method                   | Effect                                                              |
+| ------------------------ | ------------------------------------------------------------------- |
+| `history()`              | Every mutation, oldest first.                                       |
+| `position()`             | How many of them are applied.                                       |
+| `canUndo()`, `canRedo()` | Whether there is anything to undo or redo.                          |
+| `jumpTo(position)`       | Applies or reverts mutations up to a point in history.              |
+| `revert(id)`             | Removes one mutation from history and rebuilds the rows without it. |
+
+A new commit after an undo drops the mutations that were undone.
+
+## Live patches
+
+Changes from outside the grid arrive as patches rather than mutations. A patch upserts and deletes rows by key, and it is not part of the undo history. Local mutations made since the last load are replayed on top of the patched rows.
+
+{/* snippet: mutations-and-undo/patch.ts */}
+
+```ts patch.ts
+import { createArraySource, createSchema } from 'tally-core'
+
+const schema = createSchema({
+  key: 'id',
+  columns: [{ id: 'account' }, { id: 'mrr', type: 'currency' }],
+})
+
+export const source = createArraySource([{ id: 1, account: 'Acme', mrr: 4200 }], schema)
+
+source.patch({ upserts: [{ id: 1, account: 'Acme', mrr: 4600 }], deletes: [] })
+```
+
+When the view is sorted and not grouped, a patched row moves to its new position in the sort, so a changed value re-ranks in place without a reload. Cells whose values changed are tracked in `grid.rows.get().changed`, and the `is:changed` flag filters to their rows. `grid.rows.clearChanged()` resets them.

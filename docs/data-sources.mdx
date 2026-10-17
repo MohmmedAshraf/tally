@@ -1,0 +1,101 @@
+---
+title: 'Data sources'
+description: 'Where rows come from: an array, an HTTP server or an adapter, and when to use each.'
+icon: 'database'
+---
+
+A grid reads rows through a data source. Every source implements the same `DataSource` contract from `tally-core`, so the grid does not care whether rows come from an array, an HTTP endpoint, a query cache or a sync engine.
+
+| Source                   | Package                   | Use it when                                                           |
+| ------------------------ | ------------------------- | --------------------------------------------------------------------- |
+| `createArraySource`      | `tally-core`              | The rows are already in memory.                                       |
+| `connectHttpSource`      | `tally-adapters`          | A server speaks the Tally Query Protocol.                             |
+| `createQuerySource`      | `tally-adapters/query`    | Requests should be deduped and cached by a TanStack `QueryClient`.    |
+| `createCollectionSource` | `tally-adapters/db`       | The rows live in a TanStack DB collection.                            |
+| `createSupabaseSource`   | `tally-adapters/supabase` | The rows live in a Supabase table and there is no server of your own. |
+
+## Array
+
+`createArraySource` runs every query in memory with the same executor the conformance suite uses as its reference. It supports filtering, search, sorting, grouping, aggregates, facets, mutations and live patches.
+
+{/* snippet: data-sources/array-source.ts */}
+
+```ts array-source.ts
+import { createArraySource, createSchema } from 'tally-core'
+
+const schema = createSchema({
+  key: 'id',
+  columns: [{ id: 'account' }, { id: 'renewal', type: 'date' }],
+})
+
+export const source = createArraySource(
+  [{ id: 1, account: 'Acme', renewal: '2026-11-02' }],
+  schema,
+  {
+    mutable: false,
+    pagination: 'offset',
+    today: '2026-10-17',
+  },
+)
+```
+
+| Option         | Default                      | Notes                                                                 |
+| -------------- | ---------------------------- | --------------------------------------------------------------------- |
+| `mutable`      | `true`                       | `false` rejects every mutation with `Source is read only`.            |
+| `pagination`   | `none`                       | `none`, `offset` or `cursor`. Cursors encode an offset.               |
+| `today`        | today                        | ISO date that relative ranges such as `last 30 days` resolve against. |
+| `format`       | `en-US`, `UTC`               | Format context used for comparisons and search.                       |
+| `flags`        |                              | `(name, row) => boolean` for `is:name` filters.                       |
+| `facetOptions` | `{ bins: 20, maxTerms: 50 }` | Histogram bins and terms facet size.                                  |
+
+The returned source also exposes `rows()`, `replace(rows)` and `patch(patch)`. A patch is broadcast to every subscribed grid.
+
+## HTTP
+
+`connectHttpSource` talks to any server that speaks the Tally Query Protocol, such as `tally-server` in Node or `tally/laravel`. One round trip fetches the schema and the capabilities, and the returned source handles `/query`, `/rows` and the `/events` stream.
+
+{/* snippet: data-sources/http-source.tsx */}
+
+```tsx accounts.tsx
+import type { ReactNode } from 'react'
+import { connectHttpSource } from 'tally-adapters'
+import { Tally, useGrid } from 'tally-react'
+
+const { schema, source } = await connectHttpSource({
+  url: '/api/accounts',
+  headers: () => ({ authorization: `Bearer ${sessionStorage.getItem('token') ?? ''}` }),
+})
+
+export function Accounts(): ReactNode {
+  const grid = useGrid({ schema, source })
+  return <Tally grid={grid} label="Accounts" />
+}
+```
+
+| Option     | Notes                                                                                |
+| ---------- | ------------------------------------------------------------------------------------ |
+| `url`      | Base URL of the handler, relative or absolute.                                       |
+| `headers`  | Headers, or a function returning them, sent with every request and the event stream. |
+| `fetch`    | Defaults to the global `fetch`.                                                      |
+| `registry` | Custom column types the server schema refers to.                                     |
+
+Responses are validated against the protocol schemas. A superseded query is cancelled on the wire. Live patches arrive over server-sent events and the stream reconnects on its own. A server that reports `live: false` gives a source without `subscribe`, and a read-only server gives one without `mutate`.
+
+## Adapters
+
+The other sources in `tally-adapters` wrap an existing client:
+
+- **TanStack Query.** `createQuerySource` wraps any source so its requests go through a `QueryClient`. Identical requests are deduped and results are cached by request. An accepted mutation or a live patch invalidates every query under the key.
+- **TanStack DB.** `createCollectionSource` runs filters, sorts, groups, aggregates and facets locally over a collection. Collection changes arrive as live patches, and edits go through the collection's `insert`, `update` and `delete`.
+- **Supabase.** `createSupabaseSource` compiles filters, search, sorts and pages to PostgREST queries and uses Supabase Realtime for live patches. Groups, aggregates and facets are computed in the grid from the loaded page, since PostgREST exposes no grouping.
+
+## What runs where
+
+A source declares what it can do through its capabilities. The grid sends what the source supports and computes the rest itself, over the rows it loaded. A source that cannot sort still shows sorted rows, sorted within the loaded page.
+
+<Note>
+  Work the grid does locally only sees loaded rows. For large tables, use a source that filters,
+  sorts and groups on the server.
+</Note>
+
+See [Data sources and protocol](/concepts/data-sources-and-protocol) for the contract and the wire format.

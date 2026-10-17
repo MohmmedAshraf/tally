@@ -1,0 +1,115 @@
+---
+title: 'Packages'
+description: 'Every Tally package, what it does and how to install it.'
+icon: 'package'
+---
+
+## tally-core
+
+Framework-free engine for Tally. Everything the grid does that is not DOM lives here: column types, the schema, the query language, the view state, the client executor, mutations with undo, selection and keyboard reducers, CSV import and export, and the data source contract.
+
+```sh
+npm install tally-core
+```
+
+[README](https://github.com/MohmmedAshraf/tally/blob/main/packages/core/README.md)
+
+## tally-react
+
+React component and hooks for Tally. The engine lives in `tally-core`; this package renders it: virtualized rows and columns, pinned columns and rows, column groups, sorting, grouping, a natural-language filter bar with chips and typed popovers, inline editing with undo, fill handle, copy and paste, keyboard navigation, conditional formatting, a column menu, row context menu, footer aggregates, offset or cursor pagination and a card layout for narrow viewports.
+
+```sh
+npm install tally-react tally-core react react-dom
+```
+
+[README](https://github.com/MohmmedAshraf/tally/blob/main/packages/react/README.md)
+
+## tally-vue
+
+Vue composables for Tally. The engine lives in `tally-core`; this package binds a `Grid` to a component's lifecycle and exposes its stores as shallow refs. It renders nothing.
+
+```sh
+npm install tally-vue tally-core vue
+```
+
+[README](https://github.com/MohmmedAshraf/tally/blob/main/packages/vue/README.md)
+
+## tally-svelte
+
+Svelte 5 bindings for Tally. The engine lives in `tally-core`; this package binds a `Grid` to a component's lifecycle and exposes its stores as runes and stores. It renders nothing.
+
+```sh
+npm install tally-svelte tally-core svelte
+```
+
+[README](https://github.com/MohmmedAshraf/tally/blob/main/packages/svelte/README.md)
+
+## tally-solid
+
+Solid primitives for Tally. The engine lives in `tally-core`; this package binds a `Grid` to the owning reactive scope and exposes its stores as signals. It renders nothing.
+
+```sh
+npm install tally-solid tally-core solid-js
+```
+
+[README](https://github.com/MohmmedAshraf/tally/blob/main/packages/solid/README.md)
+
+## tally-protocol
+
+The wire contract between a Tally grid and a data source: Zod schemas for every request and response, validation of a request against a `Schema`, generated JSON Schema files, and the conformance suite an adapter runs to prove it answers queries exactly like the in-memory engine.
+
+```sh
+npm install tally-protocol tally-core
+```
+
+[README](https://github.com/MohmmedAshraf/tally/blob/main/packages/protocol/README.md)
+
+## tally-server
+
+Serves the Tally Query Protocol from a SQL database. A Kysely adapter compiles filter, sort, group, aggregate, facet and page requests into SQL, and a Fetch-standard handler exposes any `DataSource` over HTTP with server sent events for live patches.
+
+```sh
+npm install tally-server tally-core tally-protocol kysely
+```
+
+[README](https://github.com/MohmmedAshraf/tally/blob/main/packages/server/README.md)
+
+## tally/laravel
+
+Serves the Tally Query Protocol from Eloquent and the Laravel query builder. A grid class declares the columns, a route macro exposes it, and the adapter compiles filter, sort, group, aggregate, facet and page requests into SQL, so a Laravel app backs a `<Tally>` grid exactly like `tally-server` does in Node.
+
+```sh
+composer require tally/laravel
+```
+
+[README](https://github.com/MohmmedAshraf/tally/blob/main/packages/php/README.md)
+
+## tally-adapters
+
+Client data sources for Tally. Each one implements the `DataSource` contract from `tally-core`, so a grid does not care whether rows come from an array, an HTTP endpoint, a query cache or a sync engine.
+
+```sh
+npm install tally-adapters tally-core
+```
+
+[README](https://github.com/MohmmedAshraf/tally/blob/main/packages/adapters/README.md)
+
+## tally-ai
+
+Natural language to query and AI columns for Tally. Works with any model the [AI SDK](https://ai-sdk.dev) can call: Anthropic, OpenAI, Google, Mistral, Ollama, a gateway model id or your own provider.
+
+```sh
+npm install tally-ai ai @ai-sdk/anthropic
+```
+
+[README](https://github.com/MohmmedAshraf/tally/blob/main/packages/ai/README.md)
+
+## tally-mcp-server
+
+An MCP server that teaches coding agents Tally. It serves every package guide as a resource, maps a change in plain words to the extension point that owns it, parses query text, validates protocol requests and infers a schema from data. Add it once and an agent working in your codebase knows where each change goes.
+
+```sh
+claude mcp add tally -- npx tally-mcp-server
+```
+
+[README](https://github.com/MohmmedAshraf/tally/blob/main/packages/mcp/README.md)

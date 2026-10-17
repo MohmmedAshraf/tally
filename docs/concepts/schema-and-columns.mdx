@@ -1,0 +1,117 @@
+---
+title: 'Schema and columns'
+description: 'How a schema describes rows, keys and columns.'
+icon: 'columns-3'
+---
+
+A schema is the contract between your rows and everything else. The query parser resolves names against it, the executor reads values through it, the server validates requests with it, and the grid lays out its columns from it.
+
+{/* snippet: schema-and-columns/schema.ts */}
+
+```ts schema.ts
+import { createSchema } from 'tally-core'
+
+export const schema = createSchema({
+  key: 'id',
+  columns: [
+    { id: 'account', label: 'Account', pin: 'left', width: 240 },
+    { id: 'owner', type: 'person', aliases: ['rep', 'manager'] },
+    {
+      id: 'status',
+      type: 'enum',
+      options: [
+        { value: 'active', label: 'Active', color: 'green' },
+        { value: 'past_due', label: 'Past due', color: 'amber' },
+        { value: 'churned', label: 'Churned' },
+      ],
+    },
+    { id: 'mrr', label: 'MRR', type: 'currency', format: { compact: true }, aggregate: 'sum' },
+    { id: 'notes', wrap: true, sortable: false, hidden: true },
+  ],
+})
+```
+
+`createSchema` validates every column and throws a `TallyError` with code `invalid_column` for a malformed or duplicate column, and `unknown_type` for a type that is not registered.
+
+## Schema options
+
+| Option     | Type                                | Notes                                                                    |
+| ---------- | ----------------------------------- | ------------------------------------------------------------------------ |
+| `columns`  | `ColumnInput[]`                     | Column definitions, in display order.                                    |
+| `key`      | `string \| (row) => RowKey`         | Default `id`. A row key is a string or a number.                         |
+| `parent`   | `string \| (row) => RowKey \| null` | Makes the rows a tree. See [Trees](#trees).                              |
+| `registry` | `TypeRegistry`                      | Column types. Default `createDefaultRegistry()`, the fourteen built-ins. |
+
+A key that is a field name can be read by servers. A key that is a function cannot, so `tally-server`, `tally/laravel` and the Supabase source require a field name. The grid's `newRow` also needs a field name to generate keys, unless you pass your own `newRow`.
+
+## Column options
+
+Only `id` is required. Everything else falls back to the column type.
+
+| Option        | Type                                                        | Notes                                                                                      |
+| ------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `id`          | `string`                                                    | The field the value is read from.                                                          |
+| `type`        | `string`                                                    | A registered column type. Default `text`.                                                  |
+| `label`       | `string`                                                    | Header text. Default the id.                                                               |
+| `aliases`     | `string[]`                                                  | Extra names the query language accepts.                                                    |
+| `description` | `string`                                                    | Included in the schema prompt `tally-ai` sends to the model.                               |
+| `options`     | `{ value, label?, color? }[]`                               | Values of an `enum` column, in sort order. A `person` column matches against them.         |
+| `format`      | `ColumnFormat`                                              | See [Formatting](/concepts/column-types#formatting).                                       |
+| `editable`    | `boolean`                                                   | `false` disables editing the column.                                                       |
+| `sortable`    | `boolean`                                                   | `false` disables sorting by the column.                                                    |
+| `filterable`  | `boolean`                                                   | `false` disables filtering by the column and leaves it out of facets.                      |
+| `groupable`   | `boolean`                                                   | Default from the type. `false` disables grouping by the column.                            |
+| `searchable`  | `boolean`                                                   | Whether bare search words match this column. Default from the type.                        |
+| `width`       | `number`                                                    | Width in pixels. Default `160`.                                                            |
+| `minWidth`    | `number`                                                    | Lower bound for resizing. Never below `48`.                                                |
+| `maxWidth`    | `number`                                                    | Upper bound for resizing.                                                                  |
+| `flex`        | `number`                                                    | Share of spare viewport width. `width` stays the floor.                                    |
+| `align`       | `'start' \| 'end'`                                          | Default from the type: numbers align to the end.                                           |
+| `wrap`        | `boolean`                                                   | Wraps long text and edits it in a multi-line field.                                        |
+| `pin`         | `'left' \| 'right'`                                         | Pins the column to a side.                                                                 |
+| `hidden`      | `boolean`                                                   | Hidden until shown from the view.                                                          |
+| `group`       | `string`                                                    | Header of a column group spanning adjacent columns with the same value.                    |
+| `card`        | `'title' \| 'badge' \| 'metric' \| 'meta' \| 'hidden'`      | Role of the field in the card layout. Default from the type.                               |
+| `subtitle`    | `string`                                                    | Id of another column whose value renders under this one.                                   |
+| `avatar`      | `boolean`                                                   | Draws an initials tile before a text value.                                                |
+| `sparkline`   | `string`                                                    | Row field holding a numeric series drawn before a number.                                  |
+| `relative`    | `boolean`                                                   | Adds a relative line such as "in 17 days" under a date.                                    |
+| `aggregate`   | `'sum' \| 'avg' \| 'min' \| 'max' \| 'count' \| 'distinct'` | Footer aggregate in the default view.                                                      |
+| `ai`          | `boolean`                                                   | Marks a column filled by `tally-ai`. The header shows a sparkle and pending cells shimmer. |
+
+`width`, `flex`, `pin` and `hidden` are starting values. The [view](/concepts/views) holds the current ones, so a user can resize, pin and hide columns without changing the schema.
+
+<Note>
+  Columns computed on the client, such as AI columns, must set `filterable`, `sortable` and
+  `groupable` to `false`.
+</Note>
+
+## Resolving names
+
+`schema.resolve(name)` finds a column by id, label or alias, ignoring case and surrounding spaces. The query language uses it, so `MRR > 2k`, `mrr > 2k` and an alias all name the same column.
+
+## Reading values
+
+`schema.valueOf(row, column)` reads `row[column.id]`. `schema.keyOf(row)` reads the key and throws `invalid_value` when it is not a string or a number. `schema.typeOf(column)` returns the column type.
+
+## Extending a schema
+
+`schema.extend(columns, index?)` returns a new schema with extra columns inserted at `index`, or at the end. The original schema is unchanged.
+
+## Trees
+
+With `parent`, each row names its parent's key, and rows with no parent are roots.
+
+{/* snippet: schema-and-columns/tree.ts */}
+
+```ts tree.ts
+import { createSchema } from 'tally-core'
+
+export const schema = createSchema({
+  key: 'id',
+  parent: 'parentId',
+  columns: [{ id: 'title' }, { id: 'progress', type: 'bar' }],
+})
+```
+
+When a filter is applied to a tree, rows that match keep their ancestors, so a match is never shown without its path.

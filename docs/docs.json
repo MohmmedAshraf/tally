@@ -1,0 +1,58 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "maple",
+  "name": "Tally",
+  "colors": {
+    "primary": "#009b95",
+    "light": "#41c1ba",
+    "dark": "#007b76"
+  },
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "favicon": "/favicon.svg",
+  "fonts": {
+    "heading": { "family": "Geist" },
+    "body": { "family": "Geist" }
+  },
+  "icons": {
+    "library": "lucide"
+  },
+  "navbar": {
+    "links": [{ "label": "Playground", "href": "https://play.tally.outhebox.dev" }],
+    "primary": { "type": "github", "href": "https://github.com/MohmmedAshraf/tally" }
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/MohmmedAshraf/tally"
+    }
+  },
+  "contextual": {
+    "options": ["copy", "view", "chatgpt", "claude", "mcp"]
+  },
+  "navigation": {
+    "groups": [
+      {
+        "group": "Getting started",
+        "pages": ["index", "installation", "first-grid", "data-sources"]
+      },
+      {
+        "group": "Concepts",
+        "pages": [
+          "concepts/schema-and-columns",
+          "concepts/column-types",
+          "concepts/views",
+          "concepts/query-language",
+          "concepts/data-sources-and-protocol",
+          "concepts/mutations-and-undo",
+          "concepts/selection-and-keyboard"
+        ]
+      },
+      {
+        "group": "Reference",
+        "pages": ["reference/query-language", "reference/json-schema", "reference/packages"]
+      }
+    ]
+  }
+}

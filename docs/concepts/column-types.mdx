@@ -1,0 +1,105 @@
+---
+title: 'Column types'
+description: 'The fourteen built-in types, what each one parses, formats and supports.'
+icon: 'shapes'
+---
+
+A column type decides how a value is checked, parsed from text, formatted for display and compared for sorting. It also declares which filter operators, aggregates and facet the column gets. Fourteen types are built in, and you can register your own with the same API.
+
+## Built-in types
+
+| Type       | Kind      | Value                      | Notes                                                                                                      |
+| ---------- | --------- | -------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `text`     | `text`    | string                     | The default type. Trims input. Sorts naturally with the locale collator, so `file2` comes before `file10`. |
+| `enum`     | `enum`    | string, one of `options`   | Parses an option by value, label, prefix or word. Formats as the label. Sorts in option order.             |
+| `currency` | `number`  | number                     | Formats in `format.currency`, default `USD`. Parses `$2k` as `2000`.                                       |
+| `int`      | `number`  | integer                    | Rounds on parse. Formats without fractions.                                                                |
+| `number`   | `number`  | number                     | Formats with two fraction digits by default.                                                               |
+| `percent`  | `number`  | number, `12.5` means 12.5% | Formats with one fraction digit by default. Parses `12%` as `12`.                                          |
+| `bar`      | `number`  | integer from 0 to 100      | Clamps on parse. `tally-react` renders it as a bar.                                                        |
+| `date`     | `date`    | ISO date, `YYYY-MM-DD`     | Parses a date-time and keeps the date. Formats with `format.dateStyle`, default `medium`.                  |
+| `bool`     | `boolean` | boolean                    | Parses `true`, `yes`, `y`, `1`, `on` and their opposites.                                                  |
+| `email`    | `text`    | string                     | Text with `format: email` in JSON Schema.                                                                  |
+| `url`      | `text`    | string                     | Text with `format: uri` in JSON Schema.                                                                    |
+| `id`       | `text`    | string                     | Text that shows as metadata in cards rather than as the title.                                             |
+| `person`   | `text`    | string                     | Matches a known option by value, label or prefix, and keeps free text otherwise. Groupable.                |
+| `duration` | `number`  | number of seconds          | Parses `1m 30s`, `1:05`, `1:02:03` and `2h`. Formats as `1m 35s`. Never negative.                          |
+
+The [query language reference](/reference/query-language#column-types) lists the operators, aggregates and facet of each type, generated from the code.
+
+## Kinds
+
+Every type has one of five kinds. The kind decides which operators the type uses and how the grid treats it.
+
+| Kind      | Operators                                                                                   | Aggregates                                 | Facet                                  |
+| --------- | ------------------------------------------------------------------------------------------- | ------------------------------------------ | -------------------------------------- |
+| `text`    | `eq` `neq` `contains` `notContains` `startsWith` `endsWith` `in` `notIn` `empty` `notEmpty` | `count` `distinct`                         | `terms` when groupable, otherwise none |
+| `enum`    | `eq` `neq` `in` `notIn` `empty` `notEmpty`                                                  | `count` `distinct`                         | `terms`                                |
+| `number`  | `eq` `neq` `lt` `lte` `gt` `gte` `between` `in` `notIn` `empty` `notEmpty`                  | `sum` `avg` `min` `max` `count` `distinct` | histogram                              |
+| `date`    | `eq` `neq` `lt` `lte` `gt` `gte` `between` `within` `empty` `notEmpty`                      | `min` `max` `count` `distinct`             | histogram                              |
+| `boolean` | `eq` `neq` `empty` `notEmpty`                                                               | `count` `distinct`                         | `terms`                                |
+
+`bar` is the exception among numbers: its aggregates are `avg`, `min`, `max` and `count`.
+
+Text and enum types are searchable by default. Number, date and boolean columns are not. Enum, date, boolean and person columns are groupable by default.
+
+## Empty values
+
+`null`, `undefined` and `''` are empty in every type. Empty values sort last in both directions and never match a comparison, except `neq`, `notContains` and `notIn`, which keep them. Aggregates skip them.
+
+## Formatting
+
+The `format` option of a column tunes the built-in formatters.
+
+| Option           | Applies to                             | Notes                                                             |
+| ---------------- | -------------------------------------- | ----------------------------------------------------------------- |
+| `currency`       | `currency`                             | ISO 4217 code. Default `USD`.                                     |
+| `fractionDigits` | `number`, `currency`, `percent`        | Fixed number of fraction digits, from 0 to 20.                    |
+| `compact`        | `number`, `int`, `currency`            | Compact notation, such as `$1.5M`.                                |
+| `signed`         | `number`, `int`, `currency`, `percent` | Shows the sign of positive values, such as `+4.0%`.               |
+| `prefix`         | number types                           | Text before the formatted value.                                  |
+| `suffix`         | number types                           | Text after the formatted value, such as ` pt`.                    |
+| `dateStyle`      | `date`                                 | `short`, `medium` or `long`.                                      |
+| `durationUnit`   | `duration`                             | Unit of the stored value: `seconds`, `milliseconds` or `minutes`. |
+
+Formatting follows the grid's format context: `locale`, `timeZone` and `numberingSystem`, which default to `en-US`, `UTC` and `latn`. Pass `format: createFormatContext({ locale: 'de-DE' })` to the grid to change them. The time zone also decides what `today` is for relative dates.
+
+## The ColumnType contract
+
+A column type is a plain object. The built-ins are ordinary values of this shape.
+
+| Member                           | Purpose                                                                |
+| -------------------------------- | ---------------------------------------------------------------------- |
+| `name`                           | The name columns refer to in `type`.                                   |
+| `kind`                           | `text`, `number`, `date`, `boolean` or `enum`.                         |
+| `operators`                      | Filter operators the type accepts.                                     |
+| `aggregates`                     | Aggregates the type accepts.                                           |
+| `facet`                          | `histogram`, `terms` or `none`.                                        |
+| `align`, `card`                  | Default alignment and card role.                                       |
+| `searchable`, `groupable`        | Defaults for the column options of the same name.                      |
+| `is(value)`                      | Whether a stored value belongs to the type.                            |
+| `parse(input, column)`           | Text or loose input to a value, or `undefined` when it does not parse. |
+| `format(value, column, context)` | A value to display text.                                               |
+| `compare(a, b, column, context)` | Sort order of two values.                                              |
+| `detect(sample)`                 | Optional. Whether a CSV sample looks like this type.                   |
+| `jsonSchema(column)`             | JSON Schema of a value, used by the protocol.                          |
+
+## Registering a type
+
+Types live in a registry. `createDefaultRegistry()` holds the fourteen built-ins. Register a type and pass the registry to `createSchema`.
+
+{/* snippet: column-types/registry.ts */}
+
+```ts registry.ts
+import { createDefaultRegistry, createSchema } from 'tally-core'
+
+const registry = createDefaultRegistry()
+registry.register({ ...registry.get('text'), name: 'sku', card: 'meta' })
+
+export const schema = createSchema({
+  registry,
+  columns: [{ id: 'sku', type: 'sku' }],
+})
+```
+
+Registering a name twice throws `duplicate_type`. A column whose type is not in the registry throws `unknown_type`.

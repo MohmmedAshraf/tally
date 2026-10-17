@@ -1,0 +1,113 @@
+---
+title: 'Views'
+description: 'The serializable state of a grid: filter, sort, group, columns, density and more.'
+icon: 'layout-panel-left'
+---
+
+A view is everything a user can change about how the grid looks without changing the data. It is one plain, serializable object, so you can save it, put it in the URL or send it to a server.
+
+## The View object
+
+| Field             | Type                                       | Notes                                                               |
+| ----------------- | ------------------------------------------ | ------------------------------------------------------------------- |
+| `columns`         | `ColumnState[]`                            | Order, `width`, `flex`, `hidden` and `pin` of every column.         |
+| `filter`          | `Filter`                                   | The filter AST. See [Query language](/concepts/query-language).     |
+| `sort`            | `Sort[]`                                   | `{ column, direction }` in priority order.                          |
+| `group`           | `Group`                                    | `{ column, granularity? }`. Dates group by `month` unless set.      |
+| `density`         | `'compact' \| 'comfortable' \| 'spacious'` | Default `comfortable`.                                              |
+| `rules`           | `FormatRule[]`                             | Conditional formatting: a column, an operator, a value and a style. |
+| `footer`          | `Record<string, AggregateName>`            | Footer aggregate per column.                                        |
+| `pinnedRows`      | `RowKey[]`                                 | Rows pinned to the top.                                             |
+| `expanded`        | `RowKey[]`                                 | Expanded rows of a tree.                                            |
+| `collapsedGroups` | `string[]`                                 | Keys of collapsed groups.                                           |
+
+`defaultView(schema)` builds the starting view from the schema: column widths, flex, pins and hidden columns from the column options, and a footer entry for every column with an `aggregate`.
+
+## The view store
+
+Every grid owns a view store at `grid.view`. It holds the current view, and every change goes through it.
+
+{/* snippet: views/view-store.ts */}
+
+```ts view-store.ts
+import { createSchema, createViewStore, parseQuery } from 'tally-core'
+
+const schema = createSchema({
+  columns: [{ id: 'account' }, { id: 'mrr', type: 'currency' }, { id: 'renewal', type: 'date' }],
+})
+
+export const view = createViewStore(schema)
+
+view.setFilter(parseQuery('mrr > 2k', schema).query.filter)
+view.toggleSort('mrr')
+view.setGroup('renewal', 'quarter')
+view.pinColumn('account', 'left')
+view.setFooter('mrr', 'sum')
+view.setDensity('compact')
+```
+
+| Method                                                   | Effect                                                      |
+| -------------------------------------------------------- | ----------------------------------------------------------- |
+| `get()`, `set(view)`                                     | Read or replace the view.                                   |
+| `update(patch)`                                          | Merge a partial view, or apply a function to the view.      |
+| `subscribe(listener)`                                    | Called after every change. Returns an unsubscribe function. |
+| `select(selector, listener)`                             | Called only when the selected value changes.                |
+| `reset()`                                                | Back to the default view.                                   |
+| `setFilter`, `setSort`, `setGroup`                       | Change the query.                                           |
+| `toggleSort(column, additive?)`                          | Cycle the sort on a column. See below.                      |
+| `moveColumn(id, toIndex)`                                | Reorder a column.                                           |
+| `resizeColumn(id, width)`                                | Set a fixed width and clear `flex`.                         |
+| `setColumnFlex`, `setColumnHidden`, `pinColumn`          | Change one column's layout.                                 |
+| `setDensity(density)`                                    | Change row density.                                         |
+| `setFooter(column, fn)`                                  | Set or clear a footer aggregate.                            |
+| `setRules(rules)`                                        | Replace the conditional formatting rules.                   |
+| `togglePinnedRow`, `setExpanded`, `toggleGroupCollapsed` | Row state.                                                  |
+
+### Sort direction
+
+`toggleSort` starts a column at its natural direction: descending for numbers and dates, ascending for everything else. A second toggle flips it, and a third removes it. With `additive` set, the column is added to the existing sorts instead of replacing them.
+
+## Reconciling with the schema
+
+A saved view can outlive the schema it was saved against. `set` and `createViewStore` reconcile every view: unknown columns are dropped, new columns are inserted next to their neighbours in the schema, and sorts, groups, rules and footer entries for missing columns are removed. A footer aggregate the column type does not support is removed too.
+
+`validateView(input)` checks an untrusted object, such as one read from storage, and throws `invalid_view` with one detail per problem.
+
+## Reloading
+
+The grid reloads when the filter, the sort, the group or the footer changes, and goes back to the first page. Layout changes such as widths, order and density do not reload.
+
+## Views in the URL
+
+`viewToUrlString` and `viewFromUrlString` write a view to a query string and read it back.
+
+{/* snippet: views/url.ts */}
+
+```ts url.ts
+import { createSchema, createViewStore, viewFromUrlString, viewToUrlString } from 'tally-core'
+
+const schema = createSchema({
+  columns: [{ id: 'status' }, { id: 'mrr', type: 'currency' }, { id: 'renewal', type: 'date' }],
+})
+const view = createViewStore(schema)
+
+export const search = viewToUrlString(view.get(), schema)
+
+view.set(viewFromUrlString(search, schema))
+```
+
+```text
+?q=status+is+active,+sort+by+mrr+desc,+group+by+renewal&granularity=month&density=compact
+```
+
+Filter, sort and group are written as query language text in `q`. The rest is written only when it differs from the default view:
+
+| Parameter     | Content                                                                         |
+| ------------- | ------------------------------------------------------------------------------- |
+| `granularity` | Date grouping granularity.                                                      |
+| `density`     | Row density.                                                                    |
+| `columns`     | Column order, with `:width`, `:2fr`, `:hidden`, `:left` or `:right` per column. |
+| `footer`      | `column:aggregate` pairs.                                                       |
+| `state`       | Formatting rules, pinned, expanded and collapsed rows, base64url encoded JSON.  |
+
+Other parameters are left alone. Pass `param` to use another name than `q`. In React, `useViewUrl(grid)` keeps the view and the URL in sync.
