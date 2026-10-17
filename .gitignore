@@ -9,3 +9,8 @@ coverage
 !.env.example
 test-results
 playwright-report
+vendor
+composer.lock
+.phpunit.cache
+.phpunit.result.cache
+.pint.cache
