@@ -4,6 +4,7 @@ export const GUIDE_SOURCES: Readonly<Record<string, string>> = {
   react: '../react/README.md',
   protocol: '../protocol/README.md',
   server: '../server/README.md',
+  php: '../php/README.md',
   adapters: '../adapters/README.md',
   ai: '../ai/README.md',
 }
@@ -14,6 +15,7 @@ export const GUIDE_TITLES: Readonly<Record<string, string>> = {
   react: 'tally-react: the component, hooks, renderers, editors, labels, intents, styling',
   protocol: 'tally-protocol: wire schemas, validation, JSON Schema, conformance suite',
   server: 'tally-server: Kysely SQL adapter, dialects, Fetch handler, SSE',
+  php: 'tally/laravel: grid classes, Route::tally(), Eloquent query compiler, dialects',
   adapters: 'tally-adapters: HTTP, TanStack Query, TanStack DB and Supabase sources',
   ai: 'tally-ai: natural language to query, AI columns, column design',
   extend: 'Where each kind of change goes',

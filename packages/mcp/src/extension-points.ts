@@ -209,7 +209,7 @@ const schema = createSchema({ columns, registry })`,
     title: 'Serve the grid from a SQL database',
     package: 'tally-server',
     api: 'createKyselyAdapter({ db, table, schema, dialect, columns, flags }) and createTallyHandler({ source, schema, basePath })',
-    how: 'The adapter compiles validated protocol requests to SQL and passes the conformance suite on SQLite and Postgres. Mount the Fetch handler on any framework. For MySQL or SQL Server implement SqlDialect. For Laravel use tally-php.',
+    how: 'The adapter compiles validated protocol requests to SQL and passes the conformance suite on SQLite and Postgres. Mount the Fetch handler on any framework. For MySQL or SQL Server implement SqlDialect. For Laravel use tally/laravel.',
     example: `const accounts = createKyselyAdapter({ db, table: 'accounts', schema, dialect: postgresDialect })
 const handler = createTallyHandler({ source: accounts, schema, basePath: '/api/accounts' })
 app.all('/api/accounts/*', (c) => handler(c.req.raw))`,
@@ -226,15 +226,55 @@ app.all('/api/accounts/*', (c) => handler(c.req.raw))`,
       'kysely',
       'prisma',
       'drizzle',
-      'laravel',
-      'php',
-      'eloquent',
       'api',
       'endpoint',
       'route',
       'hono',
       'express',
       'next',
+    ],
+  },
+  {
+    id: 'laravel-backend',
+    title: 'Serve the grid from a Laravel app',
+    package: 'tally/laravel',
+    api: 'class AccountsGrid extends Grid { query(); columns() } and Route::tally(uri, AccountsGrid::class)',
+    how: 'Extend Grid with the Eloquent query and the column definitions, then register it with the Route::tally macro. The adapter validates every request against the protocol JSON Schema, compiles it with the query builder and passes the conformance suite on SQLite, Postgres and MySQL. Override columnMap(), flags(), mutable(), maxLimit() or dialect() on the grid.',
+    example: `final class AccountsGrid extends Grid
+{
+    public function query(): Builder
+    {
+        return Account::query()->whereBelongsTo(auth()->user()->team);
+    }
+
+    public function columns(): array
+    {
+        return [
+            ['id' => 'account', 'label' => 'Account'],
+            ['id' => 'mrr', 'type' => 'currency', 'aggregate' => 'sum'],
+        ];
+    }
+}
+
+Route::tally('/api/accounts', AccountsGrid::class);`,
+    guide: 'php',
+    keywords: [
+      'laravel',
+      'php',
+      'eloquent',
+      'composer',
+      'artisan',
+      'blade',
+      'inertia',
+      'livewire',
+      'query builder',
+      'model',
+      'controller',
+      'route',
+      'backend',
+      'mysql',
+      'mariadb',
+      'pgsql',
     ],
   },
   {

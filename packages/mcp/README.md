@@ -30,6 +30,7 @@ Any MCP client works. The server speaks stdio:
 | `tally://guide/react`    | The component, hooks, renderers, editors, labels, intents, styling                                                       |
 | `tally://guide/protocol` | Wire schemas, validation, JSON Schema, conformance suite                                                                 |
 | `tally://guide/server`   | Kysely SQL adapter, dialects, Fetch handler, SSE                                                                         |
+| `tally://guide/php`      | tally/laravel: grid classes, `Route::tally()`, Eloquent query compiler, dialects                                         |
 | `tally://guide/adapters` | HTTP, TanStack Query, TanStack DB and Supabase sources                                                                   |
 | `tally://guide/ai`       | Natural language to query, AI columns, column design                                                                     |
 | `tally://schema/{name}`  | JSON Schema for `query-request`, `query-response`, `mutation-request`, `mutation-result`, `row-patch`, `schema-response` |
