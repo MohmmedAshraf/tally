@@ -4,6 +4,7 @@ export {
   viewFromUrlString,
   viewToSearchParams,
   viewToUrlString,
+  type ViewUrlOptions,
 } from './url.ts'
 export {
   defaultView,

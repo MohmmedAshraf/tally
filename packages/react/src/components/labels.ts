@@ -89,6 +89,10 @@ export interface TallyLabels {
   readonly redone: (action: string) => string
   readonly openRow: (title: string) => string
   readonly close: string
+  readonly exportCsv: string
+  readonly importCsv: string
+  readonly importRows: (count: number) => string
+  readonly exportFileName: (name: string | undefined) => string
 }
 
 const TINT_NAMES: Readonly<Record<string, string>> = {
@@ -207,6 +211,10 @@ export function localizedLabels(format: FormatContext): TallyLabels {
     redone: (action) => `Redid ${action}`,
     openRow: (title) => `Open ${title}`,
     close: 'Close',
+    exportCsv: 'Export CSV',
+    importCsv: 'Import CSV',
+    importRows: (count) => (count === 1 ? 'Import row' : `Import ${numeral(count)} rows`),
+    exportFileName: (name) => `${name ?? 'export'}.csv`,
   }
 }
 

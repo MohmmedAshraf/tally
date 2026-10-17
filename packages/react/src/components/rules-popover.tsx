@@ -12,6 +12,7 @@ import {
 } from 'tally-core'
 import { useView } from '../hooks/use-store.ts'
 import { useShell } from './context.ts'
+import { rawText } from './format.ts'
 import { useLabels } from './labels.ts'
 
 export interface RulesPopoverProps {
@@ -49,10 +50,6 @@ const VALUE_OPERATORS: readonly Operator[] = [
 
 function needsValue(operator: Operator): boolean {
   return operator !== 'empty' && operator !== 'notEmpty'
-}
-
-function rawValue(value: unknown): string {
-  return typeof value === 'string' || typeof value === 'number' ? String(value) : ''
 }
 
 function tintOf(style: FormatStyle): string | undefined {
@@ -134,7 +131,7 @@ export function RulesPopover({
                     type={type.kind === 'date' ? 'date' : 'text'}
                     inputMode={type.kind === 'number' ? 'decimal' : undefined}
                     aria-label={labels.value}
-                    value={rawValue(rule.value)}
+                    value={rawText(rule.value)}
                     onChange={(event) => {
                       const text = event.target.value
                       const parsed = text === '' ? '' : (type.parse(text, column) ?? text)

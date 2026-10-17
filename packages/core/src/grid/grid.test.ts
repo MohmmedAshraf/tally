@@ -119,6 +119,37 @@ describe('createGrid', () => {
     grid.dispose()
   })
 
+  it('fetches every matched row across offset pages with local sorting and a cap', async () => {
+    const source = remoteSource()
+    const grid = createGrid({ schema, source, pageSize: 2 })
+    await grid.load()
+    grid.view.setSort([{ column: 'mrr', direction: 'desc' }])
+    expect((await grid.fetchAll()).map((row) => row['id'])).toEqual([3, 2, 1])
+    expect(source.requests.every((request) => request.facets === undefined)).toBe(true)
+    expect(await grid.fetchAll(1)).toHaveLength(1)
+  })
+
+  it('fetches every row through cursors and reuses loaded rows', async () => {
+    const source = remoteSource({
+      capabilities: { ...remoteSource().capabilities, pagination: 'cursor' },
+      query: (request) => {
+        const cursor =
+          request.page !== undefined && 'cursor' in request.page ? request.page.cursor : undefined
+        const start = cursor === undefined ? 0 : Number(cursor)
+        const next = start + 2
+        return Promise.resolve({
+          rows: rows.slice(start, next),
+          ...(next < rows.length ? { cursor: String(next) } : {}),
+        })
+      },
+    })
+    const grid = createGrid({ schema, source, pageSize: 2 })
+    expect(await grid.fetchAll()).toHaveLength(3)
+    const local = createGrid({ schema, source: createArraySource(rows, schema) })
+    await local.load()
+    expect(await local.fetchAll()).toEqual(rows)
+  })
+
   it('appends pages for cursor sources', async () => {
     const source = remoteSource({
       capabilities: { ...remoteSource().capabilities, pagination: 'cursor' },

@@ -22,6 +22,7 @@ import {
 } from 'tally-core'
 import { useGridState } from '../../hooks/use-store.ts'
 import { useShell } from '../context.ts'
+import { rawText } from '../format.ts'
 import { useLabels } from '../labels.ts'
 
 export interface ClausePopoverProps {
@@ -53,10 +54,6 @@ const DATE_PRESETS: readonly RelativeRange[] = [
 function valuesOf(clause: Condition): readonly unknown[] {
   if (Array.isArray(clause.value)) return clause.value as readonly unknown[]
   return isEmptyValue(clause.value) ? [] : [clause.value]
-}
-
-function rawText(value: unknown): string {
-  return typeof value === 'string' || typeof value === 'number' ? String(value) : ''
 }
 
 function rangeOf(clause: Condition): readonly [unknown, unknown] {

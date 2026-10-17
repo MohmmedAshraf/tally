@@ -103,7 +103,13 @@ export function useHashRoute(): readonly [Route, (dataset: string, view?: string
   return [
     route,
     (dataset, view) => {
-      location.hash = view === undefined ? `/${dataset}` : `/${dataset}/${view}`
+      const hash = view === undefined ? `/${dataset}` : `/${dataset}/${view}`
+      if (dataset === readRoute().dataset) {
+        location.hash = hash
+        return
+      }
+      history.pushState(null, '', `${location.pathname}#${hash}`)
+      setRoute(readRoute())
     },
   ]
 }

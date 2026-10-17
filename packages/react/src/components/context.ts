@@ -15,6 +15,9 @@ export interface TallyShell {
   readonly editors: CellEditors
   readonly detail: DetailRenderer | boolean
   readonly direction: 'ltr' | 'rtl'
+  readonly label: string | undefined
+  readonly failure: unknown
+  readonly fail: (error: unknown) => void
 }
 
 export const ShellContext: Context<TallyShell | undefined> = createContext<TallyShell | undefined>(

@@ -83,7 +83,7 @@
     {
       "name": "tally-react",
       "path": "dist/index.js",
-      "limit": "22 kB",
+      "limit": "23 kB",
       "ignore": [
         "react",
         "react-dom",
@@ -98,7 +98,7 @@
     {
       "name": "tally-react with dependencies",
       "path": "dist/index.js",
-      "limit": "100 kB",
+      "limit": "101 kB",
       "ignore": [
         "react",
         "react-dom",

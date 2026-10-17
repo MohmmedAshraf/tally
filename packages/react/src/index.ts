@@ -1,5 +1,6 @@
 export { GridProvider, useGridContext, type GridProviderProps } from './hooks/context.tsx'
 export { useGrid } from './hooks/use-grid.ts'
+export { useViewUrl, type ViewUrlSync } from './hooks/use-view-url.ts'
 export {
   useColumnLayout,
   useGridState,

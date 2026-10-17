@@ -440,8 +440,8 @@ grid.view.toggleSort('mrr')`,
     package: 'tally-core',
     api: 'grid.view (ViewStore), viewToUrlString, viewFromUrlString, reconcileView, View.rules',
     how: 'A View holds filter, sort, group, columns, density, footer and rules. Serialize it for a URL or a database, restore it with reconcileView so renamed columns drop out cleanly. Conditional formatting lives in View.rules.',
-    example: `const saved = viewToUrlString(grid.view.get())
-grid.view.set(reconcileView(viewFromUrlString(saved), schema))`,
+    example: `const search = viewToUrlString(grid.view.get(), schema)
+grid.view.set(reconcileView(viewFromUrlString(search, schema), schema))`,
     guide: 'core',
     keywords: [
       'view',

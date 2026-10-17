@@ -15,7 +15,15 @@ import {
   type Schema,
   type View,
 } from 'tally-core'
-import { Tally, defaultLabels, useGrid, useRows, useView, type TallyAi } from 'tally-react'
+import {
+  Tally,
+  defaultLabels,
+  useGrid,
+  useRows,
+  useView,
+  useViewUrl,
+  type TallyAi,
+} from 'tally-react'
 import { useIsMobile } from '@/hooks/use-mobile'
 import type { Dataset, SavedView } from '@/datasets'
 import { slug } from '@/datasets/shared'
@@ -232,6 +240,7 @@ function Screen({
     [settings.locale],
   )
   const grid = useGrid({ schema, source, format, view: viewFor(dataset, active) })
+  useViewUrl(grid)
   const view = useView(grid)
   const counts = useViewCounts(grid, views)
   const mobile = useIsMobile()
@@ -261,7 +270,10 @@ function Screen({
       className="h-full"
       ai={ai}
       renderers={PHOTO_RENDERERS}
-      labels={{ rows: (count) => `${count.toLocaleString(settings.locale)} ${dataset.unit}` }}
+      labels={{
+        rows: (count) => `${count.toLocaleString(settings.locale)} ${dataset.unit}`,
+        exportFileName: () => `${active.name}.csv`,
+      }}
       toolbarStart={
         settings.phone ? undefined : (
           <ViewTabs

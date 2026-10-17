@@ -51,26 +51,27 @@ export function Toolbar({ grid, ai, start, children }: ToolbarProps): ReactNode 
       <span className="tally-toolbar-separator" aria-hidden />
       {grid.capabilities.mutate ? (
         <span className="tally-toolbar-group">
-          <button
-            type="button"
-            className="tally-icon-button"
-            aria-label={undoEntry === undefined ? labels.undo : `${labels.undo} ${undoEntry.label}`}
-            title={undoEntry === undefined ? labels.undo : `${labels.undo} ${undoEntry.label}`}
-            disabled={undoEntry === undefined}
-            onClick={() => void grid.undo()}
-          >
-            <Undo2 size={15} aria-hidden />
-          </button>
-          <button
-            type="button"
-            className="tally-icon-button"
-            aria-label={redoEntry === undefined ? labels.redo : `${labels.redo} ${redoEntry.label}`}
-            title={redoEntry === undefined ? labels.redo : `${labels.redo} ${redoEntry.label}`}
-            disabled={redoEntry === undefined}
-            onClick={() => void grid.redo()}
-          >
-            <Redo2 size={15} aria-hidden />
-          </button>
+          {(
+            [
+              [labels.undo, undoEntry, Undo2, () => grid.undo()],
+              [labels.redo, redoEntry, Redo2, () => grid.redo()],
+            ] as const
+          ).map(([verb, entry, Icon, run]) => {
+            const name = entry === undefined ? verb : `${verb} ${entry.label}`
+            return (
+              <button
+                key={verb}
+                type="button"
+                className="tally-icon-button"
+                aria-label={name}
+                title={name}
+                disabled={entry === undefined}
+                onClick={() => void run()}
+              >
+                <Icon size={15} aria-hidden />
+              </button>
+            )
+          })}
         </span>
       ) : null}
       {ai?.addColumn === undefined ? null : (

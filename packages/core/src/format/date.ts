@@ -172,11 +172,8 @@ function relativeFormatter(
   const key = `${context.locale}|${context.numberingSystem}|${numeric}`
   let formatter = relativeCache.get(key)
   if (formatter === undefined) {
-    formatter = new Intl.RelativeTimeFormat(context.locale, {
-      numeric,
-      style: 'short',
-      numberingSystem: context.numberingSystem,
-    })
+    const locale = new Intl.Locale(context.locale, { numberingSystem: context.numberingSystem })
+    formatter = new Intl.RelativeTimeFormat(locale.toString(), { numeric, style: 'short' })
     relativeCache.set(key, formatter)
   }
   return formatter

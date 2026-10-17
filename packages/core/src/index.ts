@@ -1,5 +1,6 @@
 export { TallyError, type TallyErrorCode } from './errors.ts'
 export * from './execute/index.ts'
+export { importRows, type RowsImport } from './import/rows.ts'
 export * from './export/index.ts'
 export * from './format/index.ts'
 export * from './grid/index.ts'

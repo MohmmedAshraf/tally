@@ -75,10 +75,45 @@ describe('url', () => {
     expect(new URLSearchParams(url).get('q')).toBe(
       'plan in (pro, team), sort by mrr desc, group by plan',
     )
+    expect(url).toContain('density=compact')
+    expect(url).toContain('columns=account:200:left,plan,mrr:140:0fr,renewal:hidden')
     expect(viewFromUrlString(url, schema)).toEqual(store.get())
   })
 
-  it('omits defaults and tolerates empty input', () => {
+  it('keeps granularity, column state and footer readable', () => {
+    const store = createViewStore(schema)
+    store.setGroup('renewal', 'month')
+    store.setColumnHidden('renewal', false)
+    store.setColumnHidden('plan', true)
+    store.pinColumn('account', undefined)
+    store.pinColumn('mrr', 'right')
+    store.setColumnFlex('plan', 2)
+    store.moveColumn('mrr', 0)
+    store.setFooter('mrr', undefined)
+    const url = viewToUrlString(store.get(), schema)
+    expect(url).toBe(
+      'q=group+by+renewal&granularity=month&columns=mrr:right,account:200,plan:2fr:hidden,renewal&footer=',
+    )
+    const restored = viewFromUrlString(url, schema)
+    expect(restored.group).toEqual({ column: 'renewal', granularity: 'month' })
+    expect(restored.footer).toEqual({})
+    expect(viewToUrlString(restored, schema)).toBe(url)
+  })
+
+  it('merges into a base query and honors a custom param', () => {
+    const store = createViewStore(schema)
+    store.setSort([{ column: 'mrr', direction: 'asc' }])
+    const url = viewToUrlString(store.get(), schema, {
+      param: 'accounts',
+      base: 'tab=2&accounts=plan+is+pro&density=compact',
+    })
+    expect(url).toBe('tab=2&accounts=sort+by+mrr+asc')
+    expect(viewFromUrlString(url, schema, { param: 'accounts' }).sort).toEqual([
+      { column: 'mrr', direction: 'asc' },
+    ])
+  })
+
+  it('omits defaults and tolerates empty or malformed input', () => {
     expect(viewToUrlString(defaultView(schema), schema)).toBe('')
     expect(viewFromUrlString('', schema)).toEqual(defaultView(schema))
     expect(viewFromUrlString('q=mrr+%3E+5', schema).filter).toEqual({
@@ -87,6 +122,22 @@ describe('url', () => {
       op: 'gt',
       value: 5,
     })
+    const loose = viewFromUrlString(
+      'density=huge&granularity=decade&columns=,mrr:wide:-1fr:left,ghost&footer=mrr:nope,plan:count',
+      schema,
+    )
+    expect(loose.density).toBe('comfortable')
+    expect(loose.columns.find((state) => state.id === 'mrr')).toEqual({ id: 'mrr', pin: 'left' })
+    expect(loose.footer).toEqual({ plan: 'count' })
+  })
+
+  it('escapes separators inside column ids', () => {
+    const odd = createSchema({ columns: [{ id: 'a,b:c' }, { id: 'd' }] })
+    const store = createViewStore(odd)
+    store.moveColumn('d', 0)
+    store.setFooter('a,b:c', 'count')
+    const url = viewToUrlString(store.get(), odd)
+    expect(viewFromUrlString(url, odd)).toEqual(store.get())
   })
 })
 

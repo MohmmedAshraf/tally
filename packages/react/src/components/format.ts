@@ -17,6 +17,10 @@ const AGGREGATE_LABELS: Readonly<Record<AggregateName, string>> = {
   distinct: 'Distinct',
 }
 
+export function rawText(value: unknown): string {
+  return typeof value === 'string' || typeof value === 'number' ? String(value) : ''
+}
+
 export function aggregateLabel(fn: AggregateName): string {
   return AGGREGATE_LABELS[fn]
 }

@@ -91,6 +91,7 @@ export interface Grid {
   model(): RowModel
   load(): Promise<void>
   loadMore(): Promise<void>
+  fetchAll(max?: number): Promise<readonly RowData[]>
   setPage(index: number): void
   commit(mutation: Mutation): Promise<MutationResult>
   setCells(edits: readonly CellEdit[], verb?: string): Promise<MutationResult>
@@ -103,6 +104,7 @@ export interface Grid {
 }
 
 const DEFAULT_PAGE_SIZE = 100
+const FETCH_ALL_MAX = 100_000
 
 const accepted: MutationResult = { accepted: true }
 
@@ -318,6 +320,41 @@ export function createGrid(options: GridOptions): Grid {
     })
   }
 
+  const fetchAll = async (max = FETCH_ALL_MAX): Promise<readonly RowData[]> => {
+    if (
+      capabilities.pagination === 'none' ||
+      (capabilities.pagination === 'cursor' && store.state.exhausted)
+    ) {
+      return rows.rows().slice(0, max)
+    }
+    const plan = planQuery(view.get(), schema, capabilities)
+    const { aggregates: _aggregates, facets: _facets, ...request } = plan.request
+    const collected: RowData[] = []
+    const collect = async (page: OffsetPage | CursorPage): Promise<void> => {
+      const response = await source.query({ ...request, page })
+      collected.push(...response.rows)
+      const following: OffsetPage | CursorPage | undefined =
+        'offset' in page
+          ? response.rows.length < page.limit
+            ? undefined
+            : { offset: page.offset + page.limit, limit: pageSize }
+          : response.cursor === undefined
+            ? undefined
+            : { cursor: response.cursor, limit: pageSize }
+      if (following !== undefined && collected.length < max) await collect(following)
+    }
+    await collect(
+      capabilities.pagination === 'offset' ? { offset: 0, limit: pageSize } : { limit: pageSize },
+    )
+    const local = plan.local
+    const matched =
+      local === undefined
+        ? collected
+        : execute(collected, { filter: local.filter, sort: local.sort }, schema, executorOptions)
+            .rows
+    return matched.slice(0, max)
+  }
+
   const send = async (mutation: Mutation, rollback: () => void): Promise<MutationResult> => {
     if (source.mutate === undefined) return accepted
     try {
@@ -361,6 +398,7 @@ export function createGrid(options: GridOptions): Grid {
     model,
     load,
     loadMore,
+    fetchAll,
     setPage: (index) => {
       store.setState((state) => ({ ...state, page: { ...state.page, index: Math.max(0, index) } }))
       void load()

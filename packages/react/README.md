@@ -44,7 +44,7 @@ function Accounts({ rows }) {
 | Prop                 | Type                                           | Notes                                                                                                                                   |
 | -------------------- | ---------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
 | `grid`               | `Grid`                                         | From `useGrid` or `createGrid`.                                                                                                         |
-| `label`              | `string`                                       | Accessible name of the grid.                                                                                                            |
+| `label`              | `string`                                       | Accessible name of the grid, also the name of exported CSV files.                                                                       |
 | `theme`              | `'light' \| 'dark'`                            | Omit to follow `prefers-color-scheme`.                                                                                                  |
 | `dir`                | `'ltr' \| 'rtl'`                               | Omit to read the direction of the root or an ancestor. Pinning, arrows, resizing and menus follow it.                                   |
 | `layout`             | `'auto' \| 'grid' \| 'cards'`                  | `auto` switches to cards below `cardsBelow` pixels.                                                                                     |
@@ -74,8 +74,36 @@ Children render at the end of the default toolbar.
 | `useColumnLayout(grid)`       | Visible columns with widths and pin edges.    |
 | `useRowModel(grid)`           | Flattened rows, groups and pinned rows.       |
 | `useGridContext()`            | The nearest `Grid` from `GridProvider`.       |
+| `useViewUrl(grid, options?)`  | Nothing. Syncs the view with the URL.         |
 
 Selectors keep components from re-rendering when unrelated state changes.
+
+## View in the URL
+
+`useViewUrl` keeps the view and the query string in sync. On mount a view in the URL replaces the current one, otherwise the current view is written to the URL. Later changes update the URL and `popstate` restores it. It only touches `window` inside effects, so it is safe to render on the server.
+
+```tsx
+useViewUrl(grid)
+```
+
+```
+?q=status+is+active,+sort+by+mrr+desc,+group+by+renewal&granularity=month&density=compact
+```
+
+Filter, sort and group are written as query language text. The rest is written only when it differs from the schema defaults: `granularity`, `density`, `columns` (order with `:width`, `:2fr`, `:hidden`, `:left` or `:right` per column), `footer` (`column:aggregate` pairs) and `state` (formatting rules, pinned, expanded and collapsed rows). Other parameters are left alone.
+
+| Option    | Type                                     | Notes                                               |
+| --------- | ---------------------------------------- | --------------------------------------------------- |
+| `param`   | `string`                                 | Parameter for the query text. Default `q`.          |
+| `history` | `'replace' \| 'push'`                    | `push` adds a history entry per change.             |
+| `encode`  | `(view: View, search: string) => string` | Returns the next query string. Replaces the format. |
+| `decode`  | `(search: string) => View`               | Reads a view from the query string.                 |
+
+The same format is available without React through `viewToUrlString` and `viewFromUrlString` in `tally-core`.
+
+## CSV
+
+The Display menu exports and imports CSV. Export writes every row that matches the view, fetching remote pages through the source up to 100,000 rows, with the visible columns in view order, column labels as headers and raw values. Import matches headers to columns by id, label or alias, parses cells with the column types and inserts the rows as one mutation, so undo removes them. Rows without a free key get one from `newRow`. Problems show in the status banner.
 
 ## Extending
 
@@ -184,4 +212,4 @@ Under `dir="rtl"` Left and Right follow the screen, so Right moves to the previo
 
 ## Bundle
 
-Own code is under 20 kB brotli. With Base UI, TanStack Virtual, Pragmatic drag and drop and Lucide it is under 90 kB. `tally-core`, `react` and `react-dom` are not included in those numbers.
+Own code is under 23 kB brotli. With Base UI, TanStack Virtual, Pragmatic drag and drop and Lucide it is under 101 kB. `tally-core`, `react` and `react-dom` are not included in those numbers.

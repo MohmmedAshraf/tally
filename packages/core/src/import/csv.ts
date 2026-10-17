@@ -53,7 +53,7 @@ function uniqueIds(headers: readonly string[]): readonly string[] {
   })
 }
 
-function cell(record: readonly string[], index: number): string {
+export function cell(record: readonly string[], index: number): string {
   return (record[index] ?? '').trim()
 }
 

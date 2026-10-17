@@ -42,19 +42,19 @@ import { importCsv } from 'tally-core/import'
 
 ## Modules
 
-| Module    | Exports                                                                                |
-| --------- | -------------------------------------------------------------------------------------- |
-| types     | `createTypeRegistry`, `createDefaultRegistry`, fourteen built-in types, `ColumnType`   |
-| schema    | `createSchema`, `validateColumns`, `Column`                                            |
-| query     | `parseQuery`, `printQuery`, `suggest`, filter AST constructors                         |
-| execute   | `execute`, `compileFilter`, `compileSort`, `groupRows`, `computeFacets`, `flattenTree` |
-| view      | `createViewStore`, `defaultView`, `viewToUrlString`, `viewFromUrlString`               |
-| rows      | `createRowStore`, `createMutation`, `applyMutation`                                    |
-| selection | `reduceSelection`, `keyboardIntent`                                                    |
-| source    | `DataSource`, `QueryRequest`, `QueryResponse`, `createArraySource`                     |
-| format    | `createFormatContext`, `parseNumber`, `parseIsoDate`, `resolveRelativeRange`           |
-| export    | `toCsv`, `toTsv`                                                                       |
-| import    | `importCsv`, `detectColumnType` from `tally-core/import`                               |
+| Module    | Exports                                                                                 |
+| --------- | --------------------------------------------------------------------------------------- |
+| types     | `createTypeRegistry`, `createDefaultRegistry`, fourteen built-in types, `ColumnType`    |
+| schema    | `createSchema`, `validateColumns`, `Column`                                             |
+| query     | `parseQuery`, `printQuery`, `suggest`, filter AST constructors                          |
+| execute   | `execute`, `compileFilter`, `compileSort`, `groupRows`, `computeFacets`, `flattenTree`  |
+| view      | `createViewStore`, `defaultView`, `viewToUrlString`, `viewFromUrlString`                |
+| rows      | `createRowStore`, `createMutation`, `applyMutation`                                     |
+| selection | `reduceSelection`, `keyboardIntent`                                                     |
+| source    | `DataSource`, `QueryRequest`, `QueryResponse`, `createArraySource`                      |
+| format    | `createFormatContext`, `parseNumber`, `parseIsoDate`, `resolveRelativeRange`            |
+| export    | `toCsv`, `toTsv`                                                                        |
+| import    | `importRows` against a schema; `importCsv`, `detectColumnType` from `tally-core/import` |
 
 ## Query language
 

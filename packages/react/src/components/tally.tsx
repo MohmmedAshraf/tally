@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from 'react'
 import { DirectionProvider } from '@base-ui/react/direction-provider'
-import { Columns3, Inbox, RefreshCw, SearchX, CircleAlert } from 'lucide-react'
+import { Columns3, Inbox, RefreshCw, SearchX, CircleAlert, X } from 'lucide-react'
 import { printFilter, type Grid } from 'tally-core'
 import { GridProvider } from '../hooks/context.tsx'
 import { useColumnLayout, useGridState, useRowModel, useView } from '../hooks/use-store.ts'
@@ -161,7 +161,7 @@ function Viewport({
   readonly cards: boolean
 }): ReactNode {
   const labels = useLabels()
-  const { viewport } = useShell()
+  const { viewport, failure, fail } = useShell()
   const viewportWidth = useClientWidth(viewport)
   const layout = useColumnLayout(
     grid,
@@ -188,20 +188,28 @@ function Viewport({
         </div>
       </div>
     )
-  const message = error instanceof Error ? error.message : String(error)
+  const problem = failure ?? error
+  const message = problem instanceof Error ? problem.message : String(problem)
   return (
     <>
       {status === 'loading' ? <div className="tally-progress" aria-hidden /> : null}
-      {status === 'error' ? (
+      {status === 'error' || failure !== undefined ? (
         <div className="tally-status" role="alert">
           <CircleAlert size={15} aria-hidden />
           <span className="tally-status-message" title={message}>
             {message}
           </span>
-          <button type="button" className="tally-button" onClick={() => void grid.load()}>
-            <RefreshCw size={13} aria-hidden />
-            {labels.retry}
-          </button>
+          {failure === undefined ? (
+            <button type="button" className="tally-button" onClick={() => void grid.load()}>
+              <RefreshCw size={13} aria-hidden />
+              {labels.retry}
+            </button>
+          ) : (
+            <button type="button" className="tally-button" onClick={() => fail(undefined)}>
+              <X size={13} aria-hidden />
+              {labels.close}
+            </button>
+          )}
         </div>
       ) : null}
       {cards ? (
@@ -281,6 +289,7 @@ export function Tally({
   const filterListener = useRef<((text: string) => void) | null>(null)
   const density = useView(grid, (view) => view.density)
   const [entering, setEntering] = useState<string | undefined>(undefined)
+  const [failure, fail] = useState<unknown>(undefined)
   useEffect(() => {
     if (entering === undefined) return
     const timer = setTimeout(() => setEntering(undefined), ENTER_MS)
@@ -304,8 +313,11 @@ export function Tally({
       editors: { ...defaultEditors, ...editors },
       detail,
       direction,
+      label,
+      failure,
+      fail,
     }),
-    [entering, renderers, editors, detail, direction],
+    [entering, renderers, editors, detail, direction, label, failure],
   )
   return (
     <GridProvider grid={grid}>
