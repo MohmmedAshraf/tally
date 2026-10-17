@@ -407,6 +407,34 @@ const source = withAiColumns(base, extended, [{ column: column.id, model, instru
     ],
   },
   {
+    id: 'framework-binding',
+    title: 'Use the grid engine from Vue, Svelte or Solid',
+    package: 'tally-vue, tally-svelte, tally-solid',
+    api: 'useGrid(options) with useGridState / gridState / createGridState, plus view, rows and selection helpers and a context pair per framework',
+    how: 'The engine is tally-core and renders nothing. Each binding keeps one Grid per component (recreated when schema, source or format change, keeping the view), subscribes to its stores with the framework reactivity primitive and unsubscribes on unmount. Build the markup yourself; the full component only exists for React.',
+    example: `const grid = useGrid({ schema, source })
+const state = useGridState(grid)
+const view = useView(grid)
+grid.view.toggleSort('mrr')`,
+    guide: 'vue',
+    keywords: [
+      'vue',
+      'nuxt',
+      'svelte',
+      'sveltekit',
+      'solid',
+      'solidstart',
+      'composable',
+      'rune',
+      'signal',
+      'store',
+      'headless',
+      'binding',
+      'framework',
+      'angular',
+    ],
+  },
+  {
     id: 'views',
     title: 'Saved views, URL state, formatting rules, density',
     package: 'tally-core',
