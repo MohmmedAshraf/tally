@@ -41,7 +41,7 @@ const app = new Hono()
     }),
   )
   .get('/healthz', (c) => c.text('ok'))
-  .route('/', await createApi(logError))
+  .route('/', await createApi(logError, process.env['CLIENT_IP_HEADER']))
   .use(compress())
   .use(serveStatic({ root, onFound: cacheControl }))
   .all('/assets/*', (c) => c.body(null, 404))

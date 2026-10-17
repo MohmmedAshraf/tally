@@ -26,7 +26,10 @@ function withoutPrefix(prefix: string): (request: Request) => Request {
   }
 }
 
-export async function createApi(onError: (error: unknown) => void): Promise<Hono> {
+export async function createApi(
+  onError: (error: unknown) => void,
+  clientIpHeader?: string,
+): Promise<Hono> {
   const tally = await createPlaygroundHandler(onError)
   const anthropic = createAnthropicProxy()
   return new Hono()
@@ -35,7 +38,7 @@ export async function createApi(onError: (error: unknown) => void): Promise<Hono
       '/api/anthropic/*',
       mount(anthropic, {
         replaceRequest: withoutPrefix('/api/anthropic'),
-        optionHandler: clientAddress(process.env['CLIENT_IP_HEADER']),
+        optionHandler: clientAddress(clientIpHeader),
       }),
     )
     .all('/api/*', (c) => c.body(null, 404))

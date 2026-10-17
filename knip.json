@@ -5,7 +5,8 @@
     "packages/*": {},
     "docs": {},
     "examples/playground": {
-      "ignore": ["src/components/ui/**"]
+      "ignore": ["src/components/ui/**"],
+      "entry": ["api/index.ts"]
     }
   }
 }

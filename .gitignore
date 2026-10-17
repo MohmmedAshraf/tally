@@ -3,7 +3,6 @@ dist
 coverage
 .turbo
 .next
-.source
 next-env.d.ts
 .DS_Store
 *.log
@@ -18,3 +17,4 @@ composer.lock
 .phpunit.result.cache
 .pint.cache
 *.tgz
+.vercel

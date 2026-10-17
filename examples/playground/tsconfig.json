@@ -12,5 +12,5 @@
     "moduleResolution": "bundler",
     "noPropertyAccessFromIndexSignature": false
   },
-  "include": ["src", "server", "vite.config.ts"]
+  "include": ["src", "server", "api", "vite.config.ts"]
 }
