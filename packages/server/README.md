@@ -43,6 +43,7 @@ const accounts = createKyselyAdapter({ db, table: 'accounts', schema, dialect: s
 | `today`      | now      | ISO date that relative ranges such as `last 30 days` resolve against.                       |
 | `bins`       | `20`     | Histogram bins.                                                                             |
 | `maxTerms`   | `50`     | Terms facet size.                                                                           |
+| `maxGroups`  | `1000`   | Group summaries are cut to the first this many groups, and pages past them are empty.       |
 | `onError`    |          | Receives the database error behind a rejected mutation.                                     |
 
 Every request is validated with `tally-protocol` before any SQL runs. Mutations run in one transaction and return the canonical rows read back from the database. A database error rejects them with `Mutation failed` rather than the driver message.
@@ -57,6 +58,7 @@ The adapter passes the `tally-protocol` conformance suite on SQLite and Postgres
 - Date groups bucket to `YYYY-MM-DD`, ISO Monday weeks, `YYYY-MM`, `YYYY-Qn` or `YYYY`.
 - Search matches the stored value of searchable columns, not the formatted text.
 - Group order follows the sort on the group column when there is one, otherwise option or natural order, newest dates first.
+- Empty values form one group, `NULL` and `''` alike, which sorts last and pages like any other group.
 
 ### Dialects
 

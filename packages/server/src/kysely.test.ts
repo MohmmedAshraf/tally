@@ -1,7 +1,7 @@
 import { DatabaseSync } from 'node:sqlite'
 import { PGlite } from '@electric-sql/pglite'
 import { Kysely, SqliteDialect, sql } from 'kysely'
-import { createMutation, createSchema } from 'tally-core'
+import { createArraySource, createMutation, createSchema, type QueryRequest } from 'tally-core'
 import {
   CONFORMANCE_TODAY,
   conformanceRows,
@@ -15,6 +15,27 @@ import { nodeSqlite } from './node-sqlite.ts'
 import { pgliteDialect } from './test/pglite.ts'
 
 const TABLE = 'accounts'
+
+const OWNERS_DDL = 'create table owners (id integer primary key, owner text, mrr integer)'
+
+const ownerSchema = createSchema({
+  columns: [
+    { id: 'id', type: 'int' },
+    { id: 'owner', type: 'person' },
+    { id: 'mrr', type: 'int' },
+  ],
+  key: 'id',
+})
+
+const ownerRows = [
+  { id: 1, owner: 'Ann', mrr: 10 },
+  { id: 2, owner: null, mrr: 20 },
+  { id: 3, owner: 'bob', mrr: 30 },
+  { id: 4, owner: '', mrr: 40 },
+  { id: 5, owner: 'Cy', mrr: 50 },
+  { id: 6, owner: 'Ann', mrr: 60 },
+  { id: 7, owner: null, mrr: 70 },
+]
 
 const SQLITE_DDL = `create table ${TABLE} (
   id text primary key, account text, owner text, plan text, mrr real, seats integer,
@@ -74,6 +95,8 @@ describe.each(targets)('createKyselyAdapter on $name', ({ dialect, open }) => {
   beforeAll(async () => {
     db = await open()
     await seed(db, dialect)
+    await sql.raw(OWNERS_DDL).execute(db)
+    await db.insertInto('owners').values(ownerRows).execute()
   })
 
   afterAll(async () => {
@@ -210,6 +233,54 @@ describe.each(targets)('createKyselyAdapter on $name', ({ dialect, open }) => {
     expect(failed).toEqual({ accepted: false, errors: [{ message: 'Mutation failed' }] })
     expect(errors).toHaveLength(1)
     expect(String(errors[0])).toMatch(/unique/i)
+  })
+
+  it('pages groups with the empty group last, like the in-memory engine', async () => {
+    const adapter = createKyselyAdapter({ db, table: 'owners', schema: ownerSchema, dialect })
+    const requests: readonly QueryRequest[] = [
+      { version: 1, sort: [], group: { column: 'owner' }, page: { offset: 2, limit: 2 } },
+      {
+        version: 1,
+        sort: [{ column: 'owner', direction: 'desc' }],
+        group: { column: 'owner' },
+        aggregates: [{ column: 'mrr', fn: 'sum' }],
+        page: { offset: 0, limit: 4 },
+      },
+    ]
+    const memory = createArraySource(ownerRows, ownerSchema, { pagination: 'offset' })
+    const responses = await Promise.all(requests.map((request) => adapter.query(request)))
+    const expected = await Promise.all(requests.map((request) => memory.query(request)))
+    expect(responses).toEqual(expected)
+    expect(responses[0]?.rows.map((row) => row['id'])).toEqual([5, 2, 4, 7])
+    expect(responses[1]?.groups?.map((group) => group.key)).toEqual(['Cy', 'bob', 'Ann', ''])
+    expect(responses[1]?.groups?.at(-1)?.aggregates).toEqual({ 'mrr:sum': 130 })
+  })
+
+  it('caps group summaries and the group pages behind them', async () => {
+    const adapter = createKyselyAdapter({
+      db,
+      table: 'owners',
+      schema: ownerSchema,
+      dialect,
+      pagination: 'cursor',
+      maxGroups: 2,
+    })
+    const first = await adapter.query({
+      version: 1,
+      sort: [],
+      group: { column: 'owner' },
+      page: { limit: 2 },
+    })
+    expect(first.groups?.map((group) => group.key)).toEqual(['Ann', 'bob'])
+    expect(first.rows.map((row) => row['id'])).toEqual([1, 6, 3])
+    expect(first.cursor).toBeUndefined()
+    const beyond = await adapter.query({
+      version: 1,
+      sort: [],
+      group: { column: 'owner' },
+      page: { offset: 2, limit: 2 },
+    })
+    expect(beyond.rows).toEqual([])
   })
 
   it('refuses mutations when read only', async () => {

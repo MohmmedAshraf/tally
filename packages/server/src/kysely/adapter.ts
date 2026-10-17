@@ -36,6 +36,7 @@ export interface KyselyAdapterOptions {
   readonly today?: string | undefined
   readonly bins?: number | undefined
   readonly maxTerms?: number | undefined
+  readonly maxGroups?: number | undefined
   readonly onError?: ((error: unknown) => void) | undefined
 }
 
@@ -89,6 +90,10 @@ function uniqueAggregates(requests: readonly AggregateRequest[]): readonly Aggre
   ]
 }
 
+function groupMatch(bucket: RawBuilder<unknown>): RawBuilder<string> {
+  return sql<string>`coalesce(cast(${bucket} as text), '')`
+}
+
 async function sequence<T>(items: readonly T[], run: (item: T) => Promise<unknown>): Promise<void> {
   await items.reduce<Promise<unknown>>(async (previous, item) => {
     await previous
@@ -107,6 +112,7 @@ export function createKyselyAdapter(options: KyselyAdapterOptions): KyselyAdapte
   const maxLimit = options.maxLimit ?? 1000
   const bins = options.bins ?? 20
   const maxTerms = options.maxTerms ?? 50
+  const maxGroups = options.maxGroups ?? 1000
   const capabilities: Capabilities = {
     filter: true,
     sort: true,
@@ -200,7 +206,7 @@ export function createKyselyAdapter(options: KyselyAdapterOptions): KyselyAdapte
     const query = from(where)
       .select([bucket.expression.as('g'), sql`count(*)`.as('n'), ...aggregateSelection(aggregates)])
       .groupBy(bucket.expression)
-    const rows = await applyOrder(query, bucket.order).execute()
+    const rows = await applyOrder(query, bucket.order).limit(maxGroups).execute()
     return rows.map((row) => {
       const value =
         bucket.target.type.kind === 'date'
@@ -335,11 +341,11 @@ export function createKyselyAdapter(options: KyselyAdapterOptions): KyselyAdapte
         : bucket === undefined
           ? rowsQuery.limit(slice.limit).offset(slice.offset)
           : rowsQuery.where(
-              bucket.expression,
+              groupMatch(bucket.expression),
               'in',
-              applyOrder(from(where).select(bucket.expression.as('g')), bucket.order)
+              applyOrder(from(where).select(groupMatch(bucket.expression).as('g')), bucket.order)
                 .groupBy(bucket.expression)
-                .limit(slice.limit)
+                .limit(Math.max(0, Math.min(slice.limit, maxGroups - slice.offset)))
                 .offset(slice.offset),
             )
     const aggregates = uniqueAggregates(request.aggregates ?? [])

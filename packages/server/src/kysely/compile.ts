@@ -225,12 +225,13 @@ export function createCompiler(options: CompilerOptions): Compiler {
     sorts.flatMap((sort) => {
       const target = targets.get(sort.column)
       if (target === undefined) return []
+      const value: Target = { ...target, ref: present(target) }
       const parts: OrderPart[] = [
         { expression: isEmpty(target), direction: 'asc' },
-        { expression: rank(target), direction: sort.direction },
+        { expression: rank(value), direction: sort.direction },
       ]
       if (target.type.kind === 'enum') {
-        parts.push({ expression: target.ref, direction: sort.direction })
+        parts.push({ expression: value.ref, direction: sort.direction })
       }
       return parts
     })
@@ -246,7 +247,7 @@ export function createCompiler(options: CompilerOptions): Compiler {
     const expression =
       target.type.kind === 'date'
         ? dialect.dateBucket(target.ref, group.granularity ?? 'month')
-        : target.ref
+        : present(target)
     const sorted = sorts.find((sort) => sort.column === target.column.id)
     const direction: SortDirection =
       sorted?.direction ?? (target.type.kind === 'date' ? 'desc' : 'asc')
