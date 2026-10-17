@@ -224,7 +224,11 @@ function Screen({
   const { schema, source, ai } = useAi(dataset, baseSource, baseSchema, aiAvailable)
   const active = views.find((view) => slug(view.name) === viewSlug) ?? views[0]!
   const format = useMemo<FormatContext>(
-    () => ({ locale: settings.locale, timeZone: 'UTC', numberingSystem: 'latn' }),
+    () => ({
+      locale: settings.locale,
+      timeZone: 'UTC',
+      numberingSystem: new Intl.NumberFormat(settings.locale).resolvedOptions().numberingSystem,
+    }),
     [settings.locale],
   )
   const grid = useGrid({ schema, source, format, view: viewFor(dataset, active) })

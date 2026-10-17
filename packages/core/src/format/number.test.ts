@@ -15,6 +15,9 @@ describe('parseNumber', () => {
     ['12%', 12],
     ['1e3', 1000],
     ['.5', 0.5],
+    ['١٬٢٣٤٫٥', 1234.5],
+    ['۴۲', 42],
+    ['\u061c-\u200f١٢', -12],
     [42, 42],
   ])('parses %s', (input, expected) => {
     expect(parseNumber(input)).toBe(expected)
@@ -35,6 +38,15 @@ describe('numberFormatter', () => {
     const second = numberFormatter(context, { style: 'currency', currency: 'USD' })
     expect(first).toBe(second)
     expect(first.format(1234.5)).toBe('$1,234.50')
+  })
+
+  it('formats with the context numbering system', () => {
+    const context = createFormatContext({ locale: 'ar-EG', numberingSystem: 'arab' })
+    expect(numberFormatter(context, {}).format(1234)).toBe('١٬٢٣٤')
+    const german = createFormatContext({ locale: 'de-DE' })
+    expect(numberFormatter(german, { style: 'currency', currency: 'EUR' }).format(1234.5)).toBe(
+      '1.234,50\u00a0€',
+    )
   })
 
   it('uses latin digits for arabic locales by default', () => {

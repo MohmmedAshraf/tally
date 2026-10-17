@@ -77,7 +77,7 @@ export function groupRows(
       if (type.is(a.value) && type.is(b.value)) {
         return type.compare(a.value, b.value, column, context.format) * sign
       }
-      return groupKeyOf(a.value).localeCompare(groupKeyOf(b.value)) * sign
+      return groupKeyOf(a.value).localeCompare(groupKeyOf(b.value), context.format.locale) * sign
     })
   }
   return entries.map(([key, bucket]) => ({

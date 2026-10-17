@@ -2,6 +2,7 @@ import { ChevronRight } from 'lucide-react'
 import type { CSSProperties, ReactNode } from 'react'
 import {
   isEmptyValue,
+  numberFormatter,
   type ColumnLayout,
   type Grid,
   type GroupItem,
@@ -69,14 +70,13 @@ export function GroupRow({
       {...(focusable ? {} : { tabIndex: -1 })}
       aria-expanded={!item.collapsed}
       onClick={() => grid.view.toggleGroupCollapsed(item.key)}
-      style={item.collapsed ? undefined : { rotate: '90deg' }}
     >
       <ChevronRight size={14} aria-hidden />
     </button>
   )
   const count = (
     <span className="tally-group-count">
-      {item.count.toLocaleString(grid.context.format.locale)}
+      {numberFormatter(grid.context.format, {}).format(item.count)}
     </span>
   )
   const label = (

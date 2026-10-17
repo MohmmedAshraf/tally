@@ -1,4 +1,4 @@
-import { useVirtualizer, type Range } from '@tanstack/react-virtual'
+import { elementScroll, useVirtualizer, type Range } from '@tanstack/react-virtual'
 import {
   useCallback,
   useEffect,
@@ -66,7 +66,8 @@ export function Body({
     (row: number, column: number): string => `${id}r${row}c${column}`,
     [id],
   )
-  const { viewport } = useShell()
+  const { viewport, direction } = useShell()
+  const rtl = direction === 'rtl'
   const model = useRowModel(grid)
   const selection = useSelection(grid)
   const density = useView(grid, (view) => view.density)
@@ -121,6 +122,12 @@ export function Body({
     ...(initialSize === undefined ? {} : { initialRect: initialSize }),
     rangeExtractor,
     getItemKey: (index) => layout.center[index]?.column.id ?? index,
+    isRtl: rtl,
+    scrollToFn: (offset, options, instance) => {
+      const sign = rtl ? -1 : 1
+      const adjustments = (options.adjustments ?? 0) * sign
+      elementScroll(offset * sign, { ...options, adjustments }, instance)
+    },
   })
 
   const virtualColumns = columns.getVirtualItems()
@@ -157,6 +164,7 @@ export function Body({
     editing: edit.api,
     fill: filling.api,
     focusFilter: () => filterInput.current?.focus(),
+    rtl,
   })
   const editingFor = (row: number): { column: number; node: ReactNode } | undefined =>
     edit.editing?.cell.row === row

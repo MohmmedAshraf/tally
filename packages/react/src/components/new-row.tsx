@@ -1,9 +1,9 @@
 import { Plus } from 'lucide-react'
-import { createElement, useState, type CSSProperties, type ReactNode } from 'react'
+import { createElement, useState, type ReactNode } from 'react'
 import { columnLabel, type ColumnLayout, type Grid, type LayoutColumn } from 'tally-core'
 import { useShell } from './context.ts'
 import { editorFor, type EditorMove } from './editors/editors.tsx'
-import { isPinEdge, type PinOffsets } from './geometry.ts'
+import { cellStyle, isPinEdge, type PinOffsets } from './geometry.ts'
 import type { ColumnWindow } from './row.tsx'
 import { useLabels } from './labels.ts'
 
@@ -45,14 +45,7 @@ export function NewRow({
     const { column } = entry
     const type = grid.schema.typeOf(column)
     const editable = grid.capabilities.mutate && column.editable !== false
-    const pinOffset =
-      entry.pin === 'left'
-        ? offsets.left.get(column.id)
-        : entry.pin === 'right'
-          ? offsets.right.get(column.id)
-          : undefined
-    const style: CSSProperties = { width: entry.width }
-    if (pinOffset !== undefined) style['--tally-pin-offset'] = `${pinOffset}px`
+    const style = cellStyle(entry, offsets)
     const active = editing === entry.index
     return (
       <div

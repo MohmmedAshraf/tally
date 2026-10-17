@@ -4,13 +4,13 @@ import {
   useMemo,
   useRef,
   useState,
-  type CSSProperties,
   type MouseEvent,
   type NamedExoticComponent,
   type ReactNode,
 } from 'react'
 import {
   columnLabel,
+  numberFormatter,
   type ColumnLayout,
   type Filter,
   type Grid,
@@ -22,7 +22,7 @@ import {
 import { useView } from '../hooks/use-store.ts'
 import { useColumnDrag, useColumnDropMonitor } from './column-drag.ts'
 import { useShell } from './context.ts'
-import { groupSpans, hasColumnGroups, isPinEdge, type PinOffsets } from './geometry.ts'
+import { cellStyle, groupSpans, hasColumnGroups, isPinEdge, type PinOffsets } from './geometry.ts'
 import { HeaderMenu } from './header-menu.tsx'
 import { useLabels } from './labels.ts'
 import { ResizeHandle } from './resize-handle.tsx'
@@ -74,14 +74,7 @@ const HeaderCell = memo(function HeaderCell({
   const position = sorts.findIndex((sort) => sort.column === column.id)
   const sort = position === -1 ? undefined : sorts[position]
   const sortable = column.sortable !== false
-  const pinOffset =
-    entry.pin === 'left'
-      ? offsets.left.get(column.id)
-      : entry.pin === 'right'
-        ? offsets.right.get(column.id)
-        : undefined
-  const style: CSSProperties = { width: entry.width }
-  if (pinOffset !== undefined) style['--tally-pin-offset'] = `${pinOffset}px`
+  const style = cellStyle(entry, offsets)
   const onSort = (event: MouseEvent): void => grid.view.toggleSort(column.id, event.shiftKey)
   const [menuPoint, setMenuPoint] = useState<{ readonly x: number; readonly y: number }>()
   const onContextMenu = (event: MouseEvent): void => {
@@ -135,7 +128,7 @@ const HeaderCell = memo(function HeaderCell({
           <span className="tally-text">{columnLabel(column)}</span>
           {sort !== undefined && sorts.length > 1 ? (
             <b className="tally-sort-index" aria-hidden>
-              {position + 1}
+              {numberFormatter(grid.context.format, {}).format(position + 1)}
             </b>
           ) : null}
         </button>

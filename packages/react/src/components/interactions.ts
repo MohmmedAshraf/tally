@@ -42,6 +42,12 @@ export interface InteractionOptions {
   readonly editing: EditingApi
   readonly fill: FillApi
   readonly focusFilter: () => void
+  readonly rtl: boolean
+}
+
+const MIRRORED_KEYS: Readonly<Record<string, string>> = {
+  ArrowLeft: 'ArrowRight',
+  ArrowRight: 'ArrowLeft',
 }
 
 function cellAddressOf(target: EventTarget | null): CellAddress | undefined {
@@ -238,7 +244,7 @@ export function useInteractions(options: InteractionOptions): void {
       }
       const intent = keyboardIntent(
         {
-          key: event.key,
+          key: latest.current.rtl ? (MIRRORED_KEYS[event.key] ?? event.key) : event.key,
           shiftKey: event.shiftKey,
           metaKey: event.metaKey,
           ctrlKey: event.ctrlKey,

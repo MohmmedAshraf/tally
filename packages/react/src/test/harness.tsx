@@ -7,6 +7,7 @@ import {
   type ArraySourceOptions,
   type ColumnInput,
   type DataSource,
+  type FormatContext,
   type Grid,
   type RowData,
 } from 'tally-core'
@@ -21,6 +22,8 @@ export interface HarnessOptions {
   readonly createSource?: ((rows: readonly RowData[]) => DataSource) | undefined
   readonly pageSize?: number | undefined
   readonly props?: Partial<Omit<TallyProps, 'grid'>> | undefined
+  readonly format?: Partial<FormatContext> | undefined
+  readonly container?: HTMLElement | undefined
 }
 
 export interface Harness extends RenderResult {
@@ -43,14 +46,17 @@ export function renderTally(options: HarnessOptions): Harness {
       schema,
       source,
       pageSize: options.pageSize,
-      format: { locale: 'en-US', timeZone: 'UTC', numberingSystem: 'latn' },
+      format: { locale: 'en-US', timeZone: 'UTC', numberingSystem: 'latn', ...options.format },
     })
     useEffect(() => {
       mounted.grid = created
     }, [created])
     return <Tally grid={created} initialSize={{ width: 1200, height: 600 }} {...options.props} />
   }
-  const result = render(<Host />)
+  const result = render(
+    <Host />,
+    options.container === undefined ? undefined : { container: options.container },
+  )
   return {
     ...result,
     grid: () => {

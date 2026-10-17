@@ -7,6 +7,7 @@ import {
   type CSSProperties,
   type ReactNode,
 } from 'react'
+import { DirectionProvider } from '@base-ui/react/direction-provider'
 import { Columns3, Inbox, RefreshCw, SearchX, CircleAlert } from 'lucide-react'
 import { printFilter, type Grid } from 'tally-core'
 import { GridProvider } from '../hooks/context.tsx'
@@ -19,7 +20,7 @@ import { GUTTER_WIDTH } from './geometry.ts'
 import { defaultRenderers, type CellRenderers } from './cells/renderers.tsx'
 import { defaultEditors, type CellEditors } from './editors/editors.tsx'
 import { ShellContext, useShell, type TallyShell } from './context.ts'
-import { LabelsContext, defaultLabels, useLabels, type TallyLabels } from './labels.ts'
+import { LabelsContext, localizedLabels, useLabels, type TallyLabels } from './labels.ts'
 import { Toolbar } from './toolbar/toolbar.tsx'
 import type { AddColumnHandler } from './toolbar/ai-menu.tsx'
 import type { AskHandler } from './toolbar/filter-bar.tsx'
@@ -66,6 +67,25 @@ function useClientWidth(element: { readonly current: HTMLElement | null }): numb
     return () => observer.disconnect()
   }, [element])
   return width
+}
+
+function useDirection(
+  element: { readonly current: HTMLElement | null },
+  dir: 'ltr' | 'rtl' | undefined,
+): 'ltr' | 'rtl' {
+  const [computed, setComputed] = useState<'ltr' | 'rtl'>('ltr')
+  useLayoutEffect(() => {
+    const node = element.current
+    if (dir !== undefined || node === null) return
+    const measure = (): void =>
+      setComputed(getComputedStyle(node).direction === 'rtl' ? 'rtl' : 'ltr')
+    measure()
+    if (typeof ResizeObserver === 'undefined') return
+    const observer = new ResizeObserver(measure)
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [element, dir])
+  return dir ?? computed
 }
 
 function EmptyState({
@@ -246,9 +266,14 @@ export function Tally({
   detail = true,
   children,
 }: TallyProps): ReactNode {
-  const mergedLabels = useMemo<TallyLabels>(() => ({ ...defaultLabels, ...labels }), [labels])
+  const format = grid.context.format
+  const mergedLabels = useMemo<TallyLabels>(
+    () => ({ ...localizedLabels(format), ...labels }),
+    [format, labels],
+  )
   const root = useRef<HTMLDivElement>(null)
   const rootWidth = useClientWidth(root)
+  const direction = useDirection(root, dir)
   const narrow = rootWidth > 0 && rootWidth < cardsBelow
   const cards = layout === 'cards' || (layout === 'auto' && narrow)
   const viewport = useRef<HTMLDivElement>(null)
@@ -278,40 +303,43 @@ export function Tally({
       renderers: { ...defaultRenderers, ...renderers },
       editors: { ...defaultEditors, ...editors },
       detail,
+      direction,
     }),
-    [entering, renderers, editors, detail],
+    [entering, renderers, editors, detail, direction],
   )
   return (
     <GridProvider grid={grid}>
       <ShellContext value={shell}>
         <LabelsContext value={mergedLabels}>
-          <div
-            ref={root}
-            className={className === undefined ? 'tally' : `tally ${className}`}
-            style={style}
-            dir={dir}
-            data-density={density}
-            {...(theme === undefined ? {} : { 'data-theme': theme })}
-            {...(narrow ? { 'data-narrow': '' } : {})}
-          >
-            {toolbar === true ? (
-              <Toolbar grid={grid} ai={ai} start={toolbarStart}>
-                {children}
-              </Toolbar>
-            ) : toolbar === false ? (
-              children
-            ) : (
-              toolbar
-            )}
-            <Announcer grid={grid} />
-            <Viewport
-              grid={grid}
-              initialSize={initialSize}
-              label={label}
-              onIntent={onIntent}
-              cards={cards}
-            />
-          </div>
+          <DirectionProvider direction={direction}>
+            <div
+              ref={root}
+              className={className === undefined ? 'tally' : `tally ${className}`}
+              style={style}
+              dir={dir}
+              data-density={density}
+              {...(theme === undefined ? {} : { 'data-theme': theme })}
+              {...(narrow ? { 'data-narrow': '' } : {})}
+            >
+              {toolbar === true ? (
+                <Toolbar grid={grid} ai={ai} start={toolbarStart}>
+                  {children}
+                </Toolbar>
+              ) : toolbar === false ? (
+                children
+              ) : (
+                toolbar
+              )}
+              <Announcer grid={grid} />
+              <Viewport
+                grid={grid}
+                initialSize={initialSize}
+                label={label}
+                onIntent={onIntent}
+                cards={cards}
+              />
+            </div>
+          </DirectionProvider>
         </LabelsContext>
       </ShellContext>
     </GridProvider>

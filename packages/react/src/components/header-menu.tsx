@@ -41,7 +41,7 @@ export function HeaderMenu({
   onPointClose,
 }: HeaderMenuProps): ReactNode {
   const labels = useLabels()
-  const { root, prefillFilter } = useShell()
+  const { root, prefillFilter, direction: flow } = useShell()
   const trigger = useRef<HTMLButtonElement>(null)
   const [rulesOpen, setRulesOpen] = useState(false)
   const [open, setOpen] = useState(false)
@@ -72,6 +72,7 @@ export function HeaderMenu({
   const filterable = column.filterable !== false
   const aggregates = type.aggregates
   const numeric = (column.align ?? type.align) === 'end'
+  const [left, right] = flow === 'rtl' ? (['right', 'left'] as const) : (['left', 'right'] as const)
   const setSort = (direction: 'asc' | 'desc'): void =>
     grid.view.setSort([{ column: column.id, direction }])
   const startFilter = (): void => prefillFilter(`${label} `)
@@ -172,28 +173,28 @@ export function HeaderMenu({
               <Menu.Item
                 className="tally-popup-item"
                 onClick={() =>
-                  grid.view.pinColumn(column.id, entry.pin === 'left' ? undefined : 'left')
+                  grid.view.pinColumn(column.id, entry.pin === left ? undefined : left)
                 }
               >
-                {entry.pin === 'left' ? (
+                {entry.pin === left ? (
                   <PinOff size={15} strokeWidth={1.7} aria-hidden />
                 ) : (
                   <Pin size={15} strokeWidth={1.7} aria-hidden />
                 )}
-                {entry.pin === 'left' ? labels.unpin : labels.pinLeft}
+                {entry.pin === left ? labels.unpin : labels.pinLeft}
               </Menu.Item>
               <Menu.Item
                 className="tally-popup-item"
                 onClick={() =>
-                  grid.view.pinColumn(column.id, entry.pin === 'right' ? undefined : 'right')
+                  grid.view.pinColumn(column.id, entry.pin === right ? undefined : right)
                 }
               >
-                {entry.pin === 'right' ? (
+                {entry.pin === right ? (
                   <PinOff size={15} strokeWidth={1.7} aria-hidden />
                 ) : (
                   <Pin size={15} strokeWidth={1.7} aria-hidden style={{ scale: '-1 1' }} />
                 )}
-                {entry.pin === 'right' ? labels.unpin : labels.pinRight}
+                {entry.pin === right ? labels.unpin : labels.pinRight}
               </Menu.Item>
               <Menu.Item className="tally-popup-item" onClick={fitWidth}>
                 <MoveHorizontal size={15} strokeWidth={1.7} aria-hidden />

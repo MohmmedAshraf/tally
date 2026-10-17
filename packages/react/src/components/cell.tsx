@@ -1,11 +1,5 @@
 import { ChevronRight } from 'lucide-react'
-import {
-  createElement,
-  memo,
-  type CSSProperties,
-  type NamedExoticComponent,
-  type ReactNode,
-} from 'react'
+import { createElement, memo, type NamedExoticComponent, type ReactNode } from 'react'
 import {
   isEmptyValue,
   type FormatRule,
@@ -16,6 +10,7 @@ import {
 import { AiCell } from './cells/ai-cell.tsx'
 import { rendererFor, signOf } from './cells/renderers.tsx'
 import { useShell } from './context.ts'
+import { cellStyle, type PinOffsets } from './geometry.ts'
 import { useLabels } from './labels.ts'
 
 export interface CellViewProps {
@@ -23,7 +18,7 @@ export interface CellViewProps {
   readonly grid: Grid
   readonly item: RowItem
   readonly entry: LayoutColumn
-  readonly pinOffset: number | undefined
+  readonly offsets: PinOffsets
   readonly pinEdge: boolean
   readonly treeColumn: boolean
   readonly rule: FormatRule | undefined
@@ -39,7 +34,7 @@ export const CellView: NamedExoticComponent<CellViewProps> = memo(function CellV
   grid,
   item,
   entry,
-  pinOffset,
+  offsets,
   pinEdge,
   treeColumn,
   rule,
@@ -58,8 +53,7 @@ export const CellView: NamedExoticComponent<CellViewProps> = memo(function CellV
     isEmptyValue(value) || !type.is(value) ? '' : type.format(value, column, grid.context.format)
   const renderer = rendererFor(renderers, type)
   const align = column.align ?? type.align
-  const style: CSSProperties = { width: entry.width }
-  if (pinOffset !== undefined) style['--tally-pin-offset'] = `${pinOffset}px`
+  const style = cellStyle(entry, offsets)
   if (rule?.style.background !== undefined) style['--tally-rule-background'] = rule.style.background
   if (rule?.style.color !== undefined) style['--tally-rule-color'] = rule.style.color
   if (treeColumn) style.paddingInlineStart = 12 + item.depth * 18

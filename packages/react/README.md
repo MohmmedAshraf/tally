@@ -46,7 +46,7 @@ function Accounts({ rows }) {
 | `grid`               | `Grid`                                         | From `useGrid` or `createGrid`.                                                                                                         |
 | `label`              | `string`                                       | Accessible name of the grid.                                                                                                            |
 | `theme`              | `'light' \| 'dark'`                            | Omit to follow `prefers-color-scheme`.                                                                                                  |
-| `dir`                | `'ltr' \| 'rtl'`                               | Layout uses logical properties; numbers and dates stay left to right.                                                                   |
+| `dir`                | `'ltr' \| 'rtl'`                               | Omit to read the direction of the root or an ancestor. Pinning, arrows, resizing and menus follow it.                                   |
 | `layout`             | `'auto' \| 'grid' \| 'cards'`                  | `auto` switches to cards below `cardsBelow` pixels.                                                                                     |
 | `cardsBelow`         | `number`                                       | Default `620`.                                                                                                                          |
 | `detail`             | `DetailRenderer \| boolean`                    | Tapping a card opens a sheet with every visible field. `false` disables it, a function renders the sheet body.                          |
@@ -102,6 +102,10 @@ An editor receives `commit(value, move?)` and `cancel()`. `move` is `'down'`, `'
 ```tsx
 <Tally grid={grid} labels={{ filterPlaceholder: 'Filtern…', rows: (n) => `${n} Zeilen` }} />
 ```
+
+Default labels format their counts with the grid's format context, including `numberingSystem`. Overrides receive plain numbers.
+
+The filter bar parses ASCII digits only; Arabic-Indic digits typed there match as text. Cell editors accept both.
 
 ### Intents
 
@@ -175,6 +179,8 @@ State is exposed as data attributes for targeted overrides: `data-density`, `dat
 | Cmd/Ctrl + A                        | Select all cells                     |
 | Cmd/Ctrl + K                        | `commandPalette` intent for the host |
 | /                                   | Focus the filter bar                 |
+
+Under `dir="rtl"` Left and Right follow the screen, so Right moves to the previous column.
 
 ## Bundle
 

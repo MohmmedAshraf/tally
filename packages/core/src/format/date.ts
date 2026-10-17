@@ -169,10 +169,14 @@ function relativeFormatter(
   context: FormatContext,
   numeric: Intl.RelativeTimeFormatNumeric,
 ): Intl.RelativeTimeFormat {
-  const key = `${context.locale}|${numeric}`
+  const key = `${context.locale}|${context.numberingSystem}|${numeric}`
   let formatter = relativeCache.get(key)
   if (formatter === undefined) {
-    formatter = new Intl.RelativeTimeFormat(context.locale, { numeric, style: 'short' })
+    formatter = new Intl.RelativeTimeFormat(context.locale, {
+      numeric,
+      style: 'short',
+      numberingSystem: context.numberingSystem,
+    })
     relativeCache.set(key, formatter)
   }
   return formatter

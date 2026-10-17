@@ -1,8 +1,10 @@
 import {
   isIsoDate,
+  numberFormatter,
   type AggregateName,
   type AggregateResults,
   type Column,
+  type FormatContext,
   type Grid,
 } from 'tally-core'
 
@@ -23,14 +25,17 @@ function plainDate(value: string): Date {
   return new Date(`${value}T00:00:00Z`)
 }
 
-function formatDateRange(from: string, to: string, locale: string): string {
-  const formatter = new Intl.DateTimeFormat(locale, {
+function formatDateRange(from: string, to: string, format: FormatContext): string {
+  const parts = new Intl.DateTimeFormat(format.locale, {
     month: 'short',
     year: '2-digit',
     timeZone: 'UTC',
-    numberingSystem: 'latn',
-  })
-  return formatter.formatRange(plainDate(from), plainDate(to)).replace(/\s*[–-]\s*/u, '–')
+    numberingSystem: format.numberingSystem,
+  }).formatRangeToParts(plainDate(from), plainDate(to))
+  const separator = parts.findIndex((part) => part.source === 'endRange') - 1
+  return parts
+    .map((part, index) => (index === separator ? part.value.trim() || part.value : part.value))
+    .join('')
 }
 
 export function formatAggregate(
@@ -41,17 +46,14 @@ export function formatAggregate(
 ): string {
   const { format } = grid.context
   if (fn === 'count' || fn === 'distinct') {
-    return typeof value === 'number' ? value.toLocaleString(format.locale) : ''
+    return typeof value === 'number' ? numberFormatter(format, {}).format(value) : ''
   }
   const type = grid.schema.typeOf(column)
   const compact: Column =
     type.kind === 'number' ? { ...column, format: { ...column.format, compact: true } } : column
   if (type.is(value)) return type.format(value, compact, format)
   if (typeof value === 'number') {
-    return new Intl.NumberFormat(format.locale, {
-      maximumFractionDigits: 2,
-      numberingSystem: format.numberingSystem,
-    }).format(value)
+    return numberFormatter(format, { maximumFractionDigits: 2 }).format(value)
   }
   return typeof value === 'string' ? value : ''
 }
@@ -73,7 +75,7 @@ export function dateRange(
   const type = grid.schema.typeOf(column)
   const { format } = grid.context
   return {
-    text: formatDateRange(min, max, format.locale),
+    text: formatDateRange(min, max, format),
     title: `${type.format(min, column, format)} – ${type.format(max, column, format)}`,
   }
 }

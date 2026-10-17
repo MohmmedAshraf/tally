@@ -26,7 +26,9 @@ export function parseNumber(input: unknown): number | undefined {
   let text = input
     .trim()
     .toLowerCase()
-    .replace(/[\s,_]/g, '')
+    .replace(/[\u0660-\u0669\u06f0-\u06f9]/g, (digit) => String(digit.charCodeAt(0) % 16))
+    .replace(/\u066b/g, '.')
+    .replace(/[\s,_\u066c\u061c\u200e\u200f]/g, '')
     .replace(/^\+/, '')
     .replace(/^[−–]/, '-')
     .replace(/^(-?)[$€£¥₹]/, '$1')

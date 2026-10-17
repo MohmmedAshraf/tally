@@ -41,12 +41,7 @@ export function pinOffsets(layout: ColumnLayout): PinOffsets {
 }
 
 export function cellStyle(entry: LayoutColumn, offsets: PinOffsets): CSSProperties {
-  const offset =
-    entry.pin === 'left'
-      ? offsets.left.get(entry.column.id)
-      : entry.pin === 'right'
-        ? offsets.right.get(entry.column.id)
-        : undefined
+  const offset = entry.pin === undefined ? undefined : offsets[entry.pin].get(entry.column.id)
   return offset === undefined
     ? { width: entry.width }
     : { width: entry.width, '--tally-pin-offset': `${offset}px` }

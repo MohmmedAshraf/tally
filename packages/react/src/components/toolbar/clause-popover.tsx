@@ -5,6 +5,7 @@ import {
   columnLabel,
   condition,
   isEmptyValue,
+  numberFormatter,
   optionLabel,
   parseQuery,
   printFilter,
@@ -145,7 +146,7 @@ function EnumEditor({
               <span className="tally-text">{optionLabel(column, option.value)}</span>
               {count === undefined ? null : (
                 <span className="tally-option-count">
-                  {count.toLocaleString(grid.context.format.locale)}
+                  {numberFormatter(grid.context.format, {}).format(count)}
                 </span>
               )}
             </label>

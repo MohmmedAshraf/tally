@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import {
+  numberFormatter,
   optionLabel,
   type Column,
   type ColumnLayout,
@@ -37,15 +38,13 @@ function segmentsOf(column: Column, facet: Facet | undefined): readonly Segment[
 
 function Distribution({
   segments,
-  locale,
+  format,
 }: {
   readonly segments: readonly Segment[]
-  readonly locale: string
+  readonly format: (value: number) => string
 }): ReactNode {
   const total = segments.reduce((sum, segment) => sum + segment.count, 0)
-  const summary = segments
-    .map((segment) => `${segment.label} ${segment.count.toLocaleString(locale)}`)
-    .join(' · ')
+  const summary = segments.map((segment) => `${segment.label} ${format(segment.count)}`).join(' · ')
   return (
     <span className="tally-distribution" role="img" aria-label={summary} title={summary}>
       {segments.map((segment) => (
@@ -81,7 +80,8 @@ export function Footer({
   const labels = useLabels()
   const footer = useView(grid, (view) => view.footer)
   const state = useGridState(grid)
-  const locale = grid.context.format.locale
+  const numeral = numberFormatter(grid.context.format, {})
+  const format = (value: number): string => numeral.format(value)
   const total = state.matched ?? state.total
   const cell = (entry: LayoutColumn, first: boolean): ReactNode => {
     const { column } = entry
@@ -93,15 +93,15 @@ export function Footer({
         ? segmentsOf(column, state.facets?.[column.id])
         : []
     if (segments.length > 0) {
-      content = <Distribution segments={segments} locale={locale} />
+      content = <Distribution segments={segments} format={format} />
     } else if (fn !== undefined) {
       content = <Summary grid={grid} column={column} fn={fn} aggregates={state.aggregates} />
     } else if (first && total !== undefined) {
       content = (
         <span className="tally-summary-value">
           {visible === undefined
-            ? total.toLocaleString(locale)
-            : `${visible.from.toLocaleString(locale)}–${visible.to.toLocaleString(locale)} / ${total.toLocaleString(locale)}`}
+            ? format(total)
+            : `${format(visible.from)}–${format(visible.to)} / ${format(total)}`}
         </span>
       )
     }

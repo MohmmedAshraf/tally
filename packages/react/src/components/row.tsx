@@ -1,6 +1,7 @@
 import { memo, type MouseEvent, type NamedExoticComponent, type ReactNode, type Ref } from 'react'
 import {
   normalizeRange,
+  numberFormatter,
   type ColumnLayout,
   type Grid,
   type LayoutColumn,
@@ -67,13 +68,7 @@ export const RowView: NamedExoticComponent<RowViewProps> = memo(function RowView
       grid={grid}
       item={item}
       entry={entry}
-      pinOffset={
-        entry.pin === 'left'
-          ? offsets.left.get(entry.column.id)
-          : entry.pin === 'right'
-            ? offsets.right.get(entry.column.id)
-            : undefined
-      }
+      offsets={offsets}
       pinEdge={isPinEdge(entry, layout)}
       treeColumn={treeColumn === entry.column.id}
       rule={ruleFor(rules, entry.column.id, item.row)}
@@ -122,7 +117,7 @@ export const RowView: NamedExoticComponent<RowViewProps> = memo(function RowView
         {...(layout.left.length === 0 ? { 'data-pin-edge': '' } : {})}
       >
         <span className="tally-row-number" aria-hidden>
-          {item.position}
+          {numberFormatter(grid.context.format, { useGrouping: false }).format(item.position)}
         </span>
         <input
           type="checkbox"
