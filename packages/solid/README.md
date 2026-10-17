@@ -1,0 +1,61 @@
+# tally-solid
+
+Solid primitives for Tally. The engine lives in `tally-core`; this package binds a `Grid` to the owning reactive scope and exposes its stores as signals. It renders nothing.
+
+Not published yet.
+
+## Install
+
+```sh
+npm install tally-solid tally-core solid-js
+```
+
+Solid 1.9 or newer.
+
+## Usage
+
+```tsx
+import { createArraySource, createSchema } from 'tally-core'
+import { createGridState, createView, useGrid } from 'tally-solid'
+
+const schema = createSchema({
+  key: 'id',
+  columns: [
+    { id: 'account', label: 'Account' },
+    { id: 'mrr', label: 'MRR', type: 'currency', aggregate: 'sum' },
+  ],
+})
+
+function Accounts(props: { rows: Account[] }) {
+  const source = createArraySource(props.rows, schema)
+  const grid = useGrid({ schema, source })
+  const state = createGridState(grid)
+  const view = createView(grid)
+  return (
+    <>
+      <p>
+        {state().status}, sorted by {view().sort[0]?.column ?? 'nothing'}
+      </p>
+      <button onClick={() => grid().view.toggleSort('mrr')}>Sort by MRR</button>
+    </>
+  )
+}
+```
+
+`useGrid` accepts options or an accessor. It creates a `Grid` from `tally-core`, loads it in an effect and disposes it when the owner is cleaned up. It recreates the grid when `schema` or `source` change identity, and when the format context changes, carrying the current view over.
+
+Subscriptions start in effects, so server rendering produces the initial state without touching the data source.
+
+## API
+
+| Primitive               | Returns                                                   |
+| ----------------------- | --------------------------------------------------------- |
+| `useGrid(options)`      | An `Accessor<Grid>` bound to the owner.                   |
+| `createGridState(grid)` | An accessor of status, totals, aggregates and page.       |
+| `createView(grid)`      | An accessor of the current `View`.                        |
+| `createRows(grid)`      | An accessor of loaded rows and changed cells.             |
+| `createSelection(grid)` | An accessor of the active cell, ranges and selected rows. |
+| `GridContext`           | Context for `<GridContext.Provider value={grid}>`.        |
+| `useGridContext()`      | The provided `Accessor<Grid>`. Throws without a provider. |
+
+Every primitive that takes `grid` accepts a `Grid` or an accessor, and follows the grid when it is recreated. Derive narrower values with `createMemo`.

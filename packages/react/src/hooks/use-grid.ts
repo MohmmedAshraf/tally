@@ -1,33 +1,10 @@
 import { useEffect, useState } from 'react'
-import { createGrid, type Grid, type GridOptions } from 'tally-core'
-
-interface Held {
-  readonly grid: Grid
-  readonly formatKey: string
-}
-
-function formatKeyOf(options: GridOptions): string {
-  const format = options.format
-  const today = options.today ?? ''
-  if (format === undefined) return today
-  return `${format.locale}|${format.timeZone}|${format.numberingSystem}|${today}`
-}
+import { holdGrid, type Grid, type GridOptions, type HeldGrid } from 'tally-core'
 
 export function useGrid(options: GridOptions): Grid {
-  const [held, setHeld] = useState<Held>(() => ({
-    grid: createGrid(options),
-    formatKey: formatKeyOf(options),
-  }))
-  let current = held
-  const formatKey = formatKeyOf(options)
-  if (
-    held.grid.schema !== options.schema ||
-    held.grid.source !== options.source ||
-    held.formatKey !== formatKey
-  ) {
-    current = { grid: createGrid({ ...options, view: held.grid.view.get() }), formatKey }
-    setHeld(current)
-  }
+  const [held, setHeld] = useState<HeldGrid>(() => holdGrid(options))
+  const current = holdGrid(options, held)
+  if (current !== held) setHeld(current)
   const { grid } = current
   useEffect(() => {
     void grid.load()

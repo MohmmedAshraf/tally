@@ -16,6 +16,7 @@ export {
   type GridStatus,
   type SelectionStore,
 } from './grid.ts'
+export { holdGrid, type HeldGrid } from './hold.ts'
 export {
   buildRowModel,
   emptyRowModel,

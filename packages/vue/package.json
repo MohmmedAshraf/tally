@@ -1,0 +1,70 @@
+{
+  "name": "tally-vue",
+  "version": "0.0.0",
+  "description": "Vue composables for Tally.",
+  "license": "MIT",
+  "author": "Mohamed Ashraf <cupo.ashraf@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MohmmedAshraf/tally.git",
+    "directory": "packages/vue"
+  },
+  "homepage": "https://github.com/MohmmedAshraf/tally",
+  "bugs": "https://github.com/MohmmedAshraf/tally/issues",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run --passWithNoTests --coverage.enabled=false",
+    "publint": "publint",
+    "attw": "attw --pack . --profile esm-only",
+    "size": "size-limit"
+  },
+  "dependencies": {
+    "tally-core": "workspace:*"
+  },
+  "peerDependencies": {
+    "vue": ">=3.5"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "catalog:",
+    "@size-limit/preset-small-lib": "catalog:",
+    "@vue/test-utils": "catalog:",
+    "happy-dom": "catalog:",
+    "publint": "catalog:",
+    "size-limit": "catalog:",
+    "tsdown": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:",
+    "vue": "catalog:"
+  },
+  "size-limit": [
+    {
+      "path": "dist/index.js",
+      "limit": "1 kB",
+      "ignore": [
+        "vue",
+        "tally-core"
+      ]
+    }
+  ]
+}

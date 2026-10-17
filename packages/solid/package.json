@@ -1,0 +1,73 @@
+{
+  "name": "tally-solid",
+  "version": "0.0.0",
+  "description": "Solid primitives for Tally.",
+  "license": "MIT",
+  "author": "Mohamed Ashraf <cupo.ashraf@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MohmmedAshraf/tally.git",
+    "directory": "packages/solid"
+  },
+  "homepage": "https://github.com/MohmmedAshraf/tally",
+  "bugs": "https://github.com/MohmmedAshraf/tally/issues",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run --passWithNoTests --coverage.enabled=false",
+    "publint": "publint",
+    "attw": "attw --pack . --profile esm-only",
+    "size": "size-limit"
+  },
+  "dependencies": {
+    "tally-core": "workspace:*"
+  },
+  "peerDependencies": {
+    "solid-js": ">=1.9"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "catalog:",
+    "@size-limit/preset-small-lib": "catalog:",
+    "@solidjs/testing-library": "catalog:",
+    "@testing-library/jest-dom": "catalog:",
+    "happy-dom": "catalog:",
+    "publint": "catalog:",
+    "size-limit": "catalog:",
+    "solid-js": "catalog:",
+    "tsdown": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plugin-solid": "catalog:",
+    "vitest": "catalog:"
+  },
+  "size-limit": [
+    {
+      "path": "dist/index.js",
+      "limit": "1 kB",
+      "ignore": [
+        "solid-js",
+        "tally-core"
+      ]
+    }
+  ]
+}

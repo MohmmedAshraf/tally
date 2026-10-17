@@ -1,0 +1,72 @@
+{
+  "name": "tally-svelte",
+  "version": "0.0.0",
+  "description": "Svelte 5 runes for Tally.",
+  "license": "MIT",
+  "author": "Mohamed Ashraf <cupo.ashraf@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MohmmedAshraf/tally.git",
+    "directory": "packages/svelte"
+  },
+  "homepage": "https://github.com/MohmmedAshraf/tally",
+  "bugs": "https://github.com/MohmmedAshraf/tally/issues",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "svelte": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run --passWithNoTests --coverage.enabled=false",
+    "publint": "publint",
+    "attw": "attw --pack . --profile esm-only",
+    "size": "size-limit"
+  },
+  "dependencies": {
+    "tally-core": "workspace:*"
+  },
+  "peerDependencies": {
+    "svelte": ">=5.7"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "catalog:",
+    "@size-limit/preset-small-lib": "catalog:",
+    "@sveltejs/vite-plugin-svelte": "catalog:",
+    "@testing-library/svelte": "catalog:",
+    "happy-dom": "catalog:",
+    "publint": "catalog:",
+    "size-limit": "catalog:",
+    "svelte": "catalog:",
+    "tsdown": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  },
+  "size-limit": [
+    {
+      "path": "dist/index.js",
+      "limit": "1 kB",
+      "ignore": [
+        "svelte",
+        "tally-core"
+      ]
+    }
+  ]
+}
