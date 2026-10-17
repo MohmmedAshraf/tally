@@ -1,5 +1,4 @@
-import { Temporal } from 'temporal-polyfill'
-import { isIsoDate } from '../format/date.ts'
+import { isIsoDate, startOfIsoWeek } from '../format/date.ts'
 import type { Group, GroupGranularity, Sort } from '../query/ast.ts'
 import type { RowData } from '../rows/row.ts'
 import type { Column } from '../schema/column.ts'
@@ -16,18 +15,17 @@ export interface RowGroup {
 }
 
 function bucketDate(value: string, granularity: GroupGranularity): string {
-  const date = Temporal.PlainDate.from(value)
   switch (granularity) {
     case 'day':
       return value
     case 'week':
-      return date.subtract({ days: date.dayOfWeek - 1 }).toString()
+      return startOfIsoWeek(value)
     case 'month':
       return value.slice(0, 7)
     case 'quarter':
-      return `${date.year}-Q${Math.floor((date.month - 1) / 3) + 1}`
+      return `${Number(value.slice(0, 4))}-Q${Math.floor((Number(value.slice(5, 7)) - 1) / 3) + 1}`
     case 'year':
-      return String(date.year)
+      return String(Number(value.slice(0, 4)))
   }
 }
 

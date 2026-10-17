@@ -1,4 +1,3 @@
-import { Temporal } from 'temporal-polyfill'
 import type { FormatContext } from './context.ts'
 
 function digits(input: string, start: number, end: number): number {
@@ -11,21 +10,12 @@ function digits(input: string, start: number, end: number): number {
   return value
 }
 
-function epochDay(input: string): number | undefined {
-  if (input.length !== 10 || input[4] !== '-' || input[7] !== '-') return undefined
-  const year = digits(input, 0, 4)
-  const month = digits(input, 5, 7)
-  const day = digits(input, 8, 10)
-  const leap = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0)
-  const length =
-    month === 2
-      ? leap
-        ? 29
-        : 28
-      : month === 4 || month === 6 || month === 9 || month === 11
-        ? 30
-        : 31
-  if (!(year >= 0 && month >= 1 && month <= 12 && day >= 1 && day <= length)) return undefined
+function monthLength(year: number, month: number): number {
+  if (month === 2) return year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0) ? 29 : 28
+  return month === 4 || month === 6 || month === 9 || month === 11 ? 30 : 31
+}
+
+function daysFromCivil(year: number, month: number, day: number): number {
   const shifted = month <= 2 ? year - 1 : year
   const era = Math.floor(shifted / 400)
   const yearOfEra = shifted - era * 400
@@ -33,6 +23,48 @@ function epochDay(input: string): number | undefined {
   const dayOfEra =
     yearOfEra * 365 + Math.floor(yearOfEra / 4) - Math.floor(yearOfEra / 100) + dayOfYear
   return era * 146_097 + dayOfEra - 719_468
+}
+
+function civilFromDays(days: number): readonly [year: number, month: number, day: number] {
+  const shifted = days + 719_468
+  const era = Math.floor(shifted / 146_097)
+  const dayOfEra = shifted - era * 146_097
+  const yearOfEra = Math.floor(
+    (dayOfEra -
+      Math.floor(dayOfEra / 1460) +
+      Math.floor(dayOfEra / 36_524) -
+      Math.floor(dayOfEra / 146_096)) /
+      365,
+  )
+  const dayOfYear =
+    dayOfEra - (365 * yearOfEra + Math.floor(yearOfEra / 4) - Math.floor(yearOfEra / 100))
+  const monthIndex = Math.floor((5 * dayOfYear + 2) / 153)
+  const day = dayOfYear - Math.floor((153 * monthIndex + 2) / 5) + 1
+  const month = monthIndex < 10 ? monthIndex + 3 : monthIndex - 9
+  return [yearOfEra + era * 400 + (month <= 2 ? 1 : 0), month, day]
+}
+
+function pad(value: number): string {
+  return value < 10 ? `0${value}` : String(value)
+}
+
+function isoFromCivil(year: number, month: number, day: number): string {
+  const yearText =
+    year >= 0 && year <= 9999
+      ? String(year).padStart(4, '0')
+      : `${year < 0 ? '-' : '+'}${String(Math.abs(year)).padStart(6, '0')}`
+  return `${yearText}-${pad(month)}-${pad(day)}`
+}
+
+function epochDay(input: string): number | undefined {
+  if (input.length !== 10 || input[4] !== '-' || input[7] !== '-') return undefined
+  const year = digits(input, 0, 4)
+  const month = digits(input, 5, 7)
+  const day = digits(input, 8, 10)
+  if (!(year >= 0 && month >= 1 && month <= 12 && day >= 1 && day <= monthLength(year, month))) {
+    return undefined
+  }
+  return daysFromCivil(year, month, day)
 }
 
 export function isIsoDate(input: string): boolean {
@@ -50,19 +82,35 @@ export function parseIsoDate(input: unknown): string | undefined {
   if (match !== null && isIsoDate(text.slice(0, 10))) return text.slice(0, 10)
   const parsed = new Date(text)
   if (Number.isNaN(parsed.getTime())) return undefined
-  return Temporal.PlainDate.from({
-    year: parsed.getFullYear(),
-    month: parsed.getMonth() + 1,
-    day: parsed.getDate(),
-  }).toString()
+  return isoFromCivil(parsed.getFullYear(), parsed.getMonth() + 1, parsed.getDate())
 }
 
+const todayFormatters = new Map<string, Intl.DateTimeFormat>()
+
 export function today(context: FormatContext): string {
-  return Temporal.Now.plainDateISO(context.timeZone).toString()
+  let formatter = todayFormatters.get(context.timeZone)
+  if (formatter === undefined) {
+    formatter = new Intl.DateTimeFormat('en-US-u-ca-gregory-nu-latn', {
+      timeZone: context.timeZone,
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+    })
+    todayFormatters.set(context.timeZone, formatter)
+  }
+  let year = 0
+  let month = 0
+  let day = 0
+  for (const part of formatter.formatToParts(Date.now())) {
+    if (part.type === 'year') year = Number(part.value)
+    else if (part.type === 'month') month = Number(part.value)
+    else if (part.type === 'day') day = Number(part.value)
+  }
+  return isoFromCivil(year, month, day)
 }
 
 export function addDays(isoDate: string, days: number): string {
-  return Temporal.PlainDate.from(isoDate).add({ days }).toString()
+  return dateFromDayNumber(dayNumber(isoDate) + days)
 }
 
 export function compareIsoDates(a: string, b: string): number {
@@ -76,7 +124,16 @@ export function dayNumber(isoDate: string): number {
 }
 
 export function dateFromDayNumber(day: number): string {
-  return Temporal.PlainDate.from('1970-01-01').add({ days: day }).toString()
+  const [year, month, dayOfMonth] = civilFromDays(day)
+  return isoFromCivil(year, month, dayOfMonth)
+}
+
+function mondayOf(day: number): number {
+  return day - ((((day + 3) % 7) + 7) % 7)
+}
+
+export function startOfIsoWeek(isoDate: string): string {
+  return dateFromDayNumber(mondayOf(dayNumber(isoDate)))
 }
 
 const cache = new Map<string, Intl.DateTimeFormat>()
@@ -103,10 +160,7 @@ export function formatIsoDate(
   context: FormatContext,
   options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric' },
 ): string {
-  const date = Temporal.PlainDate.from(isoDate)
-  return dateFormatter(context, options).format(
-    new Date(Date.UTC(date.year, date.month - 1, date.day)),
-  )
+  return dateFormatter(context, options).format(new Date(dayNumber(isoDate) * 86_400_000))
 }
 
 const relativeCache = new Map<string, Intl.RelativeTimeFormat>()
@@ -150,22 +204,33 @@ export interface DateRange {
   readonly end: string
 }
 
-const START_OF_UNIT: Readonly<
-  Record<RelativeUnit, (date: Temporal.PlainDate) => Temporal.PlainDate>
-> = {
-  day: (date) => date,
-  week: (date) => date.subtract({ days: date.dayOfWeek - 1 }),
-  month: (date) => date.with({ day: 1 }),
-  quarter: (date) => date.with({ month: Math.floor((date.month - 1) / 3) * 3 + 1, day: 1 }),
-  year: (date) => date.with({ month: 1, day: 1 }),
+const MONTHS_IN: Readonly<Record<'month' | 'quarter' | 'year', number>> = {
+  month: 1,
+  quarter: 3,
+  year: 12,
 }
 
-const DURATION_OF: Readonly<Record<RelativeUnit, (amount: number) => Temporal.DurationLike>> = {
-  day: (amount) => ({ days: amount }),
-  week: (amount) => ({ weeks: amount }),
-  month: (amount) => ({ months: amount }),
-  quarter: (amount) => ({ months: amount * 3 }),
-  year: (amount) => ({ years: amount }),
+function shiftDay(day: number, unit: RelativeUnit, amount: number): number {
+  if (unit === 'day') return day + amount
+  if (unit === 'week') return day + amount * 7
+  const [year, month, dayOfMonth] = civilFromDays(day)
+  const total = year * 12 + month - 1 + amount * MONTHS_IN[unit]
+  const targetYear = Math.floor(total / 12)
+  const targetMonth = total - targetYear * 12 + 1
+  return daysFromCivil(
+    targetYear,
+    targetMonth,
+    Math.min(dayOfMonth, monthLength(targetYear, targetMonth)),
+  )
+}
+
+function startOfUnit(day: number, unit: RelativeUnit): number {
+  if (unit === 'day') return day
+  if (unit === 'week') return mondayOf(day)
+  const [year, month, dayOfMonth] = civilFromDays(day)
+  if (unit === 'month') return day - dayOfMonth + 1
+  if (unit === 'quarter') return daysFromCivil(year, Math.floor((month - 1) / 3) * 3 + 1, 1)
+  return daysFromCivil(year, 1, 1)
 }
 
 export function isRelativeRange(value: unknown): value is RelativeRange {
@@ -179,15 +244,16 @@ export function isRelativeRange(value: unknown): value is RelativeRange {
 }
 
 export function resolveRelativeRange(range: RelativeRange, todayIso: string): DateRange {
-  const now = Temporal.PlainDate.from(todayIso)
+  const now = dayNumber(todayIso)
   if (range.direction === 'this') {
-    const start = START_OF_UNIT[range.unit](now).add(DURATION_OF[range.unit](range.shift ?? 0))
-    const end = start.add(DURATION_OF[range.unit](1)).subtract({ days: 1 })
-    return { start: start.toString(), end: end.toString() }
+    const start = shiftDay(startOfUnit(now, range.unit), range.unit, range.shift ?? 0)
+    const end = shiftDay(start, range.unit, 1) - 1
+    return { start: dateFromDayNumber(start), end: dateFromDayNumber(end) }
   }
-  const span = DURATION_OF[range.unit](range.amount)
-  if (range.direction === 'last') {
-    return { start: now.subtract(span).toString(), end: now.toString() }
-  }
-  return { start: now.toString(), end: now.add(span).toString() }
+  const edge = dateFromDayNumber(
+    shiftDay(now, range.unit, range.direction === 'last' ? -range.amount : range.amount),
+  )
+  return range.direction === 'last'
+    ? { start: edge, end: todayIso }
+    : { start: todayIso, end: edge }
 }

@@ -674,9 +674,6 @@ importers:
       papaparse:
         specifier: 'catalog:'
         version: 5.7.0
-      temporal-polyfill:
-        specifier: 'catalog:'
-        version: 1.0.5
       zod:
         specifier: 'catalog:'
         version: 4.6.6
@@ -696,6 +693,9 @@ importers:
       size-limit:
         specifier: 'catalog:'
         version: 14.2.0
+      temporal-polyfill:
+        specifier: 'catalog:'
+        version: 1.0.5
       tsdown:
         specifier: 'catalog:'
         version: 0.23.1(@arethetypeswrong/core@0.18.5)(oxc-resolver@11.24.2)(publint@0.3.25)(typescript@7.0.2)
