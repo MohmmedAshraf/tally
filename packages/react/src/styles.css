@@ -1012,8 +1012,21 @@
   outline: none;
 }
 
-.tally-viewport:focus-visible:not(:has([data-active])) {
+.tally-frame {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.tally-frame:has(> .tally-viewport:focus-visible:not([aria-activedescendant]))::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 7;
   box-shadow: inset 0 0 0 2px var(--tally-accent);
+  pointer-events: none;
 }
 
 .tally-row,
@@ -1690,6 +1703,7 @@ textarea.tally-editor-input {
 
 .tally-body {
   position: relative;
+  margin-bottom: auto;
   min-width: 100%;
   width: var(--tally-total-width);
 }
@@ -2130,6 +2144,9 @@ textarea.tally-editor-input {
 }
 
 .tally-new-row {
+  margin-top: -1px;
+  border-top: 1px solid var(--tally-line-2);
+  border-bottom: 0;
   color: var(--tally-ink-3);
 }
 
@@ -2544,7 +2561,6 @@ textarea.tally-editor-input {
   position: sticky;
   bottom: 0;
   z-index: 4;
-  margin-top: auto;
   min-width: 100%;
   width: var(--tally-total-width);
 }

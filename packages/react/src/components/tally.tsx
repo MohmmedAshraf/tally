@@ -224,30 +224,32 @@ function Viewport({
           {empty}
         </div>
       ) : (
-        <div
-          ref={viewport}
-          role="grid"
-          className="tally-viewport"
-          tabIndex={0}
-          aria-label={label}
-          aria-busy={status === 'loading'}
-          aria-rowcount={rowCount}
-          aria-colcount={layout.columns.length + 1}
-          aria-multiselectable
-          style={{ '--tally-viewport-width': `${viewportWidth}px` }}
-        >
-          {bare ? (
-            emptyRow
-          ) : (
-            <Body
-              grid={grid}
-              layout={layout}
-              initialSize={initialSize}
-              onIntent={onIntent}
-              empty={emptyRow}
-              rowCount={rowCount}
-            />
-          )}
+        <div className="tally-frame">
+          <div
+            ref={viewport}
+            role="grid"
+            className="tally-viewport"
+            tabIndex={0}
+            aria-label={label}
+            aria-busy={status === 'loading'}
+            aria-rowcount={rowCount}
+            aria-colcount={layout.columns.length + 1}
+            aria-multiselectable
+            style={{ '--tally-viewport-width': `${viewportWidth}px` }}
+          >
+            {bare ? (
+              emptyRow
+            ) : (
+              <Body
+                grid={grid}
+                layout={layout}
+                initialSize={initialSize}
+                onIntent={onIntent}
+                empty={emptyRow}
+                rowCount={rowCount}
+              />
+            )}
+          </div>
         </div>
       )}
     </>

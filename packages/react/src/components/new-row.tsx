@@ -68,7 +68,10 @@ export function NewRow({
             type,
             format: grid.context.format,
             commit: (value, move) => void create(entry, value, move),
-            cancel: () => setEditing(undefined),
+            cancel: () => {
+              setEditing(undefined)
+              viewport.current?.focus({ preventScroll: true })
+            },
           })
         ) : editable ? (
           <button
