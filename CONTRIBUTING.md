@@ -7,8 +7,8 @@ Node 24 or later and pnpm 12. Run `pnpm install`, then `pnpm check` to lint, typ
 ## Layout
 
 - `packages/` publishable packages. Each has one public entry point at `src/index.ts`.
-- `apps/` documentation and playground.
-- `examples/` runnable examples per framework and backend.
+- `docs/` the documentation site, generated from the package READMEs.
+- `examples/` the playground and runnable examples.
 
 ## Rules
 
